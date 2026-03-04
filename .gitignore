@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Reference images (not for distribution)
+reference/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.Zone.Identifier

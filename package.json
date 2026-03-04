@@ -1,0 +1,16 @@
+{
+  "name": "doctor-strange-presentation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.14.1",
+    "@slidev/theme-default": "^0.25.0",
+    "gsap": "^3.14.2",
+    "three": "^0.183.2"
+  }
+}

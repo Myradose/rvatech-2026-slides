@@ -1,0 +1,234 @@
+/* ========================================
+   Global Styles
+   Dark cinematic theme with amber accent
+   ======================================== */
+
+:root {
+  --color-bg: #0a0a0f;
+  --color-bg-light: #12121a;
+  --color-text: #e8e8ed;
+  --color-text-muted: #6b7280;
+  --color-accent: #f59e0b;
+  --color-accent-bright: #f97316;
+  --color-accent-glow: rgba(245, 158, 11, 0.3);
+  --color-success: #10b981;
+  --color-code-bg: #12121a;
+}
+
+/* Override Slidev theme defaults */
+.slidev-layout {
+  background: var(--color-bg) !important;
+  color: var(--color-text);
+}
+
+/* Base typography */
+h1 {
+  color: var(--color-text) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+h2, h3 {
+  color: var(--color-text) !important;
+  font-weight: 600 !important;
+}
+
+p, li {
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+strong {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Subtitle style */
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+/* Author info block (title slide) */
+.author-info {
+  margin-top: 2rem;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.author-info .event {
+  color: var(--color-accent);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+/* Takeaway line */
+.takeaway {
+  margin-top: 1.5rem;
+  color: var(--color-accent);
+  font-style: italic;
+  font-size: 1.05rem;
+}
+
+/* Prompt comparison cards */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.prompt-card {
+  background: var(--color-bg-light);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.prompt-card.better {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+.prompt-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.prompt-card.better .prompt-label {
+  color: var(--color-accent);
+}
+
+/* Evolution timeline */
+.evolution-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.evo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--color-bg-light);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  min-width: 180px;
+}
+
+.evo-item.highlight {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 30px var(--color-accent-glow);
+}
+
+.evo-item.highlight .evo-label {
+  color: var(--color-accent);
+}
+
+.evo-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.evo-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.evo-arrow {
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+/* Demo frame placeholder */
+.demo-frame {
+  background: var(--color-bg-light);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-top: 1rem;
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* App screenshot placeholder */
+.app-screenshot {
+  background: var(--color-bg-light);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem 0;
+  text-align: center;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+/* About content */
+.about-content {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Code block overrides */
+.slidev-code-wrapper {
+  border-radius: 8px !important;
+}
+
+pre.slidev-code {
+  background: var(--color-code-bg) !important;
+  border-radius: 8px !important;
+}
+
+/* Blockquote styling */
+blockquote {
+  border-left: 3px solid var(--color-accent) !important;
+  background: rgba(245, 158, 11, 0.05);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+}
+
+blockquote p {
+  color: var(--color-text) !important;
+  font-style: italic;
+}
+
+/* v-click animation override — smoother than default */
+.slidev-vclick-target {
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.slidev-vclick-hidden {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* List styling */
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.4rem;
+}
+
+li::marker {
+  color: var(--color-accent);
+}
