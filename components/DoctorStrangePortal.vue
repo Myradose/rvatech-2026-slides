@@ -10,7 +10,7 @@
  *   <DoctorStrangePortal />
  *   <DoctorStrangePortal :ring-size="400" :next-slide="15" />
  */
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useNav, useSlideContext, onSlideEnter, onSlideLeave } from '@slidev/client'
 import SlideContainer from '@slidev/client/internals/SlideContainer.vue'
 import SlideWrapper from '@slidev/client/internals/SlideWrapper.vue'
@@ -63,7 +63,7 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     e.stopPropagation()
     e.stopImmediatePropagation()
-    playZoom()
+    playZoom('forward')
   }
 }
 
@@ -74,20 +74,29 @@ function onClickCapture(e: MouseEvent) {
   e.preventDefault()
   e.stopPropagation()
   e.stopImmediatePropagation()
-  playZoom()
+  playZoom('forward')
 }
 
-function playZoom() {
+function applyProgress(p: number, content: HTMLElement, ring: HTMLElement, initialClipRadius: number, ringScaleEnd: number, maxRadius: number) {
+  const ringScale = 1 + (ringScaleEnd - 1) * p
+  const clipRadius = Math.min(initialClipRadius * ringScale, maxRadius)
+  const contentScale = CONTENT_SCALE_INITIAL + (CONTENT_SCALE_FINAL - CONTENT_SCALE_INITIAL) * p
+
+  content.style.transform = `scale(${contentScale})`
+  content.style.clipPath = `circle(${clipRadius}px at 50% 50%)`
+  ring.style.transform = `translate(-50%, -50%) scale(${ringScale})`
+  ring.style.opacity = `${Math.max(0, 1 - p * p * p * 2.5)}`
+}
+
+function playZoom(direction: 'forward') {
   if (isZooming || !stageRef.value || !contentRef.value || !ringRef.value) return
   isZooming = true
 
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
 
-  // The clip must grow multiplicatively with the ring scale so they stay aligned.
-  // We animate a single proxy and derive both clip + ring from it.
-  const initialClipRadius = (props.ringSize * 0.285) / CONTENT_SCALE_INITIAL
-  const ringScaleEnd = 12
+  const initialClipRadius = (props.ringSize * 0.32) / CONTENT_SCALE_INITIAL
+  const ringScaleEnd = 14
   const content = contentRef.value
   const ring = ringRef.value
   const proxy = { progress: 0 }
@@ -99,33 +108,51 @@ function playZoom() {
       resetState()
     },
   })
-
   zoomTl.to(proxy, {
     progress: 1,
-    duration: 1.0,
-    ease: 'power2.in',
-    onUpdate: () => {
-      const p = proxy.progress
-      // Ring scale: 1 → 12
-      const ringScale = 1 + (ringScaleEnd - 1) * p
-      // Clip radius tracks ring's inner edge: grows at the same rate
-      const clipRadius = Math.min(initialClipRadius * ringScale, maxRadius)
-      // Content scale: subtle zoom in
-      const contentScale = CONTENT_SCALE_INITIAL + (CONTENT_SCALE_FINAL - CONTENT_SCALE_INITIAL) * p
+    duration: 2.8,
+    ease: 'expo.in',
+    onUpdate: () => applyProgress(proxy.progress, content, ring, initialClipRadius, ringScaleEnd, maxRadius),
+  }, 0)
+}
 
-      content!.style.transform = `scale(${contentScale})`
-      content!.style.clipPath = `circle(${clipRadius}px at 50% 50%)`
-      ring!.style.transform = `translate(-50%, -50%) scale(${ringScale})`
-      ring!.style.opacity = `${1 - p}`
+function playReverseEntrance() {
+  if (!stageRef.value || !contentRef.value || !ringRef.value) return
+  isZooming = true
+  interceptActive = false
+
+  const stage = stageRef.value
+  const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
+  const initialClipRadius = (props.ringSize * 0.32) / CONTENT_SCALE_INITIAL
+  const ringScaleEnd = 14
+  const content = contentRef.value
+  const ring = ringRef.value
+
+  // Start at full-screen state
+  const proxy = { progress: 1 }
+  applyProgress(1, content, ring, initialClipRadius, ringScaleEnd, maxRadius)
+
+  zoomTl = gsap.timeline({
+    onComplete: () => {
+      resetState()
+      interceptActive = true
     },
+  })
+
+  // Animate back to portal resting state — fast at first then decelerates
+  zoomTl.to(proxy, {
+    progress: 0,
+    duration: 2.0,
+    ease: 'expo.out',
+    onUpdate: () => applyProgress(proxy.progress, content, ring, initialClipRadius, ringScaleEnd, maxRadius),
   }, 0)
 }
 
 function resetState() {
   // Clip radius matches the portal ring's inner visual radius on screen.
-  // The torus inner edge (~radius 1.1) maps to roughly ringSize * 0.285 in screen px.
+  // The torus inner edge (~radius 1.1) maps to roughly ringSize * 0.32 in screen px.
   // Divide by initial scale so the circle aligns correctly in element coordinates.
-  const clipRadius = (props.ringSize * 0.285) / CONTENT_SCALE_INITIAL
+  const clipRadius = (props.ringSize * 0.32) / CONTENT_SCALE_INITIAL
   if (contentRef.value) {
     gsap.set(contentRef.value, {
       scale: CONTENT_SCALE_INITIAL,
@@ -139,11 +166,19 @@ function resetState() {
   zoomTl = null
 }
 
-onSlideEnter(() => {
-  resetState()
-  interceptActive = true
+onSlideEnter(async () => {
   window.addEventListener('keydown', onKeydown, { capture: true })
   window.addEventListener('click', onClickCapture, { capture: true })
+
+  if (nav.navDirection.value < 0) {
+    // Entered from the next slide (backward navigation)
+    // Wait for the SlideContainer content to render before animating
+    await nextTick()
+    playReverseEntrance()
+  } else {
+    resetState()
+    interceptActive = true
+  }
 })
 
 onSlideLeave(() => {
@@ -164,11 +199,11 @@ function createGlowTexture(): THREE.Texture {
   canvas.height = size
   const ctx = canvas.getContext('2d')!
   const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
-  gradient.addColorStop(0, 'rgba(255, 220, 100, 0.9)')
-  gradient.addColorStop(0.2, 'rgba(255, 160, 30, 0.6)')
-  gradient.addColorStop(0.5, 'rgba(220, 80, 10, 0.25)')
-  gradient.addColorStop(0.8, 'rgba(160, 30, 5, 0.08)')
-  gradient.addColorStop(1, 'rgba(100, 10, 0, 0)')
+  gradient.addColorStop(0, 'rgba(255, 180, 60, 0.9)')
+  gradient.addColorStop(0.2, 'rgba(240, 120, 20, 0.6)')
+  gradient.addColorStop(0.5, 'rgba(200, 60, 5, 0.25)')
+  gradient.addColorStop(0.8, 'rgba(140, 20, 2, 0.08)')
+  gradient.addColorStop(1, 'rgba(80, 5, 0, 0)')
   ctx.fillStyle = gradient
   ctx.fillRect(0, 0, size, size)
   return new THREE.CanvasTexture(canvas)
@@ -199,14 +234,14 @@ onMounted(() => {
 
   const torus = new THREE.Mesh(
     new THREE.TorusGeometry(1.2, 0.05, 32, 200),
-    new THREE.MeshBasicMaterial({ color: 0xf59e0b }),
+    new THREE.MeshBasicMaterial({ color: 0xee8811 }),
   )
   torus.visible = false // TEMP: hidden to preview sparks-only look
   portalGroup.add(torus)
 
   const inner = new THREE.Mesh(
     new THREE.TorusGeometry(1.12, 0.025, 32, 200),
-    new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.7 }),
+    new THREE.MeshBasicMaterial({ color: 0xdd6611, transparent: true, opacity: 0.7 }),
   )
   inner.visible = false // TEMP
   inner.rotation.z = 0.3
@@ -215,7 +250,7 @@ onMounted(() => {
   const outer = new THREE.Mesh(
     new THREE.TorusGeometry(1.2, 0.2, 32, 200),
     new THREE.MeshBasicMaterial({
-      color: 0xf59e0b, transparent: true, opacity: 0.08,
+      color: 0xdd7711, transparent: true, opacity: 0.08,
       blending: THREE.AdditiveBlending, depthWrite: false,
     }),
   )
@@ -225,236 +260,225 @@ onMounted(() => {
   const outerGlow = new THREE.Mesh(
     new THREE.TorusGeometry(1.2, 0.35, 32, 200),
     new THREE.MeshBasicMaterial({
-      color: 0xf59e0b, transparent: true, opacity: 0.03,
+      color: 0xcc5500, transparent: true, opacity: 0.03,
       blending: THREE.AdditiveBlending, depthWrite: false,
     }),
   )
   outerGlow.visible = false // TEMP
   portalGroup.add(outerGlow)
 
-  // --- Spark system: tangential fiery streaks like the Doctor Strange portal ---
-  // Sparks trail along the ring's tangent direction (CCW), with slight radial spread.
-  // Multiple layers all rotating CCW at slightly different speeds for depth.
+  // --- Spark emitter: sparks fly off a spinning ring like a sparkler on a rope ---
+  // Each spark is born on the ring, inherits tangential velocity, flies outward, fades, dies, respawns.
 
   const glowTex = createGlowTexture()
+  const RING_SPEED = 3.5         // ring rotation speed (rad/s) — fast spinning
+  const RING_RADIUS = 1.15       // where sparks emit from
+  const SPARK_COUNT = 6000
+  const TRAIL_LEN = 0.18         // trail length in seconds (how far back the tail reaches)
 
-  const sparkLayers: {
-    trailMesh: THREE.LineSegments
-    trailGeo: THREE.BufferGeometry
-    emberMesh: THREE.Points
-    emberGeo: THREE.BufferGeometry
-    count: number
-    angles: Float32Array
-    lengths: Float32Array
-    baseRadii: Float32Array
-    radialBias: Float32Array
-    speeds: Float32Array
-    phases: Float32Array
-    rotSpeed: number
-  }[] = []
+  // Per-spark state
+  const sparkX = new Float32Array(SPARK_COUNT)
+  const sparkY = new Float32Array(SPARK_COUNT)
+  const sparkVx = new Float32Array(SPARK_COUNT)
+  const sparkVy = new Float32Array(SPARK_COUNT)
+  const sparkAge = new Float32Array(SPARK_COUNT)
+  const sparkMaxAge = new Float32Array(SPARK_COUNT)
+  const sparkZ = new Float32Array(SPARK_COUNT)
 
-  function createSparkLayer(count: number, rotSpeed: number, trailOpacity: number) {
-    const trailPositions = new Float32Array(count * 2 * 3)
-    const trailColors = new Float32Array(count * 2 * 3)
-    const emberPositions = new Float32Array(count * 3)
-    const angles = new Float32Array(count)
-    const lengths = new Float32Array(count)
-    const baseRadii = new Float32Array(count)
-    const radialBias = new Float32Array(count)
-    const speeds = new Float32Array(count)
-    const phases = new Float32Array(count)
+  function spawnSpark(i: number, t: number) {
+    // Spawn at a random point on the ring at its current rotation
+    const ringAngle = t * RING_SPEED + Math.random() * Math.PI * 2
+    const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
+    sparkX[i] = Math.cos(ringAngle) * r
+    sparkY[i] = Math.sin(ringAngle) * r
+    sparkZ[i] = (Math.random() - 0.5) * 0.08
 
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2
-      const baseR = 1.12 + Math.random() * 0.08
-      const r = Math.random()
-      const len = r < 0.5 ? 0.06 + Math.random() * 0.18
-        : r < 0.85 ? 0.15 + Math.random() * 0.35
-        : 0.3 + Math.random() * 0.55
+    // Velocity: mostly tangential, gentle radial push so sparks hug the ring
+    const tangentSpeed = RING_SPEED * r
+    const tx = -Math.sin(ringAngle)
+    const ty = Math.cos(ringAngle)
+    const rx = Math.cos(ringAngle)
+    const ry = Math.sin(ringAngle)
+    const radialKick = 0.1 + Math.random() * 0.3 // gentle outward push
+    const jitter = (Math.random() - 0.5) * 0.2
+    sparkVx[i] = tx * tangentSpeed * (0.15 + Math.random() * 0.15) + rx * radialKick + jitter
+    sparkVy[i] = ty * tangentSpeed * (0.15 + Math.random() * 0.15) + ry * radialKick + jitter
 
-      angles[i] = angle
-      lengths[i] = len
-      baseRadii[i] = baseR
-      radialBias[i] = 0.1 + Math.random() * 0.35
-      speeds[i] = 0.8 + Math.random() * 2.5
-      phases[i] = Math.random() * Math.PI * 2
-
-      const z = (Math.random() - 0.5) * 0.12
-
-      // Base point on the ring
-      const bx = Math.cos(angle) * baseR
-      const by = Math.sin(angle) * baseR
-      trailPositions[i * 6] = bx
-      trailPositions[i * 6 + 1] = by
-      trailPositions[i * 6 + 2] = z
-
-      // Tip: tangent + radial
-      const tx = -Math.sin(angle)
-      const ty = Math.cos(angle)
-      const rx = Math.cos(angle)
-      const ry = Math.sin(angle)
-      const rb = radialBias[i]
-      trailPositions[i * 6 + 3] = bx + (tx + rx * rb) * len
-      trailPositions[i * 6 + 4] = by + (ty + ry * rb) * len
-      trailPositions[i * 6 + 5] = z
-
-      // Ember head at the base
-      emberPositions[i * 3] = bx
-      emberPositions[i * 3 + 1] = by
-      emberPositions[i * 3 + 2] = z
-
-      // Trail colors: base = orange (not gold), tip = deep red
-      const heat = 0.7 + Math.random() * 0.3
-      // Base: orange (transitions from the gold core quickly)
-      trailColors[i * 6] = 1.0 * heat
-      trailColors[i * 6 + 1] = 0.4 * heat
-      trailColors[i * 6 + 2] = 0.02 * heat
-      // Tip: deep red
-      const tipHeat = 0.5 + Math.random() * 0.5
-      trailColors[i * 6 + 3] = 0.8 * tipHeat
-      trailColors[i * 6 + 4] = 0.08 * tipHeat
-      trailColors[i * 6 + 5] = 0.0
-    }
-
-    // Trail lines (dimmer, just the streak)
-    const trailGeo = new THREE.BufferGeometry()
-    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3))
-    trailGeo.setAttribute('color', new THREE.BufferAttribute(trailColors, 3))
-    const trailMesh = new THREE.LineSegments(trailGeo, new THREE.LineBasicMaterial({
-      vertexColors: true,
-      transparent: true,
-      opacity: trailOpacity,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }))
-    portalGroup.add(trailMesh)
-
-    // Ember heads (bright glowing points at each spark base)
-    const emberGeo = new THREE.BufferGeometry()
-    emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3))
-    const emberMesh = new THREE.Points(emberGeo, new THREE.PointsMaterial({
-      map: glowTex,
-      color: 0xff8811,
-      size: 0.045 + Math.random() * 0.02,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }))
-    portalGroup.add(emberMesh)
-
-    sparkLayers.push({ trailMesh, trailGeo, emberMesh, emberGeo, count, angles, lengths, baseRadii, radialBias, speeds, phases, rotSpeed })
+    sparkAge[i] = 0
+    sparkMaxAge[i] = 0.12 + Math.random() * 0.35 // short lives, stay close to ring
   }
 
-  // 5 layers, all CCW, fast rotation
-  createSparkLayer(2000, 0.7, 0.5)
-  createSparkLayer(1800, 0.56, 0.4)
-  createSparkLayer(1500, 0.84, 0.35)
-  createSparkLayer(1200, 0.4, 0.3)
-  createSparkLayer(1000, 1.0, 0.25)
+  // Initialize all sparks with staggered ages so the ring is pre-filled
+  for (let i = 0; i < SPARK_COUNT; i++) {
+    spawnSpark(i, 0)
+    sparkAge[i] = Math.random() * sparkMaxAge[i] // pre-age
+    // Advance position by age
+    sparkX[i] += sparkVx[i] * sparkAge[i]
+    sparkY[i] += sparkVy[i] * sparkAge[i]
+  }
 
-  // --- Bright glowing core along the ring (hot white-gold band) ---
+  // Trail line segments: head (current pos) → tail (pos - velocity * TRAIL_LEN)
+  const trailPositions = new Float32Array(SPARK_COUNT * 2 * 3)
+  const trailColors = new Float32Array(SPARK_COUNT * 2 * 3)
+  const trailGeo = new THREE.BufferGeometry()
+  trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3))
+  trailGeo.setAttribute('color', new THREE.BufferAttribute(trailColors, 3))
+  const trailMesh = new THREE.LineSegments(trailGeo, new THREE.LineBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }))
+  portalGroup.add(trailMesh)
+
+  // Ember heads (glowing point at each spark's current position)
+  const emberPositions = new Float32Array(SPARK_COUNT * 3)
+  const emberGeo = new THREE.BufferGeometry()
+  emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3))
+  const emberMesh = new THREE.Points(emberGeo, new THREE.PointsMaterial({
+    map: glowTex,
+    color: 0xee8811,
+    size: 0.045,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }))
+  portalGroup.add(emberMesh)
+
+  // Core glow band along the ring (stays on the ring, bright gold)
   const coreCount = 800
   const corePositions = new Float32Array(coreCount * 3)
-  const coreSpeeds = new Float32Array(coreCount)
   for (let i = 0; i < coreCount; i++) {
     const angle = Math.random() * Math.PI * 2
-    const r = 1.15 + (Math.random() - 0.5) * 0.08
+    const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
     corePositions[i * 3] = Math.cos(angle) * r
     corePositions[i * 3 + 1] = Math.sin(angle) * r
-    corePositions[i * 3 + 2] = (Math.random() - 0.5) * 0.08
-    coreSpeeds[i] = 0.3 + Math.random() * 0.7
+    corePositions[i * 3 + 2] = (Math.random() - 0.5) * 0.05
   }
   const coreGeo = new THREE.BufferGeometry()
   coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3))
   const coreParticles = new THREE.Points(coreGeo, new THREE.PointsMaterial({
-    map: glowTex, color: 0xffbb44, size: 0.09,
-    transparent: true, opacity: 1.0,
+    map: glowTex, color: 0xee8811, size: 0.06,
+    transparent: true, opacity: 0.7,
     blending: THREE.AdditiveBlending, depthWrite: false,
   }))
   portalGroup.add(coreParticles)
 
-  // --- Outer red/orange glow halo (larger soft particles at wider radius) ---
-  const redGlowCount = 500
-  const redGlowPositions = new Float32Array(redGlowCount * 3)
-  const redGlowSpeeds = new Float32Array(redGlowCount)
-  for (let i = 0; i < redGlowCount; i++) {
-    const angle = Math.random() * Math.PI * 2
-    const r = 1.15 + Math.random() * 0.2 // tighter around ring
-    redGlowPositions[i * 3] = Math.cos(angle) * r
-    redGlowPositions[i * 3 + 1] = Math.sin(angle) * r
-    redGlowPositions[i * 3 + 2] = (Math.random() - 0.5) * 0.1
-    redGlowSpeeds[i] = 0.2 + Math.random() * 0.5
-  }
-  const redGlowGeo = new THREE.BufferGeometry()
-  redGlowGeo.setAttribute('position', new THREE.BufferAttribute(redGlowPositions, 3))
-  const redGlowParticles = new THREE.Points(redGlowGeo, new THREE.PointsMaterial({
-    map: glowTex, color: 0xcc3300, size: 0.18,
-    transparent: true, opacity: 0.6,
-    blending: THREE.AdditiveBlending, depthWrite: false,
-  }))
-  portalGroup.add(redGlowParticles)
+  // --- Red haze behind the portal ring ---
+  const hazeSize = 256
+  const hazeCanvas = document.createElement('canvas')
+  hazeCanvas.width = hazeSize
+  hazeCanvas.height = hazeSize
+  const hazeCtx = hazeCanvas.getContext('2d')!
+  // Ring-shaped radial gradient: transparent center, red around ring radius, fade out
+  const hazeCx = hazeSize / 2
+  const hazeGrad = hazeCtx.createRadialGradient(hazeCx, hazeCx, 0, hazeCx, hazeCx, hazeCx)
+  hazeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)')          // transparent center
+  hazeGrad.addColorStop(0.35, 'rgba(60, 8, 0, 0)')       // still transparent approaching ring
+  hazeGrad.addColorStop(0.52, 'rgba(120, 25, 2, 0.35)')  // deep red at ring
+  hazeGrad.addColorStop(0.65, 'rgba(80, 12, 0, 0.2)')    // red fading outward
+  hazeGrad.addColorStop(0.85, 'rgba(40, 5, 0, 0.06)')    // dim red
+  hazeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')           // transparent edge
+  hazeCtx.fillStyle = hazeGrad
+  hazeCtx.fillRect(0, 0, hazeSize, hazeSize)
+  const hazeTex = new THREE.CanvasTexture(hazeCanvas)
+  const hazeMat = new THREE.SpriteMaterial({
+    map: hazeTex,
+    transparent: true,
+    opacity: 1.0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  })
+  const hazeSprite = new THREE.Sprite(hazeMat)
+  hazeSprite.scale.set(5.5, 5.5, 1) // large enough to extend well past the ring
+  hazeSprite.position.z = -0.1 // slightly behind the sparks
+  portalGroup.add(hazeSprite)
+
+  let lastTime = performance.now() * 0.001
 
   function animate() {
     const t = performance.now() * 0.001
+    const dt = Math.min(t - lastTime, 0.05) // cap delta to avoid explosion on tab switch
+    lastTime = t
+
+    // Rotate torus rings (visual only, slower than spark emission)
     torus.rotation.z = t * 0.5
     inner.rotation.z = -t * 0.36 + 0.3
     outer.rotation.z = t * 0.2
     outerGlow.rotation.z = -t * 0.16
 
-    // Animate all spark layers — flicker trails + ember heads
-    for (const layer of sparkLayers) {
-      const sPos = layer.trailGeo.attributes.position.array as Float32Array
-      const sCol = layer.trailGeo.attributes.color.array as Float32Array
-      for (let i = 0; i < layer.count; i++) {
-        const angle = layer.angles[i]
-        const phase = layer.phases[i]
-        const speed = layer.speeds[i]
-        const baseR = layer.baseRadii[i]
-        const rb = layer.radialBias[i]
+    // Core glow rotates with the ring
+    coreParticles.rotation.z = t * RING_SPEED
 
-        // Flickering length
-        const pulse = Math.sin(t * speed * 2.5 + phase)
-        const lenMult = 0.3 + 0.7 * Math.max(0, pulse)
-        const len = layer.lengths[i] * lenMult
+    // Update sparks
+    const tPos = trailGeo.attributes.position.array as Float32Array
+    const tCol = trailGeo.attributes.color.array as Float32Array
+    const ePos = emberGeo.attributes.position.array as Float32Array
 
-        // Recompute tip from base using tangent + radial
-        const bx = sPos[i * 6]
-        const by = sPos[i * 6 + 1]
-        const tx = -Math.sin(angle)
-        const ty = Math.cos(angle)
-        const rx = Math.cos(angle)
-        const ry = Math.sin(angle)
-        sPos[i * 6 + 3] = bx + (tx + rx * rb) * len
-        sPos[i * 6 + 4] = by + (ty + ry * rb) * len
+    for (let i = 0; i < SPARK_COUNT; i++) {
+      sparkAge[i] += dt
 
-        // Animated tip: deep red
-        const brightness = 0.4 + 0.6 * lenMult
-        sCol[i * 6 + 3] = 0.8 * brightness
-        sCol[i * 6 + 4] = 0.08 * brightness
-        sCol[i * 6 + 5] = 0.0
+      // Respawn dead sparks
+      if (sparkAge[i] >= sparkMaxAge[i]) {
+        spawnSpark(i, t)
       }
-      layer.trailGeo.attributes.position.needsUpdate = true
-      layer.trailGeo.attributes.color.needsUpdate = true
-      layer.trailMesh.rotation.z = t * layer.rotSpeed
-      layer.emberMesh.rotation.z = t * layer.rotSpeed
+
+      // Advance position
+      sparkX[i] += sparkVx[i] * dt
+      sparkY[i] += sparkVy[i] * dt
+
+      // Strong drag so sparks stay near the ring
+      sparkVx[i] *= (1 - 3.0 * dt)
+      sparkVy[i] *= (1 - 3.0 * dt)
+
+      const life = sparkAge[i] / sparkMaxAge[i] // 0→1
+
+      // Head position (current)
+      const hx = sparkX[i]
+      const hy = sparkY[i]
+      const hz = sparkZ[i]
+      // Tail position (where it was TRAIL_LEN seconds ago)
+      const tailX = hx - sparkVx[i] * TRAIL_LEN
+      const tailY = hy - sparkVy[i] * TRAIL_LEN
+
+      // Trail: head = vertex 0, tail = vertex 1
+      tPos[i * 6] = hx
+      tPos[i * 6 + 1] = hy
+      tPos[i * 6 + 2] = hz
+      tPos[i * 6 + 3] = tailX
+      tPos[i * 6 + 4] = tailY
+      tPos[i * 6 + 5] = hz
+
+      // Color: distance from ring drives orange→red hue shift, age drives fade to black
+      const dist = Math.sqrt(hx * hx + hy * hy)
+      const distFromRing = Math.max(0, dist - RING_RADIUS)
+      // Hue shift: 0 at ring (orange), 1 at ~0.15 units out (deep red)
+      const rs = Math.min(1, distFromRing * 7.0)
+      const fade = 1 - life * life // overall fade with age
+
+      // Head: orange at ring, shifting to deep red further out
+      // Lower base brightness so additive overlap reads as orange, not white
+      tCol[i * 6]     = (0.6 - rs * 0.15) * fade   // R: stays high
+      tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade  // G: drops fast → red
+      tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade  // B: near zero
+      // Tail: one step redder + dimmer than head
+      const trs = Math.min(1, rs + 0.4)
+      const tailFade = fade * 0.6
+      tCol[i * 6 + 3] = (0.5 - trs * 0.15) * tailFade
+      tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade
+      tCol[i * 6 + 5] = 0.0
+
+      // Ember at head position
+      ePos[i * 3] = hx
+      ePos[i * 3 + 1] = hy
+      ePos[i * 3 + 2] = hz
     }
 
-    // Animate core particles
-    coreParticles.rotation.z = t * 0.7
-    const cPos = coreGeo.attributes.position.array as Float32Array
-    for (let i = 0; i < coreCount; i++) {
-      cPos[i * 3 + 2] = Math.sin(t * 2 * coreSpeeds[i] + i * 0.5) * 0.06
-    }
-    coreGeo.attributes.position.needsUpdate = true
-
-    // Animate red outer glow
-    redGlowParticles.rotation.z = t * 0.6
-    const rPos = redGlowGeo.attributes.position.array as Float32Array
-    for (let i = 0; i < redGlowCount; i++) {
-      rPos[i * 3 + 2] = Math.sin(t * 1.5 * redGlowSpeeds[i] + i * 0.3) * 0.08
-    }
-    redGlowGeo.attributes.position.needsUpdate = true
+    trailGeo.attributes.position.needsUpdate = true
+    trailGeo.attributes.color.needsUpdate = true
+    emberGeo.attributes.position.needsUpdate = true
 
     renderer!.render(scene, camera)
     animationId = requestAnimationFrame(animate)
@@ -484,7 +508,7 @@ onBeforeUnmount(() => {
       class="portal-content"
       :style="{
         transform: `scale(${CONTENT_SCALE_INITIAL})`,
-        clipPath: `circle(${(ringSize * 0.285) / CONTENT_SCALE_INITIAL}px at 50% 50%)`,
+        clipPath: `circle(${(ringSize * 0.32) / CONTENT_SCALE_INITIAL}px at 50% 50%)`,
       }"
     >
       <SlideContainer
