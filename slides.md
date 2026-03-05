@@ -360,7 +360,7 @@ Three developer agents, each in their own fully isolated Docker container with t
 clicks: 3
 ---
 
-<div class="iso-title-wrap" v-motion :initial="{ x: 250, y: 60, transition: { type: 'tween', duration: 600, ease: 'easeInOut' } }" :click-1="{ x: 0, y: 0, transition: { type: 'tween', duration: 600, ease: 'easeInOut' } }">
+<div :class="{ 'iso-centered': $clicks < 1 }" class="iso-title-wrap">
 
 # Isolated Environments
 
@@ -402,6 +402,16 @@ clicks: 3
 <style>
 .iso-title-wrap {
   width: fit-content;
+  position: relative;
+  left: 0;
+  transform: translateX(0) translateY(0);
+  will-change: left, transform;
+  transition: left 0.6s ease-in-out,
+              transform 0.6s ease-in-out;
+}
+.iso-title-wrap.iso-centered {
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
 }
 </style>
 
