@@ -269,6 +269,11 @@ Here's a very simple fullstack application. Basic functionality - adding users a
 -->
 
 ---
+layout: none
+transition: none
+---
+
+<div class="decision-point-content">
 
 # The Decision Point
 
@@ -294,19 +299,12 @@ You've got a design decision to make:
 
 <p v-click class="takeaway">Which one is best? What if we could see all of them?</p>
 
-<!--
-I want to improve the layout. Maybe tabs, maybe accordions, maybe a side navigation panel. But I'm not sure which is best. What if I could see all of them?
--->
-
----
-layout: none
-transition: none
----
+</div>
 
 <DoctorStrangePortal :ring-size="360" />
 
 <!--
-I can open up portals and peer into the realities where each one of these exists.
+I want to improve the layout. Maybe tabs, maybe accordions, maybe a side navigation panel. But I'm not sure which is best. What if I could see all of them? I can open up portals and peer into the realities where each one of these exists.
 -->
 
 ---

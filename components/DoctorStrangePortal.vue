@@ -57,6 +57,7 @@ let renderer: THREE.WebGLRenderer | null = null
 let composer: EffectComposer | null = null
 let portalGroup: THREE.Group | null = null
 let isZooming = false
+let isZoomForward = false  // true = zooming to next slide, false = reverse entrance
 let interceptActive = false
 let zoomTl: gsap.core.Timeline | null = null
 
@@ -79,26 +80,97 @@ const CONTENT_SCALE_FINAL = 1
 
 function advancePhase() {
   if (phase === 0) { phase = 1; playCreation() }
-  else if (phase === 1) { return } // ignore during draw
+  else if (phase === 1) { skipCreationToEnd() }
   else if (phase === 2) { playZoom('forward') }
-  else if (phase === 3) { return } // ignore during reverse draw
+  else if (phase === 3) { cancelReverseCreation() }  // snap back to phase 2
 }
 
 function retreatPhase() {
   if (phase === 2) { playReverseCreation() }
-  else if (phase === 3) { return } // ignore during reverse draw
+  else if (phase === 3) { skipReverseCreationToEnd() }  // finish going back to phase 0
   else if (phase === 1) {
-    // Cancel in-progress creation, go back
+    // Cancel in-progress creation, return to phase 0 on same slide
     creationTl?.kill()
     creationTl = null
-    interceptActive = false
     resetState()
-    nav.prevSlide(true)
+    interceptActive = true
   }
   else if (phase === 0) {
+    // Let Slidev handle (v-clicks already at 0, so this goes to prev slide)
     interceptActive = false
     nav.prevSlide(true)
   }
+}
+
+/** Skip creation animation to end → portal fully formed (phase 2) */
+function skipCreationToEnd() {
+  const tl = creationTl
+  if (tl) {
+    creationTl = null
+    tl.progress(1)
+    tl.kill()
+  }
+}
+
+/** Skip reverse creation animation to end → back to phase 0 */
+function skipReverseCreationToEnd() {
+  const tl = creationTl
+  if (tl) {
+    creationTl = null
+    tl.progress(1)
+    tl.kill()
+  }
+}
+
+/** Cancel reverse creation and snap back to phase 2 (portal ready) */
+function cancelReverseCreation() {
+  creationTl?.kill()
+  creationTl = null
+  // Restore phase 2 state
+  phase = 2
+  arcProgress = Math.PI * 2
+  sparksActivated = Infinity
+  coreNeedsFullCircle = true
+  if (contentRef.value) contentRef.value.style.visibility = 'visible'
+  if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
+  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+}
+
+/** Skip zoom animation to end (fires onComplete which navigates or settles) */
+function skipZoomToEnd() {
+  const tl = zoomTl
+  if (tl) {
+    zoomTl = null  // clear first to prevent re-entry from onComplete
+    tl.progress(1)
+    tl.kill()
+  }
+}
+
+/** Cancel zoom and snap back to phase 2 (portal ready) */
+function cancelZoomToPhase2() {
+  zoomTl?.kill()
+  zoomTl = null
+  isZooming = false
+  // Restore phase 2 resting state
+  phase = 2
+  arcProgress = Math.PI * 2
+  sparksActivated = Infinity
+  coreNeedsFullCircle = true
+  const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
+  if (contentRef.value) {
+    contentRef.value.style.visibility = 'visible'
+    gsap.set(contentRef.value, {
+      scale: CONTENT_SCALE_INITIAL,
+      clipPath: `circle(${clipRadius}px at 50% 50%)`,
+    })
+  }
+  if (canvasRef.value) {
+    canvasRef.value.style.visibility = 'visible'
+    canvasRef.value.style.opacity = '1'
+  }
+  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+  if (portalGroup) portalGroup.scale.setScalar(1)
+  interceptActive = true
 }
 
 // --- Navigation interception ---
@@ -106,28 +178,75 @@ function retreatPhase() {
 const FORWARD_KEYS = ['ArrowRight', 'ArrowDown', ' ', 'Enter', 'PageDown']
 const BACKWARD_KEYS = ['ArrowLeft', 'ArrowUp', 'PageUp']
 
-function onKeydown(e: KeyboardEvent) {
-  if (!interceptActive || isZooming) return
-  if (FORWARD_KEYS.includes(e.key)) {
-    e.preventDefault()
-    e.stopPropagation()
-    e.stopImmediatePropagation()
-    advancePhase()
-  } else if (BACKWARD_KEYS.includes(e.key)) {
-    e.preventDefault()
-    e.stopPropagation()
-    e.stopImmediatePropagation()
-    retreatPhase()
-  }
-}
-
-function onClickCapture(e: MouseEvent) {
-  if (!interceptActive || isZooming) return
-  const target = e.target as HTMLElement
-  if (target.closest('.slidev-nav, nav, button, a')) return
+function blockEvent(e: Event) {
   e.preventDefault()
   e.stopPropagation()
   e.stopImmediatePropagation()
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (!interceptActive) return
+  const isForward = FORWARD_KEYS.includes(e.key)
+  const isBackward = BACKWARD_KEYS.includes(e.key)
+  if (!isForward && !isBackward) return
+
+  // In phase 0, let Slidev handle v-clicks
+  if (phase === 0 && isForward && nav.clicks.value < nav.clicksTotal.value) return
+  if (phase === 0 && isBackward && nav.clicks.value > 0) return
+
+  // Block the event for all other states (including mid-animation)
+  blockEvent(e)
+
+  // During zoom, same-direction skips to end, opposite cancels back to phase 2
+  if (isZooming) {
+    if (isZoomForward) {
+      // Forward zoom: forward skips to next slide, backward cancels to phase 2
+      if (isForward) skipZoomToEnd()
+      else cancelZoomToPhase2()
+    } else {
+      // Reverse entrance: forward cancels and goes to next slide, backward skips to phase 2
+      if (isForward) {
+        zoomTl?.kill()
+        zoomTl = null
+        isZooming = false
+        interceptActive = false
+        nav.nextSlide()
+        resetState()
+      } else {
+        skipZoomToEnd()
+      }
+    }
+    return
+  }
+  if (isForward) advancePhase()
+  else retreatPhase()
+}
+
+function onClickCapture(e: MouseEvent) {
+  if (!interceptActive) return
+  const target = e.target as HTMLElement
+  if (target.closest('.slidev-nav, nav, button, a')) return
+
+  // In phase 0, let Slidev handle v-clicks
+  if (phase === 0 && nav.clicks.value < nav.clicksTotal.value) return
+
+  // Block the event for all other states (including mid-animation)
+  blockEvent(e)
+
+  if (isZooming) {
+    if (isZoomForward) {
+      skipZoomToEnd()
+    } else {
+      // Reverse entrance: click (forward) goes back to next slide
+      zoomTl?.kill()
+      zoomTl = null
+      isZooming = false
+      interceptActive = false
+      nav.nextSlide()
+      resetState()
+    }
+    return
+  }
   advancePhase()
 }
 
@@ -153,6 +272,8 @@ function applyProgress(p: number, content: HTMLElement, initialClipRadius: numbe
 function playCreation() {
   arcProgress = 0
   sparksActivated = 0
+  // Show canvas layer for sparks (content stays hidden until arc nears completion)
+  if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
   const proxy = { arc: 0 }
   creationTl = gsap.timeline({
     onComplete: () => { phase = 2; sparksActivated = Infinity; coreNeedsFullCircle = true },
@@ -164,7 +285,10 @@ function playCreation() {
     ease: 'power2.inOut',
     onUpdate: () => { arcProgress = proxy.arc },
   })
-  // Fade overlay to reveal content — starts midway through arc draw
+  // Show portal content and immediately start fading overlay to reveal next slide
+  creationTl.call(() => {
+    if (contentRef.value) contentRef.value.style.visibility = 'visible'
+  }, [], 1.8)
   if (contentOverlayRef.value) {
     creationTl.to(contentOverlayRef.value, {
       opacity: 0, duration: 1.0, ease: 'power2.out',
@@ -183,12 +307,15 @@ function playReverseCreation() {
       interceptActive = true
     },
   })
-  // Fade content back to black and reverse the arc simultaneously
+  // Fade content back to black, then hide the circle so it doesn't show during arc unwind
   if (contentOverlayRef.value) {
     creationTl.to(contentOverlayRef.value, {
-      opacity: 1, duration: 0.5, ease: 'power2.in',
+      opacity: 1, duration: 0.8, ease: 'power2.in',
     }, 0)
   }
+  creationTl.call(() => {
+    if (contentRef.value) contentRef.value.style.visibility = 'hidden'
+  }, [], 0.8)
   creationTl.to(proxy, {
     arc: 0,
     duration: 2.5,
@@ -200,6 +327,7 @@ function playReverseCreation() {
 function playZoom(direction: 'forward') {
   if (isZooming || !stageRef.value || !contentRef.value) return
   isZooming = true
+  isZoomForward = true
 
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
@@ -227,7 +355,8 @@ function playZoom(direction: 'forward') {
 function playReverseEntrance() {
   if (!stageRef.value || !contentRef.value) return
   isZooming = true
-  interceptActive = false
+  isZoomForward = false
+  interceptActive = true  // block events during reverse zoom
 
   // Skip to phase 2 — portal fully formed
   phase = 2
@@ -235,6 +364,9 @@ function playReverseEntrance() {
   sparksActivated = Infinity // all sparks active
   coreNeedsFullCircle = true
   if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+  // Show portal layers (hidden in phase 0)
+  if (contentRef.value) contentRef.value.style.visibility = 'visible'
+  if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
   resetPortalVisuals?.() // ensure haze is visible for phase 2
   // Re-show haze immediately for reverse entrance
   // (resetPortalVisuals hides it, but we need it for phase 2)
@@ -288,12 +420,14 @@ function resetState() {
       scale: CONTENT_SCALE_INITIAL,
       clipPath: `circle(${clipRadius}px at 50% 50%)`,
     })
+    contentRef.value.style.visibility = 'hidden'
   }
   if (portalGroup) {
     portalGroup.scale.setScalar(1)
   }
   if (canvasRef.value) {
     canvasRef.value.style.opacity = '1'
+    canvasRef.value.style.visibility = 'hidden'
   }
   // Reset phase state
   phase = 0
@@ -304,6 +438,7 @@ function resetState() {
   creationTl?.kill()
   creationTl = null
   isZooming = false
+  isZoomForward = false
   zoomTl = null
   // Reset Three.js visual state (haze, core particles, kill alive sparks)
   resetPortalVisuals?.()
@@ -832,15 +967,16 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #000;
+  background: transparent;
 }
 
 .portal-content {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 2;
   transform-origin: center center;
   will-change: transform, clip-path;
+  visibility: hidden;
 }
 
 /* Make the SlideContainer fill the portal-content layer exactly */
@@ -853,7 +989,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   background: #000;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -862,7 +998,7 @@ onBeforeUnmount(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1;
+  z-index: 4;
   pointer-events: none;
   transform-origin: center center;
   will-change: transform, opacity;
@@ -871,8 +1007,9 @@ onBeforeUnmount(() => {
 .portal-canvas-full {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 5;
   pointer-events: none;
+  visibility: hidden;
 }
 
 .portal-canvas-full canvas {
