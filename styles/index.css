@@ -324,3 +324,81 @@ li::marker {
   margin: 0;
   line-height: 1.5;
 }
+
+/* ========================================
+   Environment visual (slide 14)
+   ======================================== */
+
+.env-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.env-host-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+}
+
+.env-host-box svg {
+  font-size: 1.1rem;
+  color: var(--color-accent);
+}
+
+.env-host-box span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.env-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.env-arrow-down,
+.env-arrow-up {
+  font-size: 1rem;
+}
+
+.env-arrow-label {
+  font-style: italic;
+}
+
+.env-containers-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.env-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: var(--color-bg-light);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.env-box svg {
+  font-size: 1.5rem;
+  color: var(--color-accent);
+}
+
+.env-box span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}

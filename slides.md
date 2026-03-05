@@ -357,29 +357,15 @@ Three developer agents, each in their own fully isolated Docker container with t
 -->
 
 ---
+layout: none
+transition: none
+clicks: 3
+---
 
-# Isolated Environments
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- Each agent runs in its own **Docker container** with the full application stack
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- Containers have **restricted network access** - isolated from your system and each other
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- Agents can run builds, serve the app, execute tests - all without touching your machine
-
-</div>
+<IsolatedEnvsSlide />
 
 <!--
-The first pillar: isolated environments. Each agent works in its own Docker container with the full application stack — frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. This is what makes it safe to let agents work autonomously.
+The first pillar: isolated environments. Each agent works in its own Docker container with the full application stack — frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. When they're done, you pull git branches out. This is what makes it safe to let agents work autonomously.
 -->
 
 ---
