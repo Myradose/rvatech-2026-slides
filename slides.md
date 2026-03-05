@@ -99,8 +99,9 @@ Write a research paper about AI
 
 ```
 Write an extremely detailed scholar level
-research paper about AI. Ensure proper MLA
-citations and cite varying viewpoints.
+research paper about AI. Structure it with
+clear sections, cite varying viewpoints,
+and maintain an academic tone throughout.
 ```
 
   </div>
@@ -505,9 +506,14 @@ So you've seen what this looks like in practice. Now I want to take it further. 
 
 <div class="architect-diagram">
   <div class="architect-input"><carbon:user /><span>Your goal</span></div>
-  <div class="architect-arrow-down">↓</div>
+  <div class="env-arrows">
+    <span class="env-arrow-down">↓</span>
+  </div>
   <div class="architect-box"><carbon:machine-learning-model /><span>Architect Agent</span></div>
-  <div class="architect-arrow-down">↓ designs &amp; spawns</div>
+  <div class="env-arrows">
+    <span class="env-arrow-down">↓</span>
+    <span class="env-arrow-label">designs &amp; spawns</span>
+  </div>
   <div class="architect-workers-row">
     <div class="architect-worker"><carbon:container-software /><span>Task A</span></div>
     <div class="architect-worker"><carbon:container-software /><span>Task B</span></div>
@@ -528,7 +534,7 @@ clicks: 3
 
 # What If: Race & Compare
 
-- **Multiple agents, same task** — race them and take the best result
+- **Multiple agents, same task** — race them and take the first result
 
 <div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
