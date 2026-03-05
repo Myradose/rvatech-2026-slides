@@ -393,6 +393,7 @@ li::marker {
   background: var(--color-bg-light);
   border: 1px solid var(--color-accent);
   border-radius: 8px;
+  box-shadow: 0 0 20px var(--color-accent-glow);
 }
 
 .env-host-box svg {
