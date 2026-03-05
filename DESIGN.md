@@ -16,7 +16,7 @@ The visual identity should feel like a polished tech keynote that happens to hav
 | Accent | `#f59e0b` → `#f97316` — warm amber/orange | Doctor Strange portal color. Used sparingly for emphasis. |
 | Accent glow | `#f59e0b` with blur/opacity | For the portal, highlighted elements |
 | Code background | `#12121a` | Slightly lighter than slide background |
-| Success/positive | `#10b981` — green | For "environment engineering" highlight |
+| Success/positive | `#10b981` — green | Defined but currently unused |
 
 ## Typography
 
