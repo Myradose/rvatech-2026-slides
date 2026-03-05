@@ -18,6 +18,10 @@ import { getSlide } from '@slidev/client/logic/slides.ts'
 import { createFixedClicks } from '@slidev/client/composables/useClicks.ts'
 import { CLICKS_MAX } from '@slidev/client/constants.ts'
 import * as THREE from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import gsap from 'gsap'
 
 const props = withDefaults(defineProps<{
@@ -46,6 +50,8 @@ const canvasRef = ref<HTMLDivElement>()
 const nav = useNav()
 let animationId = 0
 let renderer: THREE.WebGLRenderer | null = null
+let composer: EffectComposer | null = null
+let portalGroup: THREE.Group | null = null
 let isZooming = false
 let interceptActive = false
 let zoomTl: gsap.core.Timeline | null = null
@@ -77,28 +83,33 @@ function onClickCapture(e: MouseEvent) {
   playZoom('forward')
 }
 
-function applyProgress(p: number, content: HTMLElement, ring: HTMLElement, initialClipRadius: number, ringScaleEnd: number, maxRadius: number) {
+function applyProgress(p: number, content: HTMLElement, initialClipRadius: number, ringScaleEnd: number, maxRadius: number) {
   const ringScale = 1 + (ringScaleEnd - 1) * p
   const clipRadius = Math.min(initialClipRadius * ringScale, maxRadius)
   const contentScale = CONTENT_SCALE_INITIAL + (CONTENT_SCALE_FINAL - CONTENT_SCALE_INITIAL) * p
 
   content.style.transform = `scale(${contentScale})`
   content.style.clipPath = `circle(${clipRadius}px at 50% 50%)`
-  ring.style.transform = `translate(-50%, -50%) scale(${ringScale})`
-  ring.style.opacity = `${Math.max(0, 1 - p * p * p * 2.5)}`
+
+  // Scale the Three.js portal group and fade the canvas via CSS
+  if (portalGroup) {
+    portalGroup.scale.setScalar(ringScale)
+  }
+  if (canvasRef.value) {
+    canvasRef.value.style.opacity = `${Math.max(0, 1 - p * p * p * 2.5)}`
+  }
 }
 
 function playZoom(direction: 'forward') {
-  if (isZooming || !stageRef.value || !contentRef.value || !ringRef.value) return
+  if (isZooming || !stageRef.value || !contentRef.value) return
   isZooming = true
 
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
 
-  const initialClipRadius = (props.ringSize * 0.32) / CONTENT_SCALE_INITIAL
+  const initialClipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
   const ringScaleEnd = 14
   const content = contentRef.value
-  const ring = ringRef.value
   const proxy = { progress: 0 }
 
   zoomTl = gsap.timeline({
@@ -112,25 +123,24 @@ function playZoom(direction: 'forward') {
     progress: 1,
     duration: 2.8,
     ease: 'expo.in',
-    onUpdate: () => applyProgress(proxy.progress, content, ring, initialClipRadius, ringScaleEnd, maxRadius),
+    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, ringScaleEnd, maxRadius),
   }, 0)
 }
 
 function playReverseEntrance() {
-  if (!stageRef.value || !contentRef.value || !ringRef.value) return
+  if (!stageRef.value || !contentRef.value) return
   isZooming = true
   interceptActive = false
 
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
-  const initialClipRadius = (props.ringSize * 0.32) / CONTENT_SCALE_INITIAL
+  const initialClipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
   const ringScaleEnd = 14
   const content = contentRef.value
-  const ring = ringRef.value
 
   // Start at full-screen state
   const proxy = { progress: 1 }
-  applyProgress(1, content, ring, initialClipRadius, ringScaleEnd, maxRadius)
+  applyProgress(1, content, initialClipRadius, ringScaleEnd, maxRadius)
 
   zoomTl = gsap.timeline({
     onComplete: () => {
@@ -144,23 +154,26 @@ function playReverseEntrance() {
     progress: 0,
     duration: 2.0,
     ease: 'expo.out',
-    onUpdate: () => applyProgress(proxy.progress, content, ring, initialClipRadius, ringScaleEnd, maxRadius),
+    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, ringScaleEnd, maxRadius),
   }, 0)
 }
 
 function resetState() {
   // Clip radius matches the portal ring's inner visual radius on screen.
-  // The torus inner edge (~radius 1.1) maps to roughly ringSize * 0.32 in screen px.
+  // The torus inner edge (~radius 1.1) maps to roughly ringSize * 0.38 in screen px.
   // Divide by initial scale so the circle aligns correctly in element coordinates.
-  const clipRadius = (props.ringSize * 0.32) / CONTENT_SCALE_INITIAL
+  const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
   if (contentRef.value) {
     gsap.set(contentRef.value, {
       scale: CONTENT_SCALE_INITIAL,
       clipPath: `circle(${clipRadius}px at 50% 50%)`,
     })
   }
-  if (ringRef.value) {
-    gsap.set(ringRef.value, { scale: 1, opacity: 1 })
+  if (portalGroup) {
+    portalGroup.scale.setScalar(1)
+  }
+  if (canvasRef.value) {
+    canvasRef.value.style.opacity = '1'
   }
   isZooming = false
   zoomTl = null
@@ -211,25 +224,47 @@ function createGlowTexture(): THREE.Texture {
 
 // --- Three.js portal ring ---
 
-onMounted(() => {
-  const el = canvasRef.value
-  if (!el) return
+function initThreeScene(el: HTMLDivElement, w: number, h: number) {
+  if (renderer) return // already initialized
 
   const dpr = 2
-  const w = props.ringSize
-  const h = props.ringSize
-
   const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100)
-  camera.position.z = 4
+  const fov = 50
+  const aspect = w / h
+  const camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 100)
+  // Position camera so the torus (diameter ~2.4 world units) maps to ringSize pixels.
+  // visibleHeight = 2 * z * tan(fov/2);  torusScreenPx = 2.4 * h / visibleHeight
+  // Solve for z: z = 2.4 * h / (2 * ringSize * tan(fov/2))
+  // Effective visual diameter includes spark spread beyond the torus
+  const visualDiameter = 3.0
+  camera.position.z = visualDiameter * h / (2 * props.ringSize * Math.tan((fov / 2) * Math.PI / 180))
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: false })
   renderer.setSize(w, h)
   renderer.setPixelRatio(dpr)
   renderer.setClearColor(0x000000, 0)
+  renderer.toneMapping = THREE.LinearToneMapping
+  renderer.toneMappingExposure = 1.0
   el.appendChild(renderer.domElement)
 
-  const portalGroup = new THREE.Group()
+  // Post-processing: subtle bloom makes sparks glow naturally
+  const renderTarget = new THREE.WebGLRenderTarget(w * dpr, h * dpr, {
+    type: THREE.HalfFloatType,
+    format: THREE.RGBAFormat,
+    samples: 0,
+  })
+  composer = new EffectComposer(renderer, renderTarget)
+  composer.addPass(new RenderPass(scene, camera))
+  const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(w * dpr, h * dpr),
+    0.4,   // strength — subtle glow
+    0.4,   // radius — softer spread
+    0.75,  // threshold
+  )
+  composer.addPass(bloomPass)
+  composer.addPass(new OutputPass())
+
+  portalGroup = new THREE.Group()
   scene.add(portalGroup)
 
   const torus = new THREE.Mesh(
@@ -271,9 +306,9 @@ onMounted(() => {
   // Each spark is born on the ring, inherits tangential velocity, flies outward, fades, dies, respawns.
 
   const glowTex = createGlowTexture()
-  const RING_SPEED = 3.5         // ring rotation speed (rad/s) — fast spinning
+  const RING_SPEED = 14.0        // ring rotation speed (rad/s) — fast spinning
   const RING_RADIUS = 1.15       // where sparks emit from
-  const SPARK_COUNT = 6000
+  const SPARK_COUNT = 2800
   const TRAIL_LEN = 0.18         // trail length in seconds (how far back the tail reaches)
 
   // Per-spark state
@@ -366,37 +401,35 @@ onMounted(() => {
   }))
   portalGroup.add(coreParticles)
 
-  // --- Red haze behind the portal ring ---
+  let lastTime = performance.now() * 0.001
+
+  // --- Subtle red haze behind the portal ring ---
   const hazeSize = 256
   const hazeCanvas = document.createElement('canvas')
   hazeCanvas.width = hazeSize
   hazeCanvas.height = hazeSize
   const hazeCtx = hazeCanvas.getContext('2d')!
-  // Ring-shaped radial gradient: transparent center, red around ring radius, fade out
   const hazeCx = hazeSize / 2
   const hazeGrad = hazeCtx.createRadialGradient(hazeCx, hazeCx, 0, hazeCx, hazeCx, hazeCx)
-  hazeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)')          // transparent center
-  hazeGrad.addColorStop(0.35, 'rgba(60, 8, 0, 0)')       // still transparent approaching ring
-  hazeGrad.addColorStop(0.52, 'rgba(120, 25, 2, 0.35)')  // deep red at ring
-  hazeGrad.addColorStop(0.65, 'rgba(80, 12, 0, 0.2)')    // red fading outward
-  hazeGrad.addColorStop(0.85, 'rgba(40, 5, 0, 0.06)')    // dim red
-  hazeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')           // transparent edge
+  hazeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)')
+  hazeGrad.addColorStop(0.35, 'rgba(60, 8, 0, 0)')
+  hazeGrad.addColorStop(0.52, 'rgba(120, 25, 2, 0.2)')
+  hazeGrad.addColorStop(0.65, 'rgba(80, 12, 0, 0.12)')
+  hazeGrad.addColorStop(0.85, 'rgba(40, 5, 0, 0.04)')
+  hazeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
   hazeCtx.fillStyle = hazeGrad
   hazeCtx.fillRect(0, 0, hazeSize, hazeSize)
   const hazeTex = new THREE.CanvasTexture(hazeCanvas)
-  const hazeMat = new THREE.SpriteMaterial({
+  const hazeSprite = new THREE.Sprite(new THREE.SpriteMaterial({
     map: hazeTex,
     transparent: true,
     opacity: 1.0,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-  })
-  const hazeSprite = new THREE.Sprite(hazeMat)
-  hazeSprite.scale.set(5.5, 5.5, 1) // large enough to extend well past the ring
-  hazeSprite.position.z = -0.1 // slightly behind the sparks
+  }))
+  hazeSprite.scale.set(4.0, 4.0, 1)
+  hazeSprite.position.z = -0.1
   portalGroup.add(hazeSprite)
-
-  let lastTime = performance.now() * 0.001
 
   function animate() {
     const t = performance.now() * 0.001
@@ -439,13 +472,22 @@ onMounted(() => {
       const hx = sparkX[i]
       const hy = sparkY[i]
       const hz = sparkZ[i]
-      // Tail position (where it was TRAIL_LEN seconds ago)
-      const tailX = hx - sparkVx[i] * TRAIL_LEN
-      const tailY = hy - sparkVy[i] * TRAIL_LEN
+      // Trail shrinks with age so sparks fade out smoothly instead of popping
+      const trailScale = Math.max(0, 1 - life * life) // matches the color fade curve
+      // Tail: project where the spark was TRAIL_LEN ago onto the ring
+      // so the trail starts on the circle and extends CCW to current position
+      const rawTailX = hx - sparkVx[i] * TRAIL_LEN * trailScale
+      const rawTailY = hy - sparkVy[i] * TRAIL_LEN * trailScale
+      const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
+      const tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
+      const tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
 
       // Trail: head = vertex 0, tail = vertex 1
-      tPos[i * 6] = hx
-      tPos[i * 6 + 1] = hy
+      // Lerp head toward tail as spark dies so the segment shrinks to nothing
+      const headX = tailX + (hx - tailX) * trailScale
+      const headY = tailY + (hy - tailY) * trailScale
+      tPos[i * 6] = headX
+      tPos[i * 6 + 1] = headY
       tPos[i * 6 + 2] = hz
       tPos[i * 6 + 3] = tailX
       tPos[i * 6 + 4] = tailY
@@ -456,7 +498,8 @@ onMounted(() => {
       const distFromRing = Math.max(0, dist - RING_RADIUS)
       // Hue shift: 0 at ring (orange), 1 at ~0.15 units out (deep red)
       const rs = Math.min(1, distFromRing * 7.0)
-      const fade = 1 - life * life // overall fade with age
+      // Smooth fade: full brightness early, gradual fade to black over full lifetime
+      const fade = Math.max(0, 1 - life * life) // quadratic — gentle at first, steeper at end
 
       // Head: orange at ring, shifting to deep red further out
       // Lower base brightness so additive overlap reads as orange, not white
@@ -470,25 +513,60 @@ onMounted(() => {
       tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade
       tCol[i * 6 + 5] = 0.0
 
-      // Ember at head position
-      ePos[i * 3] = hx
-      ePos[i * 3 + 1] = hy
-      ePos[i * 3 + 2] = hz
+      // Ember at head position — hide when mostly faded
+      if (fade > 0.05) {
+        ePos[i * 3] = hx
+        ePos[i * 3 + 1] = hy
+        ePos[i * 3 + 2] = hz
+      } else {
+        // Move far off-screen so the ember doesn't pop
+        ePos[i * 3] = 0
+        ePos[i * 3 + 1] = 0
+        ePos[i * 3 + 2] = -999
+      }
     }
 
     trailGeo.attributes.position.needsUpdate = true
     trailGeo.attributes.color.needsUpdate = true
     emberGeo.attributes.position.needsUpdate = true
 
-    renderer!.render(scene, camera)
+    composer!.render()
     animationId = requestAnimationFrame(animate)
   }
 
   animate()
+}
+
+onMounted(() => {
+  const el = canvasRef.value
+  const stage = stageRef.value
+  if (!el || !stage) return
+
+  const w = stage.offsetWidth
+  const h = stage.offsetHeight
+
+  if (w > 0 && h > 0) {
+    // Stage already has dimensions — initialize immediately
+    initThreeScene(el, w, h)
+  } else {
+    // Stage has zero size (slide transition in progress) — wait for layout
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+        observer.disconnect()
+        initThreeScene(el, entry.contentRect.width, entry.contentRect.height)
+      }
+    })
+    observer.observe(stage)
+  }
 })
 
 onBeforeUnmount(() => {
   if (animationId) cancelAnimationFrame(animationId)
+  if (composer) {
+    composer.dispose()
+    composer = null
+  }
   if (renderer) {
     renderer.dispose()
     renderer.domElement.remove()
@@ -508,7 +586,7 @@ onBeforeUnmount(() => {
       class="portal-content"
       :style="{
         transform: `scale(${CONTENT_SCALE_INITIAL})`,
-        clipPath: `circle(${(ringSize * 0.32) / CONTENT_SCALE_INITIAL}px at 50% 50%)`,
+        clipPath: `circle(${(ringSize * 0.38) / CONTENT_SCALE_INITIAL}px at 50% 50%)`,
       }"
     >
       <SlideContainer
@@ -525,14 +603,8 @@ onBeforeUnmount(() => {
       </SlideContainer>
     </div>
 
-    <!-- Three.js ring, centered, animates independently -->
-    <div
-      ref="ringRef"
-      class="portal-ring"
-      :style="{ width: ringSize + 'px', height: ringSize + 'px' }"
-    >
-      <div ref="canvasRef" class="portal-canvas" />
-    </div>
+    <!-- Three.js canvas fills full stage so bloom fades seamlessly -->
+    <div ref="canvasRef" class="portal-canvas-full" />
   </div>
 </template>
 
@@ -569,12 +641,16 @@ onBeforeUnmount(() => {
   will-change: transform, opacity;
 }
 
-.portal-canvas {
-  width: 100%;
-  height: 100%;
+.portal-canvas-full {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
-.portal-canvas canvas {
+.portal-canvas-full canvas {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 </style>
