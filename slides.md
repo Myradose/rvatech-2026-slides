@@ -346,38 +346,6 @@ transition: none
   </div>
 </div>
 
-<style>
-.demo-slide {
-  text-align: center;
-}
-.demo-slide h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #e8e8ed;
-  margin: 0 0 1.5rem 0;
-}
-.demo-slide .demo-frame {
-  background: #12121a;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 1.25rem 2rem;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.demo-slide .demo-frame p {
-  margin: 0;
-  color: #e8e8ed;
-  line-height: 1.7;
-}
-.demo-slide .demo-todo {
-  margin-top: 1rem;
-  color: #6b7280;
-}
-</style>
-
 <!--
 Three developer agents, each in their own fully isolated Docker container with the full application stack. They implement tabs, accordions, and side navigation simultaneously. When they're done, I review all three and pick which reality to merge.
 -->
@@ -424,22 +392,6 @@ clicks: 3
     <div class="env-box"><carbon:container-software /><span>Side Nav</span></div>
   </div>
 </div>
-
-<style>
-.iso-title-wrap {
-  width: fit-content;
-  position: relative;
-  left: 0;
-  transform: translateX(0) translateY(0);
-  will-change: left, transform;
-  transition: left 0.6s ease-in-out,
-              transform 0.6s ease-in-out;
-}
-.iso-title-wrap.iso-centered {
-  left: 50%;
-  transform: translateX(-50%) translateY(103px);
-}
-</style>
 
 <!--
 The first pillar: isolated environments. Each agent works in its own Docker container with the full application stack — frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. When they're done, you pull git branches out. This is what makes it safe to let agents work autonomously.

@@ -23,7 +23,7 @@ import SlideWrapper from '@slidev/client/internals/SlideWrapper.vue'
 import { getSlide } from '@slidev/client/logic/slides.ts'
 import { createFixedClicks } from '@slidev/client/composables/useClicks.ts'
 import gsap from 'gsap'
-import { usePortalScene, type PortalState, type PortalSceneOpts } from '../composables/usePortalScene'
+import { usePortalScene, PORTAL_SCENE_DEFAULTS, type PortalState, type PortalSceneOpts } from '../composables/usePortalScene'
 import { usePortalNavigation } from '../composables/usePortalNavigation'
 import PortalDebugPanel from './PortalDebugPanel.vue'
 
@@ -123,25 +123,42 @@ function setZoom(zooming: boolean, forward = false) {
   updateDebugStatus()
 }
 
+/** Set portal state to phase 2 (ready) with full arc visible */
+function setReadyState() {
+  setPhase(2)
+  portalState.arcProgress = Math.PI * 2
+  portalState.sparksActivated = Infinity
+  portalState.coreNeedsFullCircle = true
+}
+
+/** Reset content/canvas DOM to the resting phase-2 appearance */
+function restoreReadyVisuals() {
+  const clipRadius = computeClipRadius()
+  if (contentRef.value) {
+    contentRef.value.style.visibility = 'visible'
+    gsap.set(contentRef.value, {
+      scale: CONTENT_SCALE_INITIAL,
+      clipPath: `circle(${clipRadius}px at 50% 50%)`,
+    })
+  }
+  if (canvasRef.value) {
+    canvasRef.value.style.visibility = 'visible'
+    canvasRef.value.style.opacity = '1'
+  }
+  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+  scene.getPortalGroup()?.scale.setScalar(1)
+}
+
 // Mutable opts object — composable reads these every frame.
 // The debug panel (when dev=true) mutates this directly for live toggling.
 const sceneOpts: PortalSceneOpts = reactive({
+  ...PORTAL_SCENE_DEFAULTS,
   ringSize: props.ringSize,
   ground: props.ground,
   sparks: props.sparks,
   core: props.core,
   haze: props.haze,
   bloom: props.bloom,
-  ringSpeed: 13.5,
-  trailLen: 0.16,
-  bloomStrength: 0.4,
-  bloomRadius: 0.4,
-  bloomThreshold: 0.25,
-  coreSize: 0.12,
-  emberSize: 0.06,
-  hazeIntensity: 1.3,
-  groundY: -1.18,
-  groundDim: 0.35,
 })
 
 const scene = usePortalScene(portalState, sceneOpts)
@@ -188,13 +205,8 @@ function skipCreationToEnd() {
 function cancelReverseCreation() {
   creationTl?.kill()
   creationTl = null
-  setPhase(2)
-  portalState.arcProgress = Math.PI * 2
-  portalState.sparksActivated = Infinity
-  portalState.coreNeedsFullCircle = true
-  if (contentRef.value) contentRef.value.style.visibility = 'visible'
-  if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
-  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+  setReadyState()
+  restoreReadyVisuals()
 }
 
 function skipZoomToEnd() {
@@ -210,24 +222,8 @@ function cancelZoomToPhase2() {
   zoomTl?.kill()
   zoomTl = null
   setZoom(false)
-  setPhase(2)
-  portalState.arcProgress = Math.PI * 2
-  portalState.sparksActivated = Infinity
-  portalState.coreNeedsFullCircle = true
-  const clipRadius = computeClipRadius()
-  if (contentRef.value) {
-    contentRef.value.style.visibility = 'visible'
-    gsap.set(contentRef.value, {
-      scale: CONTENT_SCALE_INITIAL,
-      clipPath: `circle(${clipRadius}px at 50% 50%)`,
-    })
-  }
-  if (canvasRef.value) {
-    canvasRef.value.style.visibility = 'visible'
-    canvasRef.value.style.opacity = '1'
-  }
-  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
-  scene.getPortalGroup()?.scale.setScalar(1)
+  setReadyState()
+  restoreReadyVisuals()
   navControl.interceptActive = true
 }
 
@@ -275,7 +271,7 @@ function playCreation() {
   if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
   const proxy = { arc: 0 }
   creationTl = gsap.timeline({
-    onComplete: () => { setPhase(2); portalState.sparksActivated = Infinity; portalState.coreNeedsFullCircle = true },
+    onComplete: () => setReadyState(),
   })
   creationTl.to(proxy, {
     arc: Math.PI * 2,
@@ -351,13 +347,8 @@ function playReverseEntrance() {
   setZoom(true, false)
   navControl.interceptActive = true
 
-  setPhase(2)
-  portalState.arcProgress = Math.PI * 2
-  portalState.sparksActivated = Infinity
-  portalState.coreNeedsFullCircle = true
-  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
-  if (contentRef.value) contentRef.value.style.visibility = 'visible'
-  if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
+  setReadyState()
+  restoreReadyVisuals()
   scene.resetVisuals()
 
   const stage = stageRef.value
@@ -372,19 +363,8 @@ function playReverseEntrance() {
     onComplete: () => {
       setZoom(false)
       zoomTl = null
-      setPhase(2)
-      portalState.arcProgress = Math.PI * 2
-      portalState.sparksActivated = Infinity
-      if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
-      const clipRadius = computeClipRadius()
-      if (contentRef.value) {
-        gsap.set(contentRef.value, {
-          scale: CONTENT_SCALE_INITIAL,
-          clipPath: `circle(${clipRadius}px at 50% 50%)`,
-        })
-      }
-      scene.getPortalGroup()?.scale.setScalar(1)
-      if (canvasRef.value) canvasRef.value.style.opacity = '1'
+      setReadyState()
+      restoreReadyVisuals()
       navControl.interceptActive = true
     },
   })

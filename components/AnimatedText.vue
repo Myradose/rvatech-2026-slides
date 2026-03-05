@@ -30,6 +30,12 @@ const containerRef = ref<HTMLElement>()
 const words = props.text.split(' ')
 let tl: gsap.core.Timeline | null = null
 
+function resetElements() {
+  if (!containerRef.value) return
+  const wordEls = containerRef.value.querySelectorAll('.anim-word')
+  gsap.set(wordEls, { opacity: 0, y: 20 })
+}
+
 onSlideEnter(() => {
   if (!containerRef.value) return
 
@@ -52,19 +58,11 @@ onSlideEnter(() => {
 onSlideLeave(() => {
   tl?.kill()
   tl = null
-  // Reset words to hidden state
-  if (containerRef.value) {
-    const wordEls = containerRef.value.querySelectorAll('.anim-word')
-    gsap.set(wordEls, { opacity: 0, y: 20 })
-  }
+  resetElements()
 })
 
 onMounted(() => {
-  // Start hidden
-  if (containerRef.value) {
-    const wordEls = containerRef.value.querySelectorAll('.anim-word')
-    gsap.set(wordEls, { opacity: 0, y: 20 })
-  }
+  resetElements()
 })
 </script>
 

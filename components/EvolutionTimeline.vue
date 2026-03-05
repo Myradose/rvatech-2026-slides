@@ -12,6 +12,13 @@ import gsap from 'gsap'
 const containerRef = ref<HTMLElement>()
 let tl: gsap.core.Timeline | null = null
 
+function resetElements() {
+  if (!containerRef.value) return
+  const items = containerRef.value.querySelectorAll('.evo-tl-item')
+  const arrows = containerRef.value.querySelectorAll('.evo-tl-arrow')
+  gsap.set([items, arrows], { opacity: 0, x: -30 })
+}
+
 function buildTimeline() {
   if (!containerRef.value) return
 
@@ -19,8 +26,7 @@ function buildTimeline() {
   const arrows = containerRef.value.querySelectorAll('.evo-tl-arrow')
   const glowItem = containerRef.value.querySelector('.evo-tl-highlight')
 
-  // Start everything hidden
-  gsap.set([items, arrows], { opacity: 0, x: -30 })
+  resetElements()
 
   tl = gsap.timeline()
 
@@ -61,19 +67,11 @@ onSlideEnter(() => {
 onSlideLeave(() => {
   tl?.kill()
   tl = null
-  if (containerRef.value) {
-    const items = containerRef.value.querySelectorAll('.evo-tl-item')
-    const arrows = containerRef.value.querySelectorAll('.evo-tl-arrow')
-    gsap.set([items, arrows], { opacity: 0, x: -30 })
-  }
+  resetElements()
 })
 
 onMounted(() => {
-  if (containerRef.value) {
-    const items = containerRef.value.querySelectorAll('.evo-tl-item')
-    const arrows = containerRef.value.querySelectorAll('.evo-tl-arrow')
-    gsap.set([items, arrows], { opacity: 0, x: -30 })
-  }
+  resetElements()
 })
 </script>
 

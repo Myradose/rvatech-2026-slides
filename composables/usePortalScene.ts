@@ -37,6 +37,24 @@ export interface PortalSceneOpts {
   groundDim: number
 }
 
+export const PORTAL_SCENE_DEFAULTS: Omit<PortalSceneOpts, 'ringSize'> = {
+  ground: true,
+  sparks: true,
+  core: true,
+  haze: true,
+  bloom: true,
+  ringSpeed: 13.5,
+  trailLen: 0.16,
+  bloomStrength: 0.4,
+  bloomRadius: 0.4,
+  bloomThreshold: 0.25,
+  coreSize: 0.12,
+  emberSize: 0.06,
+  hazeIntensity: 1.3,
+  groundY: -1.18,
+  groundDim: 0.35,
+}
+
 const RING_RADIUS = 1.15
 const SPARK_COUNT = 2800
 const CORE_COUNT = 800
@@ -293,9 +311,6 @@ function createCoreSystem(
   portalGroup: THREE.Group,
 ): CoreSystem {
   const corePositions = new Float32Array(CORE_COUNT * 3)
-  for (let i = 0; i < CORE_COUNT; i++) {
-    corePositions[i * 3 + 2] = -999
-  }
   const coreGeo = new THREE.BufferGeometry()
   coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3))
   const coreMat = new THREE.PointsMaterial({
@@ -360,6 +375,8 @@ function createCoreSystem(
     coreGeo.dispose()
     coreMat.dispose()
   }
+
+  reset()
 
   return { update, reset, dispose }
 }

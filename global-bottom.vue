@@ -24,10 +24,7 @@
   z-index: 100;
 }
 
-.footer-title {
-  opacity: 0.6;
-}
-
+.footer-title,
 .footer-page {
   opacity: 0.6;
 }

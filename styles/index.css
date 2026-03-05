@@ -12,6 +12,7 @@
   --color-accent-bright: #f97316;
   --color-accent-glow: rgba(245, 158, 11, 0.3);
   --color-success: #10b981;
+  --color-border: rgba(255, 255, 255, 0.06);
   --color-code-bg: #12121a;
 }
 
@@ -81,7 +82,7 @@ strong {
 
 .prompt-card {
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem 1.25rem;
 }
@@ -119,7 +120,7 @@ strong {
   gap: 0.5rem;
   padding: 1.25rem 1.5rem;
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   min-width: 180px;
 }
@@ -153,7 +154,7 @@ strong {
 /* Demo frame placeholder */
 .demo-frame {
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 2rem;
   margin-top: 1rem;
@@ -168,7 +169,7 @@ strong {
 /* App screenshot placeholder */
 .app-screenshot {
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 2rem;
   margin: 1rem 0;
@@ -227,7 +228,7 @@ blockquote p {
   gap: 0.5rem;
   padding: 0.6rem 1.25rem;
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
@@ -344,7 +345,7 @@ li::marker {
 
 .pillar-card {
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
@@ -437,7 +438,7 @@ li::marker {
   gap: 0.5rem;
   padding: 1rem 2rem;
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
@@ -519,7 +520,7 @@ li::marker {
   gap: 0.4rem;
   padding: 0.6rem 1.25rem;
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
@@ -569,7 +570,7 @@ li::marker {
   gap: 0.35rem;
   padding: 0.75rem 1.5rem;
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
@@ -624,7 +625,7 @@ li::marker {
   gap: 0.4rem;
   padding: 0.4rem 0.75rem;
   background: var(--color-bg-light);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
 }
 
@@ -642,7 +643,7 @@ li::marker {
 
 .race-track {
   height: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -698,4 +699,61 @@ li::marker {
 .qr-label {
   font-size: 0.75rem;
   color: var(--color-text-muted);
+}
+
+/* ========================================
+   Demo slide (slide 14)
+   ======================================== */
+
+.demo-slide {
+  text-align: center;
+}
+
+.demo-slide h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e8e8ed;
+  margin: 0 0 1.5rem 0;
+}
+
+.demo-slide .demo-frame {
+  background: #12121a;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem 2rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-slide .demo-frame p {
+  margin: 0;
+  color: #e8e8ed;
+  line-height: 1.7;
+}
+
+.demo-slide .demo-todo {
+  margin-top: 1rem;
+  color: #6b7280;
+}
+
+/* ========================================
+   Isolated environments title (slide 15)
+   ======================================== */
+
+.iso-title-wrap {
+  width: fit-content;
+  position: relative;
+  left: 0;
+  transform: translateX(0) translateY(0);
+  will-change: left, transform;
+  transition: left 0.6s ease-in-out,
+              transform 0.6s ease-in-out;
+}
+
+.iso-title-wrap.iso-centered {
+  left: 50%;
+  transform: translateX(-50%) translateY(103px);
 }

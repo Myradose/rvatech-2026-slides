@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { PortalSceneOpts } from '../composables/usePortalScene'
+import { PORTAL_SCENE_DEFAULTS, type PortalSceneOpts } from '../composables/usePortalScene'
 
 const props = defineProps<{
   status: string
@@ -41,16 +41,8 @@ const SLIDER_CONTROLS: { key: keyof PortalSceneOpts; label: string; min: number;
   { key: 'groundDim', label: 'Gnd dim', min: 0, max: 1, step: 0.05 },
 ]
 
-const DEFAULTS: Partial<PortalSceneOpts> = {
-  ground: true, sparks: true, core: true, haze: true, bloom: true,
-  ringSpeed: 13.5, trailLen: 0.16,
-  bloomStrength: 0.4, bloomRadius: 0.4, bloomThreshold: 0.25,
-  coreSize: 0.12, emberSize: 0.06, hazeIntensity: 1.3,
-  groundY: -1.18, groundDim: 0.35,
-}
-
 function resetOpts() {
-  Object.assign(props.opts, DEFAULTS)
+  Object.assign(props.opts, PORTAL_SCENE_DEFAULTS)
 }
 </script>
 
