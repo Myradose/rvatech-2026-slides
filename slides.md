@@ -494,7 +494,18 @@ So you've seen what this looks like in practice. Now I want to take it further. 
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-Instead of you specifying "try tabs, try accordions" - an architect agent generates the design options and creates the task prompts itself.
+<div class="architect-diagram">
+  <div class="architect-input"><carbon:user /><span>Your goal</span></div>
+  <div class="architect-arrow-down">↓</div>
+  <div class="architect-box"><carbon:machine-learning-model /><span>Architect Agent</span></div>
+  <div class="architect-arrow-down">↓ designs &amp; spawns</div>
+  <div class="architect-workers-row">
+    <div class="architect-worker"><carbon:container-software /><span>Task A</span></div>
+    <div class="architect-worker"><carbon:container-software /><span>Task B</span></div>
+    <div class="architect-worker"><carbon:container-software /><span>Task C</span></div>
+    <div class="architect-worker architect-worker-extra"><span>...</span></div>
+  </div>
+</div>
 
 </div>
 
@@ -503,26 +514,26 @@ In that demo, I created the task instructions. But what if we designed an agent 
 -->
 
 ---
+clicks: 3
+---
 
 # What If: Race & Compare
 
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+- **Multiple agents, same task** — race them and take the best result
 
-- **Multiple agents, same task** - take the one that finishes first, scrap the rest
+<div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- **Multiple LLMs, same task** - compare which model is best suited for the job
+- **First to finish wins**, or compare all results and pick the best
 
 </div>
 
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<div v-click="3" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- **Multiple approaches, same goal** - the best implementation wins
+- Works across **different agents**, **different LLMs**, or **different approaches**
 
 </div>
+
+<RaceDiagram :click="1" />
 
 <!--
 What if instead of one agent per task, we had two or three and took the first to finish? What if we had different LLM models tackling the same task to compare which was best?
@@ -534,7 +545,7 @@ layout: statement
 
 <AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
 
-<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed *how* features get built instead of building every one by hand?</p>
+<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
 
 <!--
 The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? You become the architect, not the bricklayer.
