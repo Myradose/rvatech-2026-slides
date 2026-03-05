@@ -34,6 +34,8 @@ export interface PortalSceneOpts {
   coreSize: number
   emberSize: number
   hazeIntensity: number
+  groundY: number
+  groundDim: number
 }
 
 function createGlowTexture(): THREE.Texture {
@@ -110,7 +112,6 @@ export function usePortalScene(
     const glowTex = createGlowTexture()
     const RING_RADIUS = 1.15
     const SPARK_COUNT = 2800
-    const GROUND_Y = -RING_RADIUS - 0.025
     const ARC_START = Math.PI / 2
 
     // --- Spark emitter (always allocated, visibility controlled by opts.sparks) ---
@@ -122,6 +123,7 @@ export function usePortalScene(
     const sparkAge = new Float32Array(SPARK_COUNT)
     const sparkMaxAge = new Float32Array(SPARK_COUNT)
     const sparkZ = new Float32Array(SPARK_COUNT)
+    const sparkGrounded = new Uint8Array(SPARK_COUNT)
 
     function spawnSpark(i: number, t: number) {
       let ringAngle: number
@@ -147,6 +149,7 @@ export function usePortalScene(
 
       sparkAge[i] = 0
       sparkMaxAge[i] = 0.12 + Math.random() * 0.35
+      sparkGrounded[i] = 0
     }
 
     function killAllSparks() {
@@ -154,6 +157,7 @@ export function usePortalScene(
         sparkAge[i] = 999
         sparkMaxAge[i] = 1
       }
+      sparkGrounded.fill(0)
     }
 
     killAllSparks()
@@ -423,10 +427,11 @@ export function usePortalScene(
           sparkVx[i] *= (1 - 3.0 * dt)
           sparkVy[i] *= (1 - 3.0 * dt)
 
-          if (opts.ground && sparkY[i] < GROUND_Y) {
-            sparkY[i] = GROUND_Y
+          if (opts.ground && sparkY[i] < opts.groundY) {
+            sparkY[i] = opts.groundY
             sparkVy[i] = 0
             sparkVx[i] *= 0.85
+            sparkGrounded[i] = 1
           }
 
           const life = sparkAge[i] / sparkMaxAge[i]
@@ -437,12 +442,29 @@ export function usePortalScene(
           const trailScale = Math.max(0, 1 - life * life)
           const rawTailX = hx - sparkVx[i] * opts.trailLen * trailScale
           const rawTailY = hy - sparkVy[i] * opts.trailLen * trailScale
-          const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
-          const tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
-          const tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
 
-          const headX = tailX + (hx - tailX) * trailScale
-          const headY = tailY + (hy - tailY) * trailScale
+          let tailX: number, tailY: number, headX: number, headY: number
+          if (sparkGrounded[i]) {
+            tailX = rawTailX
+            tailY = rawTailY
+            headX = hx
+            headY = hy
+          } else {
+            const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
+            tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
+            tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
+            headX = tailX + (hx - tailX) * trailScale
+            headY = tailY + (hy - tailY) * trailScale
+          }
+
+          const dist = Math.sqrt(hx * hx + hy * hy)
+          const distFromRing = Math.max(0, dist - RING_RADIUS)
+          const rs = Math.min(1, distFromRing * 7.0)
+          const fade = Math.max(0, 1 - life * life)
+
+          // Dim grounded sparks
+          const dim = sparkGrounded[i] ? opts.groundDim : 1.0
+
           tPos[i * 6] = headX
           tPos[i * 6 + 1] = headY
           tPos[i * 6 + 2] = hz
@@ -450,18 +472,13 @@ export function usePortalScene(
           tPos[i * 6 + 4] = tailY
           tPos[i * 6 + 5] = hz
 
-          const dist = Math.sqrt(hx * hx + hy * hy)
-          const distFromRing = Math.max(0, dist - RING_RADIUS)
-          const rs = Math.min(1, distFromRing * 7.0)
-          const fade = Math.max(0, 1 - life * life)
-
-          tCol[i * 6]     = (0.6 - rs * 0.15) * fade
-          tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade
-          tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade
+          tCol[i * 6]     = (0.6 - rs * 0.15) * fade * dim
+          tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade * dim
+          tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade * dim
           const trs = Math.min(1, rs + 0.4)
           const tailFade = fade * 0.6
-          tCol[i * 6 + 3] = (0.5 - trs * 0.15) * tailFade
-          tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade
+          tCol[i * 6 + 3] = (0.5 - trs * 0.15) * tailFade * dim
+          tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade * dim
           tCol[i * 6 + 5] = 0.0
 
           if (fade > 0.05) {

@@ -139,6 +139,8 @@ const sceneOpts: PortalSceneOpts = reactive({
   coreSize: 0.12,
   emberSize: 0.06,
   hazeIntensity: 1.3,
+  groundY: -1.18,
+  groundDim: 0.35,
 })
 
 const scene = usePortalScene(portalState, sceneOpts)
@@ -160,6 +162,8 @@ const SLIDER_CONTROLS: { key: keyof PortalSceneOpts; label: string; min: number;
   { key: 'coreSize', label: 'Core size', min: 0.01, max: 0.2, step: 0.005 },
   { key: 'emberSize', label: 'Ember size', min: 0.01, max: 0.15, step: 0.005 },
   { key: 'hazeIntensity', label: 'Haze int', min: 0, max: 3, step: 0.1 },
+  { key: 'groundY', label: 'Gnd pos', min: -2.5, max: -0.5, step: 0.025 },
+  { key: 'groundDim', label: 'Gnd dim', min: 0, max: 1, step: 0.05 },
 ]
 
 const SCENE_OPTS_DEFAULTS: PortalSceneOpts = {
@@ -168,6 +172,8 @@ const SCENE_OPTS_DEFAULTS: PortalSceneOpts = {
   ringSpeed: 13.5, trailLen: 0.16,
   bloomStrength: 0.4, bloomRadius: 0.4, bloomThreshold: 0.25,
   coreSize: 0.12, emberSize: 0.06, hazeIntensity: 1.3,
+  groundY: -1.18,
+  groundDim: 0.35,
 }
 
 function resetSceneOpts() {
