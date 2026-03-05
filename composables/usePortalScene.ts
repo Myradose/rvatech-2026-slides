@@ -26,6 +26,14 @@ export interface PortalSceneOpts {
   core: boolean
   haze: boolean
   bloom: boolean
+  ringSpeed: number
+  trailLen: number
+  bloomStrength: number
+  bloomRadius: number
+  bloomThreshold: number
+  coreSize: number
+  emberSize: number
+  hazeIntensity: number
 }
 
 function createGlowTexture(): THREE.Texture {
@@ -89,9 +97,9 @@ export function usePortalScene(
     composer.addPass(new RenderPass(scene, camera))
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(w * dpr, h * dpr),
-      0.4,   // strength
-      0.4,   // radius
-      0.75,  // threshold
+      opts.bloomStrength,
+      opts.bloomRadius,
+      opts.bloomThreshold,
     )
     composer.addPass(bloomPass)
     composer.addPass(new OutputPass())
@@ -100,10 +108,8 @@ export function usePortalScene(
     scene.add(portalGroup)
 
     const glowTex = createGlowTexture()
-    const RING_SPEED = 14.0
     const RING_RADIUS = 1.15
     const SPARK_COUNT = 2800
-    const TRAIL_LEN = 0.18
     const GROUND_Y = -RING_RADIUS - 0.025
     const ARC_START = Math.PI / 2
 
@@ -122,14 +128,14 @@ export function usePortalScene(
       if (state.phase === 1 || state.phase === 3) {
         ringAngle = ARC_START + Math.random() * state.arcProgress
       } else {
-        ringAngle = t * RING_SPEED + Math.random() * Math.PI * 2
+        ringAngle = t * opts.ringSpeed + Math.random() * Math.PI * 2
       }
       const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
       sparkX[i] = Math.cos(ringAngle) * r
       sparkY[i] = Math.sin(ringAngle) * r
       sparkZ[i] = (Math.random() - 0.5) * 0.08
 
-      const tangentSpeed = RING_SPEED * r
+      const tangentSpeed = opts.ringSpeed * r
       const tx = -Math.sin(ringAngle)
       const ty = Math.cos(ringAngle)
       const rx = Math.cos(ringAngle)
@@ -176,7 +182,7 @@ export function usePortalScene(
     const emberMat = new THREE.PointsMaterial({
       map: glowTex,
       color: 0xee8811,
-      size: 0.045,
+      size: opts.emberSize,
       transparent: true,
       opacity: 0.6,
       blending: THREE.AdditiveBlending,
@@ -196,7 +202,7 @@ export function usePortalScene(
     const coreGeo = new THREE.BufferGeometry()
     coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3))
     const coreMat = new THREE.PointsMaterial({
-      map: glowTex, color: 0xee8811, size: 0.06,
+      map: glowTex, color: 0xee8811, size: opts.coreSize,
       transparent: true, opacity: 0.7,
       blending: THREE.AdditiveBlending, depthWrite: false,
     })
@@ -230,6 +236,7 @@ export function usePortalScene(
       uArcStart: { value: ARC_START },
       uArcProgress: { value: 0.0 },
       uSoftEdge: { value: 0.5 },  // radians of soft leading edge
+      uIntensity: { value: 1.0 },
     }
     const hazeMat = new THREE.ShaderMaterial({
       uniforms: hazeUniforms,
@@ -248,6 +255,7 @@ export function usePortalScene(
         uniform float uArcStart;
         uniform float uArcProgress;
         uniform float uSoftEdge;
+        uniform float uIntensity;
         varying vec2 vUv;
 
         #define TAU 6.2831853
@@ -263,7 +271,7 @@ export function usePortalScene(
 
           // Full circle — no masking needed
           if (uArcProgress >= TAU) {
-            gl_FragColor = tex;
+            gl_FragColor = tex * uIntensity;
             return;
           }
 
@@ -285,7 +293,7 @@ export function usePortalScene(
           float fullness = smoothstep(TAU - uSoftEdge * 2.0, TAU, uArcProgress);
           float mask = mix(arcMask, 1.0, fullness);
 
-          gl_FragColor = tex * mask;
+          gl_FragColor = tex * mask * uIntensity;
         }
       `,
     })
@@ -363,7 +371,7 @@ export function usePortalScene(
             }
             coreGeo.attributes.position.needsUpdate = true
           }
-          coreParticles.rotation.z = t * RING_SPEED
+          coreParticles.rotation.z = t * opts.ringSpeed
         }
       }
 
@@ -427,8 +435,8 @@ export function usePortalScene(
           const hy = sparkY[i]
           const hz = sparkZ[i]
           const trailScale = Math.max(0, 1 - life * life)
-          const rawTailX = hx - sparkVx[i] * TRAIL_LEN * trailScale
-          const rawTailY = hy - sparkVy[i] * TRAIL_LEN * trailScale
+          const rawTailX = hx - sparkVx[i] * opts.trailLen * trailScale
+          const rawTailY = hy - sparkVy[i] * opts.trailLen * trailScale
           const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
           const tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
           const tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
@@ -471,6 +479,14 @@ export function usePortalScene(
         trailGeo.attributes.color.needsUpdate = true
         emberGeo.attributes.position.needsUpdate = true
       }
+
+      // Update dynamic parameters from opts each frame
+      bloomPass.strength = opts.bloomStrength
+      bloomPass.radius = opts.bloomRadius
+      bloomPass.threshold = opts.bloomThreshold
+      coreMat.size = opts.coreSize
+      emberMat.size = opts.emberSize
+      hazeUniforms.uIntensity.value = opts.hazeIntensity
 
       if (opts.bloom) {
         composer!.render()
