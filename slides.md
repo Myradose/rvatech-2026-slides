@@ -568,19 +568,15 @@ What if instead of one agent per task, we had two or three and took the first to
 -->
 
 ---
+layout: center
+---
 
-# Demo 2: UI Design Agent
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-An agent that specializes in **UI design** will generate 5 different design themes, then spawn 5 parallel agents to implement them.
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-TODO: Kick off demo, switch to dashboard
-
+<div class="demo-slide">
+  <h1>Live Demo: UI Design Agent</h1>
+  <div class="demo-frame">
+    <p>One architect agent. Five design themes. Five parallel agents implementing them.</p>
+    <p class="demo-todo">TODO: Kick off demo, switch to dashboard</p>
+  </div>
 </div>
 
 <!--
