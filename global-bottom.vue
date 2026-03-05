@@ -1,6 +1,6 @@
 <template>
   <footer
-    v-if="$nav.currentLayout !== 'cover' && $nav.currentLayout !== 'end'"
+    v-show="$nav.currentPage > 1 && $nav.currentPage < $nav.total"
     class="slide-footer"
   >
     <span class="footer-title">The Doctor Strange Approach</span>
@@ -10,7 +10,7 @@
 
 <style scoped>
 .slide-footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -21,6 +21,7 @@
   font-size: 0.7rem;
   color: #6b7280;
   pointer-events: none;
+  z-index: 100;
 }
 
 .footer-title {
