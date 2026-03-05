@@ -28,7 +28,7 @@ presenter: true
 </div>
 
 <!--
-Welcome everyone. My name is Alden Geipel and today I'm going to talk about what I'm calling the Doctor Strange approach to parallel agent orchestration.
+Welcome everyone. My name is Alden Geipel and today I'm going to talk about what I'm calling the Doctor Strange approach to parallel agent orchestration. My goal is to transform the way you think about AI agents — this is particularly relevant to development work, but the concepts apply to any agent that performs tangible work.
 -->
 
 ---
@@ -564,7 +564,7 @@ clicks: 3
 <RaceDiagram :click="1" />
 
 <!--
-What if instead of one agent per task, we had two or three and took the first to finish? What if we had different LLM models tackling the same task to compare which was best?
+What if instead of one agent per task, we had two or three and took the first to finish? Or what if we had different LLM models tackling the same task to compare which was best suited for the job? You could race Claude against GPT against Gemini on the same prompt and pick the winner.
 -->
 
 ---
@@ -592,7 +592,7 @@ layout: statement
 <p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
 
 <!--
-The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? You become the architect, not the bricklayer.
+The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? What if we developed a very robust agent harness where each developer can manage multiple large, complex tasks at the same time — designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand? You become the architect, not the bricklayer.
 -->
 
 ---
@@ -659,9 +659,7 @@ Two things I didn't demo but are critical for the future. First, agent harnesses
 </div>
 
 <!--
-All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator and Cole Medin.
-
-Important context if asked: this is all very experimental. It was built quickly with heavy use of Claude Code, and the git history reflects that. The network restrictions use a squid proxy, which is a basic measure - in a real setup you'd want proper Docker network policies or a real firewall, since the proxy can be bypassed. TSK is a fork where I made significant changes to support long-running containers, serve infrastructure, Traefik routing, configurable observability, and more. The Claude Code Viewer is also a fork - I primarily use it for the log viewing UI and the existing stack it was built on, not the other features from the original project. None of this should be considered production-ready.
+All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator, the Claude Code Viewer project, and Cole Medin. Important caveat: this was built in about a week with heavy AI assistance and is not production-ready.
 -->
 
 ---
@@ -681,5 +679,5 @@ Thank you for your time.
 </div>
 
 <!--
-Now I'll open the floor for Q&A while the UI design agents are running. If we have time at the end, I'll show their work.
+Now I'll open the floor for Q&A while the UI design agents are running. I'm going to leave a small section of time at the end to show their work. Thank you so much for your time, and I hope this reshapes your perspective on how AI agents can operate.
 -->
