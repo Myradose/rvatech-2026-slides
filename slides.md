@@ -357,12 +357,53 @@ Three developer agents, each in their own fully isolated Docker container with t
 -->
 
 ---
-layout: none
-transition: none
 clicks: 3
 ---
 
-<IsolatedEnvsSlide />
+<div class="iso-title-wrap" v-motion :initial="{ x: 250, y: 60, transition: { type: 'tween', duration: 600, ease: 'easeInOut' } }" :click-1="{ x: 0, y: 0, transition: { type: 'tween', duration: 600, ease: 'easeInOut' } }">
+
+# Isolated Environments
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', delay: 400, duration: 400 } }">
+
+- Each agent runs in its own **Docker container** with the full application stack
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', duration: 400 } }">
+
+- Containers have **restricted network access** - isolated from your system and each other
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', duration: 400 } }">
+
+- Agents can run builds, serve the app, execute tests - all without touching your machine
+
+</div>
+
+<div class="env-visual">
+  <div class="env-host-box"><carbon:laptop /><span>Your Machine</span></div>
+  <div class="env-arrows">
+    <span class="env-arrow-down">↓</span>
+    <span class="env-arrow-label">tsk start</span>
+    <span class="env-arrow-up">↑</span>
+    <span class="env-arrow-label">git branches</span>
+  </div>
+  <div class="env-containers-row">
+    <div class="env-box"><carbon:container-software /><span>Tabs</span></div>
+    <div class="env-box"><carbon:container-software /><span>Accordions</span></div>
+    <div class="env-box"><carbon:container-software /><span>Side Nav</span></div>
+  </div>
+</div>
+
+<style>
+.iso-title-wrap {
+  width: fit-content;
+}
+</style>
 
 <!--
 The first pillar: isolated environments. Each agent works in its own Docker container with the full application stack — frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. When they're done, you pull git branches out. This is what makes it safe to let agents work autonomously.
