@@ -616,6 +616,9 @@ While the UI design agents are running, I want to mention a concept I didn't dem
 
 # Resources
 
+<div class="resources-layout">
+<div class="resources-list">
+
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
 - Source code - **open source** (link TODO)
@@ -631,6 +634,7 @@ While the UI design agents are running, I want to mention a concept I didn't dem
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
 
 - Shoutout to the original TSK repo creator
+- Shoutout to the Claude Code Viewer project
 - Shoutout to Cole Medin for his YouTube resources
 
 </div>
@@ -638,6 +642,14 @@ While the UI design agents are running, I want to mention a concept I didn't dem
 <p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1100, duration: 500 } }">This is experimental - not production-ready.</p>
 
 <p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1400, duration: 500 } }">None of this information should be gatekept.</p>
+
+</div>
+<div class="resources-qr" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 400, duration: 600 } }">
+  <img src="/qr-code.png" class="qr-image" alt="QR code" />
+  <span class="qr-label">Scan for all links</span>
+  <span class="qr-label" style="color: var(--color-accent); font-style: italic;">TODO: replace with real URL</span>
+</div>
+</div>
 
 <!--
 All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator and Cole Medin.
@@ -654,6 +666,12 @@ layout: center
 Thank you for your time.
 
 <p class="subtitle">Agents are running in the background. Let's check on them at the end.</p>
+
+<div style="position: absolute; bottom: 2.5rem; right: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
+  <img src="/qr-code.png" style="width: 120px; height: 120px; border-radius: 6px;" alt="QR code" />
+  <span class="qr-label">Resources</span>
+  <span class="qr-label" style="color: var(--color-accent); font-style: italic;">TODO: replace</span>
+</div>
 
 <!--
 Now I'll open the floor for Q&A while the UI design agents are running. If we have time at the end, I'll show their work.

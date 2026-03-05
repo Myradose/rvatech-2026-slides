@@ -615,3 +615,37 @@ li::marker {
   color: #10b981;
   font-weight: 700;
 }
+
+/* ========================================
+   Resources layout (slide 23)
+   ======================================== */
+
+.resources-layout {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.resources-list {
+  flex: 1;
+}
+
+.resources-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-right: 4rem;
+}
+
+.qr-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+}
+
+.qr-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
