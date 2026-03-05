@@ -256,7 +256,7 @@ This brings me to what I believe is the next evolution: environment engineering.
   </div>
   <div class="pillar-card" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
     <div class="pillar-icon"><carbon:download /></div>
-    <h3>Work Retrieval</h3>
+    <h3>Work<br>Retrieval</h3>
     <p>Infrastructure to extract results from each environment</p>
   </div>
 </div>
