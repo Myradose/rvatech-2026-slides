@@ -572,10 +572,14 @@ While the UI design agents are running, I want to mention a concept I didn't dem
 
 </div>
 
-<p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1100, duration: 500 } }">None of this information should be gatekept.</p>
+<p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1100, duration: 500 } }">This is experimental - not production-ready.</p>
+
+<p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1400, duration: 500 } }">None of this information should be gatekept.</p>
 
 <!--
 All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator and Cole Medin.
+
+Important context if asked: this is all very experimental. It was built quickly with heavy use of Claude Code, and the git history reflects that. The network restrictions use a squid proxy, which is a basic measure - in a real setup you'd want proper Docker network policies or a real firewall, since the proxy can be bypassed. TSK is a fork where I made significant changes to support long-running containers, serve infrastructure, Traefik routing, configurable observability, and more. The Claude Code Viewer is also a fork - I primarily use it for the log viewing UI and the existing stack it was built on, not the other features from the original project. None of this should be considered production-ready.
 -->
 
 ---
