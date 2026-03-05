@@ -26,10 +26,13 @@ import gsap from 'gsap'
 
 const props = withDefaults(defineProps<{
   ringSize?: number
+  /** Enable ground plane that sparks settle on */
+  ground?: boolean
   /** Override which slide to show through the portal (default: current + 1) */
   nextSlide?: number
 }>(), {
   ringSize: 360,
+  ground: true,
 })
 
 // --- Slidev internals: render the next slide ---
@@ -310,6 +313,7 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   const RING_RADIUS = 1.15       // where sparks emit from
   const SPARK_COUNT = 2800
   const TRAIL_LEN = 0.18         // trail length in seconds (how far back the tail reaches)
+  const GROUND_Y = -RING_RADIUS - 0.025 // flat ground just below the ring
 
   // Per-spark state
   const sparkX = new Float32Array(SPARK_COUNT)
@@ -458,6 +462,9 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
         spawnSpark(i, t)
       }
 
+      // Gravity pulls sparks downward
+      if (props.ground) sparkVy[i] -= 0.8 * dt
+
       // Advance position
       sparkX[i] += sparkVx[i] * dt
       sparkY[i] += sparkVy[i] * dt
@@ -465,6 +472,13 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
       // Strong drag so sparks stay near the ring
       sparkVx[i] *= (1 - 3.0 * dt)
       sparkVy[i] *= (1 - 3.0 * dt)
+
+      // Ground collision: sparks settle on the floor
+      if (props.ground && sparkY[i] < GROUND_Y) {
+        sparkY[i] = GROUND_Y
+        sparkVy[i] = 0
+        sparkVx[i] *= 0.85 // friction along the ground
+      }
 
       const life = sparkAge[i] / sparkMaxAge[i] // 0→1
 
@@ -613,7 +627,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #0a0a0f;
+  background: #000;
 }
 
 .portal-content {

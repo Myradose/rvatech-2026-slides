@@ -290,6 +290,12 @@ li::marker {
   text-align: center;
 }
 
+.pillar-icon {
+  font-size: 1.75rem;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+}
+
 .pillar-card h3 {
   font-size: 1rem;
   margin: 0 0 0.5rem 0;
