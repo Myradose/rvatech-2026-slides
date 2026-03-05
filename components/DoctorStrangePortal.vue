@@ -6,6 +6,11 @@
  * next slide inside the portal (no content duplication). On advance, GSAP
  * zooms through the portal ring into the next slide seamlessly.
  *
+ * NOTE: Module-scoped mutable state (renderer, composer, portalGroup, etc.)
+ * means only ONE instance of this component can exist at a time. If you need
+ * portals on multiple slides simultaneously, move these into instance-scoped
+ * refs or a setup-local closure.
+ *
  * Usage in slides.md:
  *   <DoctorStrangePortal />
  *   <DoctorStrangePortal :ring-size="400" :next-slide="15" />
@@ -44,11 +49,29 @@ const nextClicksContext = computed(() =>
   nextRoute.value ? createFixedClicks(nextRoute.value, CLICKS_MAX) : undefined,
 )
 
+// --- Constants ---
+
+// Content renders at near-full scale — the portal is a peephole, not a miniature.
+// Starts slightly pulled back so advancing feels like "entering" the slide.
+const CONTENT_SCALE_INITIAL = 0.95
+const CONTENT_SCALE_FINAL = 1
+
+// Ratio of ringSize that becomes the clip-path radius (the visible peephole)
+const CLIP_RADIUS_RATIO = 0.38
+
+// How much the portal ring scales up during the zoom-through transition
+const RING_SCALE_END = 14
+
+// Animation durations (seconds)
+const CREATION_DURATION = 2.5
+const CONTENT_REVEAL_TIME = 1.8
+const ZOOM_FORWARD_DURATION = 2.8
+const ZOOM_REVERSE_DURATION = 2.0
+
 // --- Refs & state ---
 
 const stageRef = ref<HTMLDivElement>()
 const contentRef = ref<HTMLDivElement>()
-const ringRef = ref<HTMLDivElement>()
 const canvasRef = ref<HTMLDivElement>()
 const contentOverlayRef = ref<HTMLDivElement>()
 const nav = useNav()
@@ -71,10 +94,14 @@ let coreNeedsFullCircle = false
 // Callback set by initThreeScene to reset Three.js visual state
 let resetPortalVisuals: (() => void) | null = null
 
-// Content renders at near-full scale — the portal is a peephole, not a miniature.
-// Starts slightly pulled back so advancing feels like "entering" the slide.
-const CONTENT_SCALE_INITIAL = 0.95
-const CONTENT_SCALE_FINAL = 1
+// Cleanup functions for Three.js objects (geometries, materials, textures)
+let disposeThreeObjects: (() => void) | null = null
+
+// --- Derived helpers ---
+
+function computeClipRadius(): number {
+  return (props.ringSize * CLIP_RADIUS_RATIO) / CONTENT_SCALE_INITIAL
+}
 
 // --- Phase dispatchers ---
 
@@ -102,7 +129,7 @@ function retreatPhase() {
   }
 }
 
-/** Skip creation animation to end → portal fully formed (phase 2) */
+/** Skip creation animation to end -> portal fully formed (phase 2) */
 function skipCreationToEnd() {
   const tl = creationTl
   if (tl) {
@@ -112,7 +139,7 @@ function skipCreationToEnd() {
   }
 }
 
-/** Skip reverse creation animation to end → back to phase 0 */
+/** Skip reverse creation animation to end -> back to phase 0 */
 function skipReverseCreationToEnd() {
   const tl = creationTl
   if (tl) {
@@ -156,7 +183,7 @@ function cancelZoomToPhase2() {
   arcProgress = Math.PI * 2
   sparksActivated = Infinity
   coreNeedsFullCircle = true
-  const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
+  const clipRadius = computeClipRadius()
   if (contentRef.value) {
     contentRef.value.style.visibility = 'visible'
     gsap.set(contentRef.value, {
@@ -250,8 +277,8 @@ function onClickCapture(e: MouseEvent) {
   advancePhase()
 }
 
-function applyProgress(p: number, content: HTMLElement, initialClipRadius: number, ringScaleEnd: number, maxRadius: number) {
-  const ringScale = 1 + (ringScaleEnd - 1) * p
+function applyProgress(p: number, content: HTMLElement, initialClipRadius: number, maxRadius: number) {
+  const ringScale = 1 + (RING_SCALE_END - 1) * p
   const clipRadius = Math.min(initialClipRadius * ringScale, maxRadius)
   const contentScale = CONTENT_SCALE_INITIAL + (CONTENT_SCALE_FINAL - CONTENT_SCALE_INITIAL) * p
 
@@ -281,18 +308,18 @@ function playCreation() {
   // Draw the arc CCW from top
   creationTl.to(proxy, {
     arc: Math.PI * 2,
-    duration: 2.5,
+    duration: CREATION_DURATION,
     ease: 'power2.inOut',
     onUpdate: () => { arcProgress = proxy.arc },
   })
   // Show portal content and immediately start fading overlay to reveal next slide
   creationTl.call(() => {
     if (contentRef.value) contentRef.value.style.visibility = 'visible'
-  }, [], 1.8)
+  }, [], CONTENT_REVEAL_TIME)
   if (contentOverlayRef.value) {
     creationTl.to(contentOverlayRef.value, {
       opacity: 0, duration: 1.0, ease: 'power2.out',
-    }, 1.8)
+    }, CONTENT_REVEAL_TIME)
   }
 }
 
@@ -318,7 +345,7 @@ function playReverseCreation() {
   }, [], 0.8)
   creationTl.to(proxy, {
     arc: 0,
-    duration: 2.5,
+    duration: CREATION_DURATION,
     ease: 'power2.inOut',
     onUpdate: () => { arcProgress = proxy.arc },
   }, 0)
@@ -332,8 +359,7 @@ function playZoom(direction: 'forward') {
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
 
-  const initialClipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
-  const ringScaleEnd = 14
+  const initialClipRadius = computeClipRadius()
   const content = contentRef.value
   const proxy = { progress: 0 }
 
@@ -346,9 +372,9 @@ function playZoom(direction: 'forward') {
   })
   zoomTl.to(proxy, {
     progress: 1,
-    duration: 2.8,
+    duration: ZOOM_FORWARD_DURATION,
     ease: 'expo.in',
-    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, ringScaleEnd, maxRadius),
+    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, maxRadius),
   }, 0)
 }
 
@@ -368,18 +394,15 @@ function playReverseEntrance() {
   if (contentRef.value) contentRef.value.style.visibility = 'visible'
   if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
   resetPortalVisuals?.() // ensure haze is visible for phase 2
-  // Re-show haze immediately for reverse entrance
-  // (resetPortalVisuals hides it, but we need it for phase 2)
 
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
-  const initialClipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
-  const ringScaleEnd = 14
+  const initialClipRadius = computeClipRadius()
   const content = contentRef.value
 
   // Start at full-screen state
   const proxy = { progress: 1 }
-  applyProgress(1, content, initialClipRadius, ringScaleEnd, maxRadius)
+  applyProgress(1, content, initialClipRadius, maxRadius)
 
   zoomTl = gsap.timeline({
     onComplete: () => {
@@ -391,7 +414,7 @@ function playReverseEntrance() {
       sparksActivated = Infinity
       if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
       // Reset clip/scale to resting state
-      const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
+      const clipRadius = computeClipRadius()
       if (contentRef.value) {
         gsap.set(contentRef.value, {
           scale: CONTENT_SCALE_INITIAL,
@@ -407,14 +430,14 @@ function playReverseEntrance() {
   // Animate back to portal resting state — fast at first then decelerates
   zoomTl.to(proxy, {
     progress: 0,
-    duration: 2.0,
+    duration: ZOOM_REVERSE_DURATION,
     ease: 'expo.out',
-    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, ringScaleEnd, maxRadius),
+    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, maxRadius),
   }, 0)
 }
 
 function resetState() {
-  const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
+  const clipRadius = computeClipRadius()
   if (contentRef.value) {
     gsap.set(contentRef.value, {
       scale: CONTENT_SCALE_INITIAL,
@@ -529,41 +552,6 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   portalGroup = new THREE.Group()
   scene.add(portalGroup)
 
-  const torus = new THREE.Mesh(
-    new THREE.TorusGeometry(1.2, 0.05, 32, 200),
-    new THREE.MeshBasicMaterial({ color: 0xee8811 }),
-  )
-  torus.visible = false // TEMP: hidden to preview sparks-only look
-  portalGroup.add(torus)
-
-  const inner = new THREE.Mesh(
-    new THREE.TorusGeometry(1.12, 0.025, 32, 200),
-    new THREE.MeshBasicMaterial({ color: 0xdd6611, transparent: true, opacity: 0.7 }),
-  )
-  inner.visible = false // TEMP
-  inner.rotation.z = 0.3
-  portalGroup.add(inner)
-
-  const outer = new THREE.Mesh(
-    new THREE.TorusGeometry(1.2, 0.2, 32, 200),
-    new THREE.MeshBasicMaterial({
-      color: 0xdd7711, transparent: true, opacity: 0.08,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-    }),
-  )
-  outer.visible = false // TEMP
-  portalGroup.add(outer)
-
-  const outerGlow = new THREE.Mesh(
-    new THREE.TorusGeometry(1.2, 0.35, 32, 200),
-    new THREE.MeshBasicMaterial({
-      color: 0xcc5500, transparent: true, opacity: 0.03,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-    }),
-  )
-  outerGlow.visible = false // TEMP
-  portalGroup.add(outerGlow)
-
   // --- Spark emitter ---
 
   const glowTex = createGlowTexture()
@@ -627,13 +615,14 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   const trailGeo = new THREE.BufferGeometry()
   trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3))
   trailGeo.setAttribute('color', new THREE.BufferAttribute(trailColors, 3))
-  const trailMesh = new THREE.LineSegments(trailGeo, new THREE.LineBasicMaterial({
+  const trailMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
     opacity: 0.9,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-  }))
+  })
+  const trailMesh = new THREE.LineSegments(trailGeo, trailMat)
   trailMesh.frustumCulled = false
   portalGroup.add(trailMesh)
 
@@ -641,7 +630,7 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   const emberPositions = new Float32Array(SPARK_COUNT * 3)
   const emberGeo = new THREE.BufferGeometry()
   emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3))
-  const emberMesh = new THREE.Points(emberGeo, new THREE.PointsMaterial({
+  const emberMat = new THREE.PointsMaterial({
     map: glowTex,
     color: 0xee8811,
     size: 0.045,
@@ -649,7 +638,8 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
     opacity: 0.6,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-  }))
+  })
+  const emberMesh = new THREE.Points(emberGeo, emberMat)
   emberMesh.frustumCulled = false
   portalGroup.add(emberMesh)
 
@@ -661,11 +651,12 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   }
   const coreGeo = new THREE.BufferGeometry()
   coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3))
-  const coreParticles = new THREE.Points(coreGeo, new THREE.PointsMaterial({
+  const coreMat = new THREE.PointsMaterial({
     map: glowTex, color: 0xee8811, size: 0.06,
     transparent: true, opacity: 0.7,
     blending: THREE.AdditiveBlending, depthWrite: false,
-  }))
+  })
+  const coreParticles = new THREE.Points(coreGeo, coreMat)
   coreParticles.frustumCulled = false
   portalGroup.add(coreParticles)
 
@@ -724,16 +715,24 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
     coreParticles.rotation.z = 0
   }
 
+  // --- Disposal callback for cleanup ---
+  disposeThreeObjects = () => {
+    trailGeo.dispose()
+    trailMat.dispose()
+    emberGeo.dispose()
+    emberMat.dispose()
+    coreGeo.dispose()
+    coreMat.dispose()
+    glowTex.dispose()
+    hazeTex.dispose()
+    hazeMat.dispose()
+    renderTarget.dispose()
+  }
+
   function animate() {
     const t = performance.now() * 0.001
     const dt = Math.min(t - lastTime, 0.05)
     lastTime = t
-
-    // Rotate torus rings (visual only)
-    torus.rotation.z = t * 0.5
-    inner.rotation.z = -t * 0.36 + 0.3
-    outer.rotation.z = t * 0.2
-    outerGlow.rotation.z = -t * 0.16
 
     // Core glow: phase-aware positioning
     const cPos = coreGeo.attributes.position.array as Float32Array
@@ -915,6 +914,9 @@ onBeforeUnmount(() => {
   if (animationId) cancelAnimationFrame(animationId)
   creationTl?.kill()
   creationTl = null
+  disposeThreeObjects?.()
+  disposeThreeObjects = null
+  resetPortalVisuals = null
   if (composer) {
     composer.dispose()
     composer = null
@@ -938,7 +940,7 @@ onBeforeUnmount(() => {
       class="portal-content"
       :style="{
         transform: `scale(${CONTENT_SCALE_INITIAL})`,
-        clipPath: `circle(${(ringSize * 0.38) / CONTENT_SCALE_INITIAL}px at 50% 50%)`,
+        clipPath: `circle(${computeClipRadius()}px at 50% 50%)`,
       }"
     >
       <SlideContainer
@@ -991,17 +993,6 @@ onBeforeUnmount(() => {
   background: #000;
   z-index: 3;
   pointer-events: none;
-}
-
-.portal-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 4;
-  pointer-events: none;
-  transform-origin: center center;
-  will-change: transform, opacity;
 }
 
 .portal-canvas-full {
