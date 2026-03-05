@@ -164,11 +164,11 @@ function playCreation() {
     ease: 'power2.inOut',
     onUpdate: () => { arcProgress = proxy.arc },
   })
-  // Fade overlay to reveal content — starts 0.2s before arc completes for seamless feel
+  // Fade overlay to reveal content — starts midway through arc draw
   if (contentOverlayRef.value) {
     creationTl.to(contentOverlayRef.value, {
-      opacity: 0, duration: 0.8, ease: 'power2.out',
-    }, 2.3)
+      opacity: 0, duration: 1.0, ease: 'power2.out',
+    }, 1.8)
   }
 }
 
@@ -179,24 +179,22 @@ function playReverseCreation() {
   const proxy = { arc: arcProgress }
   creationTl = gsap.timeline({
     onComplete: () => {
-      interceptActive = false
       resetState()
-      nav.prevSlide(true)
+      interceptActive = true
     },
   })
-  // Fade content back to black first
+  // Fade content back to black and reverse the arc simultaneously
   if (contentOverlayRef.value) {
     creationTl.to(contentOverlayRef.value, {
-      opacity: 1, duration: 0.6, ease: 'power2.in',
-    })
+      opacity: 1, duration: 0.5, ease: 'power2.in',
+    }, 0)
   }
-  // Then reverse the arc
   creationTl.to(proxy, {
     arc: 0,
     duration: 2.5,
     ease: 'power2.inOut',
     onUpdate: () => { arcProgress = proxy.arc },
-  })
+  }, 0)
 }
 
 function playZoom(direction: 'forward') {
