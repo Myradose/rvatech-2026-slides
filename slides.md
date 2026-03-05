@@ -106,7 +106,7 @@ citations and cite varying viewpoints.
   </div>
 </div>
 
-<p v-click class="takeaway">Better prompts yield better results, but this has limits.</p>
+<p v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="takeaway">Better prompts yield better results, but this has limits.</p>
 
 <!--
 One of the first concepts that was coined when AI started making waves was prompt engineering. The difference between a lazy prompt and a well-crafted one could be dramatic. But it had limitations.
@@ -297,7 +297,7 @@ You've got a design decision to make:
 
 </div>
 
-<p v-click class="takeaway">Which one is best? What if we could see all of them?</p>
+<p v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="takeaway">Which one is best? What if we could see all of them?</p>
 
 </div>
 
@@ -488,7 +488,7 @@ So you've seen what this looks like in practice. Now I want to take it further. 
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-What if an agent **designed the tasks** for other agents?
+> What if an agent **designed the tasks** for other agents?
 
 </div>
 
@@ -544,13 +544,13 @@ The biggest what-if: what if the developer's role shifts from writing every line
 
 # Demo 2: UI Design Agent
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 An agent that specializes in **UI design** will generate 5 different design themes, then spawn 5 parallel agents to implement them.
 
 </div>
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 TODO: Kick off demo, switch to dashboard
 
