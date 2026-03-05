@@ -5,24 +5,24 @@ author: Alden Geipel
 colorSchema: dark
 aspectRatio: 16/9
 canvasWidth: 980
-transition: fade
+transition: slide-fade
 fonts:
   sans: Inter
   mono: JetBrains Mono
   provider: google
 defaults:
-  transition: fade
+  transition: slide-fade
 drawings:
   enabled: false
 download: true
 presenter: true
 ---
 
-# The Doctor Strange Approach to Parallel Agent Orchestration
+<AnimatedText text="The Doctor Strange Approach to Parallel Agent Orchestration" tag="h1" :stagger="0.08" :duration="0.6" />
 
-<p class="subtitle">Environment Engineering for AI Agent Development</p>
+<p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1200, duration: 500 } }">Environment Engineering for AI Agent Development</p>
 
-<div class="author-info">
+<div class="author-info" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1600, duration: 500 } }">
   <p>Alden Geipel</p>
   <p class="event">RVATech Data & AI Summit 2026</p>
 </div>
@@ -51,16 +51,26 @@ Brief intro about yourself.
 
 # What We'll Cover
 
-<v-clicks>
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
-1. **The evolution** — from prompt engineering to something new
-2. **The Doctor Strange demo** — parallel agents exploring infinite outcomes
-3. **Key concepts + next steps** — what makes this possible
+1. **The evolution** - from prompt engineering to something new
 
-</v-clicks>
+</div>
+
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 500 } }">
+
+2. **The Doctor Strange demo** - parallel agents exploring infinite outcomes
+
+</div>
+
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
+
+3. **Key concepts + next steps** - what makes this possible
+
+</div>
 
 <!--
-Three things I want to cover today. First, the evolution of how we work with AI — from prompt engineering through context engineering to what I believe comes next. Second, a live demo of the Doctor Strange approach. And third, the key concepts that make this possible.
+Three things I want to cover today. First, the evolution of how we work with AI - from prompt engineering through context engineering to what I believe comes next. Second, a live demo of the Doctor Strange approach. And third, the key concepts that make this possible.
 -->
 
 ---
@@ -70,7 +80,7 @@ Three things I want to cover today. First, the evolution of how we work with AI 
 The first mainstream AI skill
 
 <div class="comparison-grid">
-  <div class="prompt-card" v-click>
+  <div class="prompt-card" v-click v-motion :initial="{ opacity: 0, x: -40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
     <p class="prompt-label">Basic</p>
 
 ```
@@ -79,7 +89,7 @@ Write a research paper about AI
 
   </div>
 
-  <div class="prompt-card better" v-click>
+  <div class="prompt-card better" v-click v-motion :initial="{ opacity: 0, x: 40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
     <p class="prompt-label">Engineered</p>
 
 ```
@@ -91,7 +101,7 @@ citations and cite varying viewpoints.
   </div>
 </div>
 
-<p v-click class="takeaway">Better prompts yield better results — but this has limits.</p>
+<p v-click class="takeaway">Better prompts yield better results, but this has limits.</p>
 
 <!--
 One of the first concepts that was coined when AI started making waves was prompt engineering. The difference between a lazy prompt and a well-crafted one could be dramatic. But it had limitations.
@@ -103,28 +113,28 @@ One of the first concepts that was coined when AI started making waves was promp
 
 The next evolution
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-> What if the model doesn't *know* the answer — no matter how well you prompt it?
+> What if the model doesn't *know* the answer, no matter how well you prompt it?
 
 </div>
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-**Example:** Asking about an Angular Material feature introduced *after* the knowledge cutoff.
+**Example:** Asking about a library feature released *after* the model's training cutoff.
 
 No amount of prompt engineering can manufacture missing knowledge.
 
 </div>
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-**Context engineering** = cultivating the minimum applicable context needed to answer the query.
+**Context engineering** = giving the model *just enough* relevant context to get the job done.
 
 </div>
 
 <!--
-Context engineering builds on prompt engineering. Instead of just crafting better prompts, you provide or cultivate the relevant context. If the model's knowledge is outdated, you give it the docs. The art is in providing just enough context — not everything, just what's relevant.
+Context engineering builds on prompt engineering. Instead of just crafting better prompts, you provide or cultivate the relevant context. If the model's knowledge is outdated, you give it the docs. The art is in providing just enough context - not everything, just what's relevant.
 -->
 
 ---
@@ -133,59 +143,74 @@ Context engineering builds on prompt engineering. Instead of just crafting bette
 
 Tools + context for how to use them
 
-<v-clicks>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Context engineering and capability engineering are deeply intertwined
-- You craft the selection of **tools** and the context for how to effectively use them
-- Claude Code, Codex CLI, Gemini CLI, GitHub Copilot — all combine prompt, context, and capability engineering behind the scenes
+- You don't just give models knowledge - you give them **tools** and teach them how to use those tools
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Claude Code, Codex CLI, Gemini CLI, GitHub Copilot - all combine prompt, context, and capability engineering behind the scenes
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
 - They explore codebases, make edits, provide review workflows
 
-</v-clicks>
+</div>
 
 <!--
-Capability engineering is where you craft the selection of tools and the context for using them. The coding agents we have today — Claude Code, Codex CLI, Copilot — they all combine sophisticated prompt, context, and capability engineering behind the scenes.
+Capability engineering is where you craft the selection of tools and the context for using them. The coding agents we have today - Claude Code, Codex CLI, Copilot - they all combine sophisticated prompt, context, and capability engineering behind the scenes.
 -->
 
 ---
 
 # But There Are Limits
 
-<v-clicks>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 - Agents don't know how to **run or test** the code unless you tell them
-- Running on **your machine** = heavy human-in-the-loop
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Running on **your machine** means you're babysitting every step
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
 - Constant approval/denial of actions
-- **Approval fatigue** — accidentally approving dangerous commands
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- **Approval fatigue** - accidentally approving dangerous commands
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
 - Risk to your git history, packages, system
 
-</v-clicks>
+</div>
 
 <!--
-These systems are incredible but they have limitations out of the box. They don't know how to run or test unless you specify it. They run on your machine with heavy human oversight. You get approval fatigue — constantly approving or denying requests, sometimes approving things by accident.
+These systems are incredible but they have limitations out of the box. They don't know how to run or test unless you specify it. They run on your machine with heavy human oversight. You get approval fatigue - constantly approving or denying requests, sometimes approving things by accident.
 -->
 
 ---
 layout: center
+transition: section
 ---
 
 # Environment Engineering
 
-<div class="evolution-timeline">
-  <div class="evo-item" v-click>
-    <span class="evo-label">Prompt Eng.</span>
-    <span class="evo-desc">Craft better prompts</span>
-  </div>
-  <div class="evo-arrow" v-click>→</div>
-  <div class="evo-item" v-click>
-    <span class="evo-label">Context Eng.</span>
-    <span class="evo-desc">Cultivate relevant context</span>
-  </div>
-  <div class="evo-arrow" v-click>→</div>
-  <div class="evo-item highlight" v-click>
-    <span class="evo-label">Environment Eng.</span>
-    <span class="evo-desc">Design the world agents live in</span>
-  </div>
-</div>
+<EvolutionTimeline />
 
 <!--
 This brings me to what I believe is the next evolution: environment engineering. It's the process of creating the environment agents exist in, the infrastructure to observe and consume their work, and the agent harness that lets them tackle complex tasks with minimal but intelligent human intervention.
@@ -195,25 +220,33 @@ This brings me to what I believe is the next evolution: environment engineering.
 
 # Three Pillars
 
-<v-clicks>
-
-- **Isolated Environments** — sandboxed containers where agents work safely
-- **Observability Infrastructure** — dashboards to watch agents work in real time
-- **Agent Harness** — workflow instructions and guardrails for autonomous work
-
-</v-clicks>
+<div class="pillar-cards">
+  <div class="pillar-card" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
+    <h3>Isolated Environments</h3>
+    <p>Sandboxed containers where agents work safely</p>
+  </div>
+  <div class="pillar-card" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 500 } }">
+    <h3>Observability Infrastructure</h3>
+    <p>Dashboards to watch agents work in real time</p>
+  </div>
+  <div class="pillar-card" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
+    <h3>Agent Harness</h3>
+    <p>Workflow instructions and guardrails for autonomous work</p>
+  </div>
+</div>
 
 <!--
-Environment engineering has three pillars. Isolated environments — Docker containers where agents can't damage your system. Observability infrastructure — dashboards where you can watch what they're doing. And agent harnesses — the workflow instructions and guardrails.
+Environment engineering has three pillars. Isolated environments - Docker containers where agents can't damage your system. Observability infrastructure - dashboards where you can watch what they're doing. And agent harnesses - the workflow instructions and guardrails.
 -->
 
 ---
 layout: center
+transition: section
 ---
 
-# The Demo
+<AnimatedText text="The Demo" tag="h1" :stagger="0.1" :duration="0.6" />
 
-Instead of explaining further — let me show you.
+<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">Instead of explaining further, let me show you.</p>
 
 <!--
 Instead of doing a deep dive explanation, it would be easier to just show you with the Doctor Strange approach demo.
@@ -229,25 +262,35 @@ TODO: Screenshot of the plain fullstack app
 
 </div>
 
-A simple fullstack application — users and products. Functional, but not pretty.
+A simple fullstack application - users and products. Functional, but not pretty.
 
 <!--
-Here's a very simple fullstack application. Basic functionality — adding users and products — but it doesn't look very appealing.
+Here's a very simple fullstack application. Basic functionality - adding users and products - but it doesn't look very appealing.
 -->
 
 ---
 
 # The Decision Point
 
-Three possible paths for the UI:
+You've got a design decision to make:
 
-<v-clicks>
+<div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Tabs** — switch between Users and Products
-- **Accordions** — expand/collapse each section
-- **Side Navigation** — dedicated pages with a nav panel
+- **Tabs** - switch between Users and Products
 
-</v-clicks>
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
+
+- **Accordions** - expand/collapse each section
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
+
+- **Side Navigation** - dedicated pages with a nav panel
+
+</div>
 
 <p v-click class="takeaway">Which one is best? What if we could see all of them?</p>
 
@@ -275,7 +318,7 @@ transition: none
   <h1>Live Demo: Parallel Agents</h1>
   <div class="demo-frame">
     <p>Three agents. Three sandboxed environments. Three implementations. One choice.</p>
-    <p class="demo-todo">TODO: Demo section — switch to TSK dashboard</p>
+    <p class="demo-todo">TODO: Demo section - switch to TSK dashboard</p>
   </div>
 </div>
 
@@ -319,14 +362,29 @@ Three developer agents, each in their own fully isolated Docker container with t
 
 # How It Works
 
-<v-clicks>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 - Each agent runs in its own **Docker container** with the full stack
-- Containers have **restricted network access** — isolated from everything
-- **Claude Code Viewer** dashboard lets you watch logs, frontends, and browser actions
-- No risk to your real codebase — sandboxed from start to finish
 
-</v-clicks>
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Containers have **restricted network access** - isolated from everything
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- **Claude Code Viewer** dashboard lets you watch logs, frontends, and browser actions
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- No risk to your real codebase - sandboxed from start to finish
+
+</div>
 
 <!--
 Each agent works in its own Docker container with the full application stack running. The containers have restricted network access. The Claude Code Viewer dashboard shows you logs, live frontends, and even browser automation. Since everything is sandboxed, there's no risk to your real codebase.
@@ -334,27 +392,28 @@ Each agent works in its own Docker container with the full application stack run
 
 ---
 layout: center
+transition: section
 ---
 
-# "What If?"
+<AnimatedText text='"What If?"' tag="h1" :stagger="0.15" :duration="0.6" />
 
 <!--
-Now to get you thinking — here are some what-ifs.
+Now to get you thinking - here are some what-ifs.
 -->
 
 ---
 
 # What If: Architect Agents
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 What if an agent **designed the tasks** for other agents?
 
 </div>
 
-<div v-click>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-Instead of you specifying "try tabs, try accordions" — an architect agent generates the design options and creates the task prompts itself.
+Instead of you specifying "try tabs, try accordions" - an architect agent generates the design options and creates the task prompts itself.
 
 </div>
 
@@ -366,13 +425,23 @@ In that demo, I created the task instructions. But what if we designed an agent 
 
 # What If: Race & Compare
 
-<v-clicks>
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- **Multiple agents, same task** — take the one that finishes first, scrap the rest
-- **Multiple LLMs, same task** — compare which model is best suited for the job
-- **Multiple approaches, same goal** — the best implementation wins
+- **Multiple agents, same task** - take the one that finishes first, scrap the rest
 
-</v-clicks>
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- **Multiple LLMs, same task** - compare which model is best suited for the job
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- **Multiple approaches, same goal** - the best implementation wins
+
+</div>
 
 <!--
 What if instead of one agent per task, we had two or three and took the first to finish? What if we had different LLM models tackling the same task to compare which was best?
@@ -382,9 +451,9 @@ What if instead of one agent per task, we had two or three and took the first to
 layout: statement
 ---
 
-# Developer as Architect
+<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
 
-What if developers designed and provided feedback on how features should be built — rather than manually placing every brick by hand?
+<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed *how* features get built instead of building every one by hand?</p>
 
 <!--
 The biggest what-if: what if we developed a robust agent harness where each developer is the architect that designs and reviews, rather than the bricklayer that writes every line of code?
@@ -396,7 +465,7 @@ The biggest what-if: what if we developed a robust agent harness where each deve
 
 <div v-click>
 
-An agent that specializes in **UI design** will generate 5 different design themes — then spawn 5 parallel agents to implement them.
+An agent that specializes in **UI design** will generate 5 different design themes, then spawn 5 parallel agents to implement them.
 
 </div>
 
@@ -414,19 +483,29 @@ I've designed an agent that's particularly good at coming up with UI design them
 
 # Resources
 
-<v-clicks>
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
-- Source code — **open source** (link TODO)
-- This presentation + recording — publicly available
+- Source code - **open source** (link TODO)
+
+</div>
+
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 500 } }">
+
+- This presentation + recording - publicly available
+
+</div>
+
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
+
 - Shoutout to the original TSK repo creator
 - Shoutout to Cole Medin for his YouTube resources
 
-</v-clicks>
+</div>
 
-<p v-click class="takeaway">None of this information should be gatekept.</p>
+<p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1100, duration: 500 } }">None of this information should be gatekept.</p>
 
 <!--
-All source code, the presentation, the recording — everything will be publicly available. Huge shoutout to the original TSK repo creator and Cole Medin.
+All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator and Cole Medin.
 -->
 
 ---
@@ -437,7 +516,7 @@ layout: center
 
 Thank you for your time.
 
-<p class="subtitle">Agents are running in the background — let's check on them at the end.</p>
+<p class="subtitle">Agents are running in the background. Let's check on them at the end.</p>
 
 <!--
 Now I'll open the floor for Q&A while the UI design agents are running. If we have time at the end, I'll show their work.
