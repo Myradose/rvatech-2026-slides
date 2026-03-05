@@ -6,7 +6,7 @@
  * Three progress bars race with varying speeds (surges and stalls).
  * Winner turns green with checkmark, losers turn red and fade.
  */
-import { ref, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useNav, onSlideEnter, onSlideLeave } from '@slidev/client'
 import gsap from 'gsap'
 
@@ -17,13 +17,22 @@ const props = withDefaults(defineProps<{
   click: 1,
 })
 
-const containerRef = ref<HTMLElement>()
 const nav = useNav()
 let tl: gsap.core.Timeline | null = null
 let hasPlayed = false
 
+// Reactive state for bar widths/styles — Vue controls rendering, no flash
+const barState = reactive(
+  Array.from({ length: 3 }, () => ({
+    width: '0%',
+    background: '',
+    laneOpacity: '1',
+    checkOpacity: '0',
+    checkScale: 'scale(0.5)',
+  }))
+)
+
 // Each lane has segments: [targetPercent, duration, ease]
-// Designed so the lead changes hands multiple times before B wins
 const lanes = [
   {
     label: 'Agent A',
@@ -76,67 +85,35 @@ function killTimeline() {
   }
 }
 
-function applyResetState() {
-  if (!containerRef.value) return
-  const bars = containerRef.value.querySelectorAll<HTMLElement>('.race-progress')
-  const laneEls = containerRef.value.querySelectorAll<HTMLElement>('.race-lane')
-  const check = containerRef.value.querySelector<HTMLElement>('.race-winner')
-  bars.forEach(bar => {
-    bar.style.width = '0%'
-    bar.style.background = ''
-  })
-  laneEls.forEach(el => { el.style.opacity = '1' })
-  if (check) {
-    check.style.opacity = '0'
-    check.style.transform = 'scale(0.5)'
-  }
-}
-
-function applyEndState() {
-  if (!containerRef.value) return
-  const bars = containerRef.value.querySelectorAll<HTMLElement>('.race-progress')
-  const laneEls = containerRef.value.querySelectorAll<HTMLElement>('.race-lane')
-  const check = containerRef.value.querySelector<HTMLElement>('.race-winner')
-
-  lanes.forEach((lane, i) => {
-    const lastSegment = lane.segments[lane.segments.length - 1]
-    bars[i].style.width = `${lastSegment[0]}%`
-
-    if (lane.winner) {
-      bars[i].style.background = 'linear-gradient(90deg, #10b981, #34d399)'
-    } else {
-      bars[i].style.background = 'linear-gradient(90deg, #ef4444, #dc2626)'
-      laneEls[i].style.opacity = '0.3'
-    }
-  })
-
-  if (check) {
-    check.style.opacity = '1'
-    check.style.transform = 'scale(1)'
+function resetState() {
+  killTimeline()
+  for (let i = 0; i < barState.length; i++) {
+    barState[i].width = '0%'
+    barState[i].background = ''
+    barState[i].laneOpacity = '1'
+    barState[i].checkOpacity = '0'
+    barState[i].checkScale = 'scale(0.5)'
   }
 }
 
 function playRace() {
-  if (!containerRef.value) return
   killTimeline()
-
-  const bars = containerRef.value.querySelectorAll<HTMLElement>('.race-progress')
-  const laneEls = containerRef.value.querySelectorAll<HTMLElement>('.race-lane')
-  const check = containerRef.value.querySelector<HTMLElement>('.race-winner')
-
   tl = gsap.timeline()
   let winnerFinishTime = 0
 
   lanes.forEach((lane, i) => {
-    const bar = bars[i]
+    const state = barState[i]
     let prevTarget = 0
     let offset = 0
+
     for (const [target, duration, ease] of lane.segments) {
-      tl!.fromTo(bar,
-        { width: `${prevTarget}%` },
-        { width: `${target}%`, duration, ease },
-        offset,
-      )
+      const from = prevTarget
+      tl!.to(state, {
+        width: `${target}%`,
+        duration,
+        ease,
+        onStart() { state.width = `${from}%` },
+      }, offset)
       prevTarget = target
       offset += duration
     }
@@ -144,33 +121,32 @@ function playRace() {
     if (lane.winner) {
       winnerFinishTime = offset
 
-      tl!.to(bar, {
+      tl!.to(state, {
         background: 'linear-gradient(90deg, #10b981, #34d399)',
         duration: 0.3,
         ease: 'power2.out',
       }, offset - 0.1)
 
-      if (check) {
-        tl!.fromTo(check,
-          { opacity: 0, scale: 0.5 },
-          { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' },
-          offset - 0.1,
-        )
-      }
+      tl!.to(state, {
+        checkOpacity: '1',
+        checkScale: 'scale(1)',
+        duration: 0.3,
+        ease: 'back.out(2)',
+      }, offset - 0.1)
     }
   })
 
   lanes.forEach((lane, i) => {
     if (lane.winner) return
 
-    tl!.to(bars[i], {
+    tl!.to(barState[i], {
       background: 'linear-gradient(90deg, #ef4444, #dc2626)',
       duration: 0.4,
       ease: 'power2.out',
     }, winnerFinishTime + 0.1)
 
-    tl!.to(laneEls[i], {
-      opacity: 0.3,
+    tl!.to(barState[i], {
+      laneOpacity: '0.3',
       duration: 0.6,
       ease: 'power2.inOut',
     }, winnerFinishTime + 1.2)
@@ -185,30 +161,41 @@ watch(() => nav.clicks.value, (clicks) => {
 })
 
 onSlideEnter(() => {
-  killTimeline()
   hasPlayed = false
-  applyResetState()
+  resetState()
 })
 
 onSlideLeave(() => {
-  killTimeline()
   hasPlayed = false
-  applyResetState()
+  resetState()
 })
 
 onMounted(() => {
-  applyResetState()
+  resetState()
 })
 </script>
 
 <template>
-  <div ref="containerRef" class="race-diagram">
+  <div class="race-diagram">
     <div class="race-lanes">
-      <div v-for="(lane, i) in lanes" :key="i" class="race-lane">
+      <div
+        v-for="(lane, i) in lanes"
+        :key="i"
+        class="race-lane"
+        :style="{ opacity: barState[i].laneOpacity }"
+      >
         <div class="race-agent"><carbon:container-software /><span>{{ lane.label }}</span></div>
-        <div class="race-track"><div class="race-progress" style="width: 0%" /></div>
+        <div class="race-track">
+          <div
+            class="race-progress"
+            :style="{ width: barState[i].width, background: barState[i].background || undefined }"
+          />
+        </div>
         <div :class="['race-finish', { 'race-winner': lane.winner }]">
-          <span v-if="lane.winner">&#10003;</span>
+          <span
+            v-if="lane.winner"
+            :style="{ opacity: barState[i].checkOpacity, transform: barState[i].checkScale }"
+          >&#10003;</span>
         </div>
       </div>
     </div>

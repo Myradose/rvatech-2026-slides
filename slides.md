@@ -200,13 +200,13 @@ This is exactly what today's coding agents are doing. Claude Code, Codex CLI, Co
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Agents don't know how to **run or test** the code unless you tell them
+- They're running on **your machine** with no isolated environment of their own
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Running on **your machine** means you're babysitting every step
+- That means you're **babysitting every step** they take
 
 </div>
 
@@ -223,7 +223,7 @@ This is exactly what today's coding agents are doing. Claude Code, Codex CLI, Co
 </div>
 
 <!--
-These agents are incredible but they have limitations out of the box. They don't know how to run or test unless you configure it. They run on your machine, so you're babysitting every step. You get approval fatigue from constantly approving or denying actions, sometimes approving things by accident. And there's real risk to your git history and system.
+These agents are incredible but they have a fundamental limitation: they're running on your machine with no isolated environment of their own. That means you're babysitting every step. You get approval fatigue from constantly approving or denying actions, sometimes approving things by accident. And there's real risk to your git history, packages, and system.
 -->
 
 ---
@@ -411,14 +411,14 @@ clicks: 3
 </div>
 
 <div class="env-visual">
-  <div class="env-host-box"><carbon:laptop /><span>Your Machine</span></div>
-  <div class="env-arrows">
+  <div class="env-host-box" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 400 } }"><carbon:laptop /><span>Your Machine</span></div>
+  <div class="env-arrows" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 500, duration: 300 } }">
     <span class="env-arrow-down">↓</span>
     <span class="env-arrow-label">tsk start</span>
     <span class="env-arrow-up">↑</span>
     <span class="env-arrow-label">git branches</span>
   </div>
-  <div class="env-containers-row">
+  <div class="env-containers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 400 } }">
     <div class="env-box"><carbon:container-software /><span>Tabs</span></div>
     <div class="env-box"><carbon:container-software /><span>Accordions</span></div>
     <div class="env-box"><carbon:container-software /><span>Side Nav</span></div>
@@ -437,7 +437,7 @@ clicks: 3
 }
 .iso-title-wrap.iso-centered {
   left: 50%;
-  transform: translateX(-50%) translateY(60px);
+  transform: translateX(-50%) translateY(103px);
 }
 </style>
 
