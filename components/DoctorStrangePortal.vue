@@ -94,10 +94,15 @@ const portalState: PortalState = {
 
 // Reactive status for the debug panel (avoids making portalState reactive)
 const debugStatus = ref('idle')
+const debugBarRef = ref<HTMLDivElement>()
+
+function setDebugProgress(p: number) {
+  if (debugBarRef.value) debugBarRef.value.style.width = `${p * 100}%`
+}
 
 function updateDebugStatus() {
   if (isZooming) {
-    debugStatus.value = isZoomForward ? 'zooming forward' : 'reverse entrance'
+    debugStatus.value = isZoomForward ? 'zooming in' : 'zooming out'
   } else {
     const labels = ['idle', 'creating', 'ready', 'reversing']
     debugStatus.value = labels[portalState.phase]
@@ -106,6 +111,8 @@ function updateDebugStatus() {
 
 function setPhase(p: 0 | 1 | 2 | 3) {
   portalState.phase = p
+  // Reset bar for resting states (idle / ready)
+  if (p === 0 || p === 2) setDebugProgress(0)
   updateDebugStatus()
 }
 
@@ -331,7 +338,7 @@ function playCreation() {
     arc: Math.PI * 2,
     duration: CREATION_DURATION,
     ease: 'power2.inOut',
-    onUpdate: () => { portalState.arcProgress = proxy.arc },
+    onUpdate: () => { portalState.arcProgress = proxy.arc; setDebugProgress(proxy.arc / (Math.PI * 2)) },
   })
   creationTl.call(() => {
     if (contentRef.value) contentRef.value.style.visibility = 'visible'
@@ -366,7 +373,7 @@ function playReverseCreation() {
     arc: 0,
     duration: CREATION_DURATION,
     ease: 'power2.inOut',
-    onUpdate: () => { portalState.arcProgress = proxy.arc },
+    onUpdate: () => { portalState.arcProgress = proxy.arc; setDebugProgress(proxy.arc / (Math.PI * 2)) },
   }, 0)
 }
 
@@ -392,7 +399,7 @@ function playZoom(direction: 'forward') {
     progress: 1,
     duration: ZOOM_FORWARD_DURATION,
     ease: 'expo.in',
-    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, maxRadius),
+    onUpdate: () => { applyProgress(proxy.progress, content, initialClipRadius, maxRadius); setDebugProgress(proxy.progress) },
   }, 0)
 }
 
@@ -443,7 +450,7 @@ function playReverseEntrance() {
     progress: 0,
     duration: ZOOM_REVERSE_DURATION,
     ease: 'expo.out',
-    onUpdate: () => applyProgress(proxy.progress, content, initialClipRadius, maxRadius),
+    onUpdate: () => { applyProgress(proxy.progress, content, initialClipRadius, maxRadius); setDebugProgress(proxy.progress) },
   }, 0)
 }
 
@@ -462,6 +469,7 @@ function resetState() {
     canvasRef.value.style.visibility = 'hidden'
   }
   setPhase(0)
+  setDebugProgress(0)
   portalState.arcProgress = 0
   portalState.sparksActivated = 0
   portalState.coreNeedsFullCircle = false
@@ -564,6 +572,9 @@ onBeforeUnmount(() => {
     <div v-if="props.dev" ref="debugRef" class="portal-debug">
       <div class="portal-debug-title">Portal Debug</div>
       <div class="portal-debug-phase">{{ debugStatus }}</div>
+      <div class="portal-debug-bar-track">
+        <div ref="debugBarRef" class="portal-debug-bar-fill" />
+      </div>
       <label v-for="toggle in FEATURE_TOGGLES" :key="toggle.key" class="portal-debug-toggle">
         <input
           type="checkbox"
@@ -626,6 +637,7 @@ onBeforeUnmount(() => {
   top: 12px;
   right: 12px;
   z-index: 100;
+  width: 150px;
   background: rgba(0, 0, 0, 0.75);
   border: 1px solid rgba(255, 140, 40, 0.4);
   border-radius: 8px;
@@ -638,8 +650,22 @@ onBeforeUnmount(() => {
 }
 
 .portal-debug-phase {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: rgba(255, 200, 100, 0.9);
+}
+
+.portal-debug-bar-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.portal-debug-bar-fill {
+  height: 100%;
+  background: rgba(255, 140, 40, 0.8);
+  border-radius: 2px;
 }
 
 .portal-debug-title {
