@@ -23,131 +23,130 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 
 ---
 
-## Section 2: The Evolution (slides 4-9)
+## Section 2: The Evolution (slides 4-8)
 
 ### Slide 4 — Prompt Engineering
 **Content:** Definition + example of basic vs. better prompt.
 **Visual:** Side-by-side comparison. Code-block style for the prompts.
 **Animation:** First prompt appears, then the improved version slides in beside it.
 
-### Slide 5 — Prompt Engineering Limitations
-**Content:** "It had limitations" — transition beat.
-**Visual:** Minimal text, maybe the previous comparison fades/dims.
-**Animation:** Quick, clean transition.
+### Slide 5 — Context Engineering
+**Content:** Definition + the limits of prompt engineering as motivation. Context engineering = giving the model the right knowledge, tools, and instructions. Capability engineering is folded in here — tools are a form of context.
+**Visual:** Blockquote for the "what if the model doesn't know?" question, then build-up explanation.
+**Animation:** GSAP timeline — elements reveal step by step.
 
-### Slide 6 — Context Engineering
-**Content:** Definition + Angular Material docs example.
-**Visual:** Diagram showing context flowing into the LLM. Could build up in steps.
-**Animation:** GSAP timeline — prompt appears, then context blocks animate in around it.
+### Slide 6 — Context Engineering in Practice
+**Content:** Claude Code, Codex CLI, Gemini CLI, Copilot — what they do behind the scenes. They combine prompts, relevant context, and tools into a seamless experience.
+**Visual:** Bullet list with staggered reveals.
+**Animation:** Standard v-click staggers.
 
-### Slide 7 — Capability Engineering
-**Content:** Brief mention that context + capability are intertwined.
-**Visual:** Extend the previous diagram to include tools/capabilities.
-**Animation:** New elements animate into the existing diagram.
+### Slide 7 — But There Are Limits
+**Content:** Agents don't know how to run/test unless told. Running on your machine = babysitting. Approval fatigue. Risk to git history, packages, system.
+**Visual:** Bullet list with staggered reveals.
+**Animation:** Standard v-click staggers.
 
-### Slide 8 — Coding Agents Today
-**Content:** Claude Code, Codex CLI, etc. — what they do well, their limitations.
-**Visual:** Logos or icons for the tools. Then a "limitations" overlay or second state.
-**Animation:** Tools appear, then limitations text reveals.
-
-### Slide 9 — Environment Engineering (The Big Reveal)
-**Content:** The thesis — isolated environments, observability, agent harnesses.
+### Slide 8 — Environment Engineering (The Big Reveal)
+**Content:** The thesis — the next evolution. Isolated environments, observability infrastructure, work retrieval.
 **Visual:** This is a key moment. The evolution timeline: Prompt Eng → Context Eng → **Environment Eng**. The third item should feel elevated/highlighted.
 **Animation:** GSAP timeline builds the progression left-to-right, with the final item having extra emphasis (scale, glow, color shift).
 
 ---
 
-## Section 3: Demo — Parallel Exploration (slides 10-13)
+## Section 3: Three Pillars + Demo Setup (slides 9-12)
 
-### Slide 10 — Meet the App
+### Slide 9 — Three Pillars
+**Content:** Isolated Environments, Observability Infrastructure, Work Retrieval — the three pillars of environment engineering.
+**Visual:** Three cards in a row, each with an icon, title, and one-line description.
+**Animation:** Cards stagger in one by one.
+
+### Slide 10 — The Demo (section break)
+**Content:** "Instead of explaining further, let me show you."
+**Visual:** Section break slide with AnimatedText.
+**Animation:** Word-by-word text reveal.
+
+### Slide 11 — Meet the App
 **Content:** "Here's a simple fullstack application..."
 **Visual:** Screenshot or embedded view of the plain app.
 **Animation:** Fade in.
 
-### Slide 11 — The Decision Point
-**Content:** Tabs? Accordions? Side navigation? — the three paths.
-**Visual:** Three options laid out. This is where the Doctor Strange metaphor kicks in.
-**Animation:** Options appear one by one.
+### Slide 12 — The Decision Point + Portal (Hero Moment)
+**Content:** Tabs? Accordions? Side navigation? — the three paths. "What if we could see all of them?"
+**Visual:** Three options appear, then the **Three.js Doctor Strange portal** opens — the glowing orange ring draws, camera pushes through it into the demo.
+**Animation:** v-click options, then portal spins up (Three.js), GSAP drives the camera push, lands on the demo view.
 
-### Slide 12 — Portal Transition (Hero Moment)
-**Content:** "I can open up portals and peer into the realities where each one exists."
-**Visual:** **Three.js Doctor Strange portal** — the glowing orange ring opens, camera pushes through it.
-**Animation:** Portal spins up (Three.js), GSAP drives the camera push, lands on the demo view.
+---
+
+## Section 4: Live Demo 1 (slide 13)
 
 ### Slide 13 — Live Demo: Parallel Agents
 **Content:** Switch to the TSK dashboard, show agents running, show results.
-**Visual:** This is a live demo — the slide might just be a frame/context around the actual browser demo.
+**Visual:** This is a live demo — the slide is a frame/context around the actual browser demo.
 **Animation:** Minimal — the demo itself is the visual.
 
 ---
 
-## Section 4: Concepts + Architecture (slides 14-17)
+## Section 5: Concepts + Architecture (slides 14-16)
 
-### Slide 14 — How It Works
-**Content:** Isolated Docker containers, each with full stack.
-**Visual:** Architecture diagram — containers, agent, host machine.
-**Animation:** GSAP builds the diagram step by step.
+### Slide 14 — Isolated Environments
+**Content:** Each agent runs in its own Docker container with the full stack. Containers have restricted network access — isolated from everything.
+**Visual:** Architecture diagram or visual showing containers, agent, host machine.
+**Animation:** GSAP builds the diagram step by step, or staggered bullet reveals.
 
 ### Slide 15 — Observability
-**Content:** Claude Code Viewer dashboard, logs, frontend, VNC.
+**Content:** Claude Code Viewer dashboard — watch logs, live frontends, and browser actions in real time. This is what makes the workflow practical rather than a black box.
 **Visual:** Screenshot or diagram of the viewer.
 **Animation:** Simple reveal.
 
-### Slide 16 — Safety
-**Content:** Sandboxed, no risk to real codebase, network restrictions.
-**Visual:** Container with a "shield" or boundary visual.
-**Animation:** Subtle.
-
-### Slide 17 — Agent Harness (Brief)
-**Content:** Mention the concept, point to resources.
-**Visual:** Minimal text.
-**Animation:** Simple.
+### Slide 16 — Safety & Work Retrieval
+**Content:** No risk to your real codebase — sandboxed from start to finish. Pull git branches and artifacts out of each container when done. Review and merge the "reality" you want.
+**Visual:** Minimal, clean bullet reveals.
+**Animation:** Subtle staggered reveals.
 
 ---
 
-## Section 5: What If? (slides 18-21)
+## Section 6: What If? (slides 17-20)
+
+### Slide 17 — "What If?" (section break)
+**Content:** Transition into the speculative section.
+**Visual:** AnimatedText section break.
+**Animation:** Word-by-word reveal.
 
 ### Slide 18 — What If: Architect Agents
-**Content:** What if an agent designed the tasks for other agents?
+**Content:** What if an agent designed the tasks for other agents? Instead of you specifying paths, an architect agent generates design options and creates task prompts.
 **Visual:** Diagram — architect agent at top, spawning worker agents below.
 **Animation:** GSAP builds the hierarchy.
 
-### Slide 19 — What If: Race Conditions
-**Content:** Multiple agents on same task, first one wins.
+### Slide 19 — What If: Race & Compare
+**Content:** Multiple agents same task — first one wins. Multiple LLMs same task — compare which is best. Multiple approaches same goal — best implementation wins.
 **Visual:** Racing lanes or parallel arrows converging.
-**Animation:** Arrows animate forward, one reaches the finish first.
+**Animation:** Staggered bullet reveals.
 
-### Slide 20 — What If: Model Comparison
-**Content:** Different LLMs tackling the same task.
-**Visual:** Model logos/names in parallel lanes.
-**Animation:** Similar to previous but with model identifiers.
-
-### Slide 21 — What If: Developer as Architect
-**Content:** The vision — devs design, agents build.
+### Slide 20 — Developer as Architect
+**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand?
 **Visual:** Key quote/statement. Larger typography.
-**Animation:** Text reveal, maybe word-by-word with GSAP SplitText.
+**Animation:** Text reveal, word-by-word with GSAP.
 
 ---
 
-## Section 6: Demo 2 + Close (slides 22-25)
+## Section 7: Demo 2 + Close (slides 21-24)
 
-### Slide 22 — Demo 2 Setup
-**Content:** UI design agent spawning 5 parallel agents.
+### Slide 21 — Demo 2: UI Design Agent
+**Content:** An agent that specializes in UI design generates 5 different themes, then spawns 5 parallel agents to implement them. Brief mention of agent harness concept — the agent harness is what makes this possible, and it's an important area for the future.
 **Visual:** Brief setup slide before switching to live demo.
-**Animation:** Simple.
+**Animation:** Simple v-click reveals.
 
-### Slide 23 — Live Demo 2
-**Content:** Kick off the agents, switch to dashboard.
-**Visual:** Live demo.
-**Animation:** N/A.
+### Slide 22 — Agent Harness: Looking Ahead
+**Content:** The agent harness is the missing piece — workflow instructions, guardrails, and the system that lets agents tackle complex tasks with minimal but intelligent human intervention. Not demoed today, but a critical concept for the future of this approach. Point to resources.
+**Visual:** Minimal, forward-looking. Clean text with accent highlights.
+**Animation:** Simple staggered reveals.
 
-### Slide 24 — Resources + Open Source
+### Slide 23 — Resources + Open Source
 **Content:** Links to source code, recording, resources, shoutouts.
 **Visual:** Clean list of links/QR codes.
 **Animation:** Fade in.
 
-### Slide 25 — Q&A / Thank You
-**Content:** "Thank you" + open floor for questions.
+### Slide 24 — Q&A / Thank You
+**Content:** "Thank you" + open floor for questions. Mention agents running in background — check on them at end if time allows.
 **Visual:** Clean closing slide. Maybe the portal as a subtle background element again.
 **Animation:** Gentle ambient motion while Q&A happens.
 
@@ -160,6 +159,6 @@ Rough classification of how much animation effort each slide gets:
 | Level | Slides | Description |
 |-------|--------|-------------|
 | **Hero** | 12 (portal) | Three.js 3D portal, major production |
-| **Rich** | 1, 6-7, 9, 14, 18-19, 21 | Multi-step GSAP timelines, diagram builds |
-| **Standard** | 3-5, 8, 10-11, 15-16, 20 | Simple GSAP fades, staggers, reveals |
-| **Minimal** | 2, 13, 17, 22-25 | Basic transitions, static content |
+| **Rich** | 1, 5, 8, 14, 18, 20 | Multi-step GSAP timelines, diagram builds |
+| **Standard** | 3-4, 6-7, 9, 11, 15-16, 19 | Simple GSAP fades, staggers, reveals |
+| **Minimal** | 2, 10, 13, 17, 21-24 | Basic transitions, static content |

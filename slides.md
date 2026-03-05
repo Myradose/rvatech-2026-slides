@@ -358,25 +358,59 @@ Three developer agents, each in their own fully isolated Docker container with t
 
 ---
 
-# How It Works
+# Isolated Environments
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Each agent runs in its own **Docker container** with the full stack
+- Each agent runs in its own **Docker container** with the full application stack
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Containers have **restricted network access** - isolated from everything
+- Containers have **restricted network access** - isolated from your system and each other
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- **Claude Code Viewer** dashboard lets you watch logs, frontends, and browser actions
+- Agents can run builds, serve the app, execute tests - all without touching your machine
 
 </div>
+
+<!--
+The first pillar: isolated environments. Each agent works in its own Docker container with the full application stack — frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. This is what makes it safe to let agents work autonomously.
+-->
+
+---
+
+# Observability
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- **Claude Code Viewer** dashboard lets you watch agents work in real time
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- See agent logs, live frontends, and browser automation from your host machine
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Without observability, parallel agents are a black box - this makes the workflow practical
+
+</div>
+
+<!--
+The second pillar: observability. The Claude Code Viewer dashboard lets you watch what every agent is doing in real time. You can see their logs, view the live frontend they're building, and even watch browser automation happening. Without this, you'd be launching agents into the void and hoping for the best. Observability is what makes this workflow practical rather than a gamble.
+-->
+
+---
+
+# Safety & Work Retrieval
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
@@ -384,8 +418,20 @@ Three developer agents, each in their own fully isolated Docker container with t
 
 </div>
 
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- When agents finish, pull **git branches** and artifacts out of each container
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Review all implementations, then merge the "reality" you want to keep
+
+</div>
+
 <!--
-Each agent works in its own Docker container with the full application stack running. The containers have restricted network access. The Claude Code Viewer dashboard shows you logs, live frontends, and even browser automation. Since everything is sandboxed, there's no risk to your real codebase.
+The third pillar: safety and work retrieval. Since everything is sandboxed, there's no risk to your real codebase. Agents can't mess up your git history or install unwanted packages. When they finish, you pull git branches and artifacts out of each container. You review all the implementations side by side, then merge the reality you want to keep. The rest just gets discarded.
 -->
 
 ---
@@ -475,6 +521,32 @@ TODO: Kick off demo, switch to dashboard
 
 <!--
 I've designed an agent that's particularly good at coming up with UI design themes and prompts. I'm going to ask it to spawn 5 parallel agents that will each implement a different design.
+-->
+
+---
+
+# Agent Harness: Looking Ahead
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+The **agent harness** is the missing piece - workflow instructions, guardrails, and the system that lets agents tackle complex tasks with minimal but intelligent human intervention.
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Not demoed today, but a critical concept for the future of this approach
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Existing resources online explore this in depth - links on the next slide
+
+</div>
+
+<!--
+While the UI design agents are running, I want to mention a concept I didn't demo today but is critical for the future: the agent harness. This is the system of workflow instructions and guardrails that lets agents tackle complex, long-running tasks with minimal but intelligent human intervention. Think of it as the playbook you give agents so they know not just what to build, but how to build it well. There are existing resources online that explore this in depth, and I'll link to them on the resources slide.
 -->
 
 ---
