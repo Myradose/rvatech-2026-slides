@@ -72,7 +72,27 @@ strong {
   font-size: 1.05rem;
 }
 
-/* Prompt comparison cards */
+/* ========================================
+   Shared utility patterns
+   ======================================== */
+
+/* Base card: dark surface with subtle border */
+.card-base {
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+/* Accent glow border + shadow */
+.glow-accent {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+/* ========================================
+   Prompt comparison cards
+   ======================================== */
+
 .comparison-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -104,7 +124,23 @@ strong {
   color: var(--color-accent);
 }
 
-/* Evolution timeline */
+/* Detail text inside prompt cards (Looking Ahead slide) */
+.prompt-card-body {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.prompt-card-note {
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   Evolution timeline
+   ======================================== */
+
 .evolution-timeline {
   display: flex;
   align-items: center;
@@ -151,7 +187,10 @@ strong {
   color: var(--color-text-muted);
 }
 
-/* Demo frame placeholder */
+/* ========================================
+   Demo/placeholder frames
+   ======================================== */
+
 .demo-frame {
   background: var(--color-bg-light);
   border: 1px solid var(--color-border);
@@ -212,7 +251,9 @@ blockquote p {
 }
 
 
-/* Context engineering flow (slide 5) */
+/* ========================================
+   Context engineering flow
+   ======================================== */
 
 .context-flow {
   display: flex;
@@ -318,9 +359,9 @@ li::marker {
 }
 
 /* ========================================
-   Pillar cards grid (slide 9)
+   Decision point (portal slide)
    ======================================== */
-/* Decision Point slide content (layout:none, positioned manually) */
+
 .decision-point-content {
   position: absolute;
   inset: 0;
@@ -335,6 +376,10 @@ li::marker {
   line-height: 1.2;
   margin-bottom: 0.75rem;
 }
+
+/* ========================================
+   Pillar cards grid
+   ======================================== */
 
 .pillar-cards {
   display: grid;
@@ -375,7 +420,7 @@ li::marker {
 }
 
 /* ========================================
-   Environment visual (slide 14)
+   Environment visual (isolated environments)
    ======================================== */
 
 .env-visual {
@@ -454,7 +499,7 @@ li::marker {
 }
 
 /* ========================================
-   Tool logos row (slide 6)
+   Tool logos row (context engineering in practice)
    ======================================== */
 
 .tool-logos {
@@ -503,7 +548,7 @@ li::marker {
 }
 
 /* ========================================
-   Architect diagram (slide 18)
+   Architect diagram (architect agents)
    ======================================== */
 
 .architect-diagram {
@@ -598,7 +643,7 @@ li::marker {
 }
 
 /* ========================================
-   Race diagram (slide 19)
+   Race diagram (race & compare)
    ======================================== */
 
 .race-diagram {
@@ -663,12 +708,12 @@ li::marker {
 }
 
 .race-winner {
-  color: #10b981;
+  color: var(--color-success);
   font-weight: 700;
 }
 
 /* ========================================
-   Resources layout (slide 23)
+   Resources layout
    ======================================== */
 
 .resources-layout {
@@ -702,7 +747,7 @@ li::marker {
 }
 
 /* ========================================
-   Demo slide (slide 14)
+   Demo slide
    ======================================== */
 
 .demo-slide {
@@ -712,35 +757,27 @@ li::marker {
 .demo-slide h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #e8e8ed;
+  color: var(--color-text);
   margin: 0 0 1.5rem 0;
 }
 
 .demo-slide .demo-frame {
-  background: #12121a;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
   padding: 1.25rem 2rem;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .demo-slide .demo-frame p {
   margin: 0;
-  color: #e8e8ed;
+  color: var(--color-text);
   line-height: 1.7;
 }
 
-.demo-slide .demo-todo {
+.demo-todo {
   margin-top: 1rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 /* ========================================
-   Isolated environments title (slide 15)
+   Isolated environments title
    ======================================== */
 
 .iso-title-wrap {
@@ -756,4 +793,35 @@ li::marker {
 .iso-title-wrap.iso-centered {
   left: 50%;
   transform: translateX(-50%) translateY(103px);
+}
+
+/* ========================================
+   Looking Ahead footnote
+   ======================================== */
+
+.exploration-note {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   Q&A slide QR overlay
+   ======================================== */
+
+.qa-qr-overlay {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.qa-qr-overlay img {
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
 }

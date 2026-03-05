@@ -19,7 +19,7 @@
   align-items: center;
   padding: 0.5rem 1.5rem;
   font-size: 0.7rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   pointer-events: none;
   z-index: 100;
 }

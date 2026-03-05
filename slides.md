@@ -554,18 +554,18 @@ The biggest what-if: what if the developer's role shifts from writing every line
 <div class="comparison-grid">
   <div class="prompt-card" v-click v-motion :initial="{ opacity: 0, x: -40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
     <p class="prompt-label">Agent Harnesses</p>
-    <p style="font-size: 0.9rem; line-height: 1.6; color: var(--color-text);">The missing piece: workflow instructions, guardrails, and feedback loops that let agents tackle <strong>complex, long-running tasks</strong> with minimal but intelligent human intervention.</p>
-    <p style="font-size: 0.85rem; margin-top: 0.75rem; color: var(--color-text-muted);">Think of it as the playbook you give agents so they know not just <em>what</em> to build, but <em>how</em> to build it well.</p>
+    <p class="prompt-card-body">The missing piece: workflow instructions, guardrails, and feedback loops that let agents tackle <strong>complex, long-running tasks</strong> with minimal but intelligent human intervention.</p>
+    <p class="prompt-card-note">Think of it as the playbook you give agents so they know not just <em>what</em> to build, but <em>how</em> to build it well.</p>
   </div>
 
   <div class="prompt-card" v-click v-motion :initial="{ opacity: 0, x: 40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
     <p class="prompt-label">Cloud Scaling</p>
-    <p style="font-size: 0.9rem; line-height: 1.6; color: var(--color-text);">This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a <strong>Kubernetes cluster</strong>.</p>
-    <p style="font-size: 0.85rem; margin-top: 0.75rem; color: var(--color-text-muted);">Imagine spinning up dozens of agents in parallel, scaling horizontally as the work demands.</p>
+    <p class="prompt-card-body">This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a <strong>Kubernetes cluster</strong>.</p>
+    <p class="prompt-card-note">Imagine spinning up dozens of agents in parallel, scaling horizontally as the work demands.</p>
   </div>
 </div>
 
-<p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" style="text-align: center; margin-top: 1.5rem; color: var(--color-text-muted); font-size: 0.9rem;">Both are active areas of exploration - resources on the next slide</p>
+<p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both are active areas of exploration - resources on the next slide</p>
 
 <!--
 Two things I didn't demo but are critical for the future. First, agent harnesses: the system of workflow instructions and guardrails that tell agents not just what to build, but how to build it well. Think of it as the playbook. Not demoed today, but there are existing resources online that explore this in depth. Second, cloud scaling. This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a Kubernetes cluster, spinning up dozens of agents in parallel.
@@ -624,8 +624,8 @@ Thank you for your time.
 
 <p class="subtitle">Agents are running in the background. Let's check on them at the end.</p>
 
-<div style="position: absolute; bottom: 2.5rem; right: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-  <img src="/qr-code.png" style="width: 120px; height: 120px; border-radius: 6px;" alt="QR code" />
+<div class="qa-qr-overlay">
+  <img src="/qr-code.png" alt="QR code" />
   <span class="qr-label">Resources</span>
   <span class="qr-label" style="color: var(--color-accent); font-style: italic;">TODO: replace</span>
 </div>

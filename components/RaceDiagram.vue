@@ -6,7 +6,7 @@
  * Three progress bars race with varying speeds (surges and stalls).
  * Winner turns green with checkmark, losers turn red and fade.
  */
-import { ref, reactive, watch, onMounted } from 'vue'
+import { reactive, watch, onMounted } from 'vue'
 import { useNav, onSlideEnter, onSlideLeave } from '@slidev/client'
 import gsap from 'gsap'
 
