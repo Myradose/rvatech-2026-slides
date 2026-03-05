@@ -19,6 +19,15 @@ export interface PortalSceneApi {
   getPortalGroup(): THREE.Group | null
 }
 
+export interface PortalSceneOpts {
+  ringSize: number
+  ground: boolean
+  sparks: boolean
+  core: boolean
+  haze: boolean
+  bloom: boolean
+}
+
 function createGlowTexture(): THREE.Texture {
   const size = 128
   const canvas = document.createElement('canvas')
@@ -36,9 +45,13 @@ function createGlowTexture(): THREE.Texture {
   return new THREE.CanvasTexture(canvas)
 }
 
+/**
+ * All Three.js objects are always created. `opts` flags are checked every frame
+ * so they can be toggled at runtime (e.g. from a debug panel).
+ */
 export function usePortalScene(
   state: PortalState,
-  opts: { ringSize: number; ground: boolean },
+  opts: PortalSceneOpts,
 ): PortalSceneApi {
   let renderer: THREE.WebGLRenderer | null = null
   let composer: EffectComposer | null = null
@@ -66,7 +79,7 @@ export function usePortalScene(
     renderer.toneMappingExposure = 1.0
     el.appendChild(renderer.domElement)
 
-    // Post-processing: subtle bloom makes sparks glow naturally
+    // Always create bloom composer so it can be toggled at runtime
     const renderTarget = new THREE.WebGLRenderTarget(w * dpr, h * dpr, {
       type: THREE.HalfFloatType,
       format: THREE.RGBAFormat,
@@ -86,8 +99,6 @@ export function usePortalScene(
     portalGroup = new THREE.Group()
     scene.add(portalGroup)
 
-    // --- Spark emitter ---
-
     const glowTex = createGlowTexture()
     const RING_SPEED = 14.0
     const RING_RADIUS = 1.15
@@ -96,7 +107,8 @@ export function usePortalScene(
     const GROUND_Y = -RING_RADIUS - 0.025
     const ARC_START = Math.PI / 2
 
-    // Per-spark state
+    // --- Spark emitter (always allocated, visibility controlled by opts.sparks) ---
+
     const sparkX = new Float32Array(SPARK_COUNT)
     const sparkY = new Float32Array(SPARK_COUNT)
     const sparkVx = new Float32Array(SPARK_COUNT)
@@ -138,7 +150,6 @@ export function usePortalScene(
       }
     }
 
-    // Initialize all sparks as dead
     killAllSparks()
 
     // Trail line segments
@@ -175,7 +186,8 @@ export function usePortalScene(
     emberMesh.frustumCulled = false
     portalGroup.add(emberMesh)
 
-    // Core glow band
+    // --- Core glow band (always allocated, visibility controlled by opts.core) ---
+
     const coreCount = 800
     const corePositions = new Float32Array(coreCount * 3)
     for (let i = 0; i < coreCount; i++) {
@@ -194,7 +206,8 @@ export function usePortalScene(
 
     let lastTime = performance.now() * 0.001
 
-    // --- Subtle red haze behind the portal ring ---
+    // --- Subtle red haze behind the portal ring (always allocated, visibility controlled by opts.haze) ---
+
     const hazeSize = 256
     const hazeCanvas = document.createElement('canvas')
     hazeCanvas.width = hazeSize
@@ -263,145 +276,164 @@ export function usePortalScene(
       lastTime = t
 
       // Core glow: phase-aware positioning
-      const cPos = coreGeo.attributes.position.array as Float32Array
-      if (state.phase === 0) {
-        // No-op — core particles stay off-screen from reset
-      } else if (state.phase === 1 || state.phase === 3) {
-        coreParticles.rotation.z = 0
-        for (let i = 0; i < coreCount; i++) {
-          if (state.arcProgress < 0.01) {
-            cPos[i * 3 + 2] = -999
-          } else {
-            const angle = ARC_START + Math.random() * state.arcProgress
-            const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
-            cPos[i * 3] = Math.cos(angle) * r
-            cPos[i * 3 + 1] = Math.sin(angle) * r
-            cPos[i * 3 + 2] = (Math.random() - 0.5) * 0.05
-          }
-        }
-        coreGeo.attributes.position.needsUpdate = true
-      } else {
-        if (state.coreNeedsFullCircle) {
-          state.coreNeedsFullCircle = false
+      coreParticles.visible = opts.core
+      if (opts.core) {
+        const cPos = coreGeo.attributes.position.array as Float32Array
+        if (state.phase === 0) {
+          // No-op — core particles stay off-screen from reset
+        } else if (state.phase === 1 || state.phase === 3) {
+          coreParticles.rotation.z = 0
           for (let i = 0; i < coreCount; i++) {
-            const angle = Math.random() * Math.PI * 2
-            const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
-            cPos[i * 3] = Math.cos(angle) * r
-            cPos[i * 3 + 1] = Math.sin(angle) * r
-            cPos[i * 3 + 2] = (Math.random() - 0.5) * 0.05
+            if (state.arcProgress < 0.01) {
+              cPos[i * 3 + 2] = -999
+            } else {
+              const angle = ARC_START + Math.random() * state.arcProgress
+              const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
+              cPos[i * 3] = Math.cos(angle) * r
+              cPos[i * 3 + 1] = Math.sin(angle) * r
+              cPos[i * 3 + 2] = (Math.random() - 0.5) * 0.05
+            }
           }
           coreGeo.attributes.position.needsUpdate = true
+        } else {
+          if (state.coreNeedsFullCircle) {
+            state.coreNeedsFullCircle = false
+            for (let i = 0; i < coreCount; i++) {
+              const angle = Math.random() * Math.PI * 2
+              const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
+              cPos[i * 3] = Math.cos(angle) * r
+              cPos[i * 3 + 1] = Math.sin(angle) * r
+              cPos[i * 3 + 2] = (Math.random() - 0.5) * 0.05
+            }
+            coreGeo.attributes.position.needsUpdate = true
+          }
+          coreParticles.rotation.z = t * RING_SPEED
         }
-        coreParticles.rotation.z = t * RING_SPEED
       }
 
       // Haze: fade in when arc > PI during creation, fade out when arc < PI during reverse
-      if ((state.phase === 1 || state.phase === 3) && state.arcProgress > Math.PI && !hazeFadedIn) {
-        hazeSprite.visible = true
-        hazeMat.opacity = 0
-        gsap.killTweensOf(hazeMat)
-        gsap.to(hazeMat, { opacity: 1.0, duration: 1.0, ease: 'power2.out' })
-        hazeFadedIn = true
+      if (opts.haze) {
+        if ((state.phase === 1 || state.phase === 3) && state.arcProgress > Math.PI && !hazeFadedIn) {
+          hazeSprite.visible = true
+          hazeMat.opacity = 0
+          gsap.killTweensOf(hazeMat)
+          gsap.to(hazeMat, { opacity: 1.0, duration: 1.0, ease: 'power2.out' })
+          hazeFadedIn = true
+        }
+        if (state.phase === 3 && state.arcProgress <= Math.PI && hazeFadedIn) {
+          gsap.killTweensOf(hazeMat)
+          gsap.to(hazeMat, { opacity: 0, duration: 0.6, ease: 'power2.in', onComplete: () => { hazeSprite.visible = false } })
+          hazeFadedIn = false
+        }
+      } else {
+        if (hazeSprite.visible) {
+          gsap.killTweensOf(hazeMat)
+          hazeSprite.visible = false
+        }
       }
-      if (state.phase === 3 && state.arcProgress <= Math.PI && hazeFadedIn) {
-        gsap.killTweensOf(hazeMat)
-        gsap.to(hazeMat, { opacity: 0, duration: 0.6, ease: 'power2.in', onComplete: () => { hazeSprite.visible = false } })
-        hazeFadedIn = false
-      }
 
-      // Gradually adjust sparksActivated proportional to arc progress
-      if (state.phase === 1 || state.phase === 3) {
-        state.sparksActivated = Math.floor((state.arcProgress / (Math.PI * 2)) * SPARK_COUNT)
-      }
+      // Spark visibility
+      trailMesh.visible = opts.sparks
+      emberMesh.visible = opts.sparks
 
-      // Update sparks
-      const tPos = trailGeo.attributes.position.array as Float32Array
-      const tCol = trailGeo.attributes.color.array as Float32Array
-      const ePos = emberGeo.attributes.position.array as Float32Array
+      if (opts.sparks) {
+        // Gradually adjust sparksActivated proportional to arc progress
+        if (state.phase === 1 || state.phase === 3) {
+          state.sparksActivated = Math.floor((state.arcProgress / (Math.PI * 2)) * SPARK_COUNT)
+        }
 
-      for (let i = 0; i < SPARK_COUNT; i++) {
-        sparkAge[i] += dt
+        const tPos = trailGeo.attributes.position.array as Float32Array
+        const tCol = trailGeo.attributes.color.array as Float32Array
+        const ePos = emberGeo.attributes.position.array as Float32Array
 
-        if (sparkAge[i] >= sparkMaxAge[i]) {
-          if (state.phase >= 1 && i < state.sparksActivated) {
-            spawnSpark(i, t)
+        for (let i = 0; i < SPARK_COUNT; i++) {
+          sparkAge[i] += dt
+
+          if (sparkAge[i] >= sparkMaxAge[i]) {
+            if (state.phase >= 1 && i < state.sparksActivated) {
+              spawnSpark(i, t)
+            } else {
+              ePos[i * 3] = 0
+              ePos[i * 3 + 1] = 0
+              ePos[i * 3 + 2] = -999
+              tPos[i * 6] = 0; tPos[i * 6 + 1] = 0; tPos[i * 6 + 2] = -999
+              tPos[i * 6 + 3] = 0; tPos[i * 6 + 4] = 0; tPos[i * 6 + 5] = -999
+              tCol[i * 6] = 0; tCol[i * 6 + 1] = 0; tCol[i * 6 + 2] = 0
+              tCol[i * 6 + 3] = 0; tCol[i * 6 + 4] = 0; tCol[i * 6 + 5] = 0
+              continue
+            }
+          }
+
+          if (opts.ground) sparkVy[i] -= 0.8 * dt
+
+          sparkX[i] += sparkVx[i] * dt
+          sparkY[i] += sparkVy[i] * dt
+
+          sparkVx[i] *= (1 - 3.0 * dt)
+          sparkVy[i] *= (1 - 3.0 * dt)
+
+          if (opts.ground && sparkY[i] < GROUND_Y) {
+            sparkY[i] = GROUND_Y
+            sparkVy[i] = 0
+            sparkVx[i] *= 0.85
+          }
+
+          const life = sparkAge[i] / sparkMaxAge[i]
+
+          const hx = sparkX[i]
+          const hy = sparkY[i]
+          const hz = sparkZ[i]
+          const trailScale = Math.max(0, 1 - life * life)
+          const rawTailX = hx - sparkVx[i] * TRAIL_LEN * trailScale
+          const rawTailY = hy - sparkVy[i] * TRAIL_LEN * trailScale
+          const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
+          const tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
+          const tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
+
+          const headX = tailX + (hx - tailX) * trailScale
+          const headY = tailY + (hy - tailY) * trailScale
+          tPos[i * 6] = headX
+          tPos[i * 6 + 1] = headY
+          tPos[i * 6 + 2] = hz
+          tPos[i * 6 + 3] = tailX
+          tPos[i * 6 + 4] = tailY
+          tPos[i * 6 + 5] = hz
+
+          const dist = Math.sqrt(hx * hx + hy * hy)
+          const distFromRing = Math.max(0, dist - RING_RADIUS)
+          const rs = Math.min(1, distFromRing * 7.0)
+          const fade = Math.max(0, 1 - life * life)
+
+          tCol[i * 6]     = (0.6 - rs * 0.15) * fade
+          tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade
+          tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade
+          const trs = Math.min(1, rs + 0.4)
+          const tailFade = fade * 0.6
+          tCol[i * 6 + 3] = (0.5 - trs * 0.15) * tailFade
+          tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade
+          tCol[i * 6 + 5] = 0.0
+
+          if (fade > 0.05) {
+            ePos[i * 3] = hx
+            ePos[i * 3 + 1] = hy
+            ePos[i * 3 + 2] = hz
           } else {
             ePos[i * 3] = 0
             ePos[i * 3 + 1] = 0
             ePos[i * 3 + 2] = -999
-            tPos[i * 6] = 0; tPos[i * 6 + 1] = 0; tPos[i * 6 + 2] = -999
-            tPos[i * 6 + 3] = 0; tPos[i * 6 + 4] = 0; tPos[i * 6 + 5] = -999
-            tCol[i * 6] = 0; tCol[i * 6 + 1] = 0; tCol[i * 6 + 2] = 0
-            tCol[i * 6 + 3] = 0; tCol[i * 6 + 4] = 0; tCol[i * 6 + 5] = 0
-            continue
           }
         }
 
-        if (opts.ground) sparkVy[i] -= 0.8 * dt
-
-        sparkX[i] += sparkVx[i] * dt
-        sparkY[i] += sparkVy[i] * dt
-
-        sparkVx[i] *= (1 - 3.0 * dt)
-        sparkVy[i] *= (1 - 3.0 * dt)
-
-        if (opts.ground && sparkY[i] < GROUND_Y) {
-          sparkY[i] = GROUND_Y
-          sparkVy[i] = 0
-          sparkVx[i] *= 0.85
-        }
-
-        const life = sparkAge[i] / sparkMaxAge[i]
-
-        const hx = sparkX[i]
-        const hy = sparkY[i]
-        const hz = sparkZ[i]
-        const trailScale = Math.max(0, 1 - life * life)
-        const rawTailX = hx - sparkVx[i] * TRAIL_LEN * trailScale
-        const rawTailY = hy - sparkVy[i] * TRAIL_LEN * trailScale
-        const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
-        const tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
-        const tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
-
-        const headX = tailX + (hx - tailX) * trailScale
-        const headY = tailY + (hy - tailY) * trailScale
-        tPos[i * 6] = headX
-        tPos[i * 6 + 1] = headY
-        tPos[i * 6 + 2] = hz
-        tPos[i * 6 + 3] = tailX
-        tPos[i * 6 + 4] = tailY
-        tPos[i * 6 + 5] = hz
-
-        const dist = Math.sqrt(hx * hx + hy * hy)
-        const distFromRing = Math.max(0, dist - RING_RADIUS)
-        const rs = Math.min(1, distFromRing * 7.0)
-        const fade = Math.max(0, 1 - life * life)
-
-        tCol[i * 6]     = (0.6 - rs * 0.15) * fade
-        tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade
-        tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade
-        const trs = Math.min(1, rs + 0.4)
-        const tailFade = fade * 0.6
-        tCol[i * 6 + 3] = (0.5 - trs * 0.15) * tailFade
-        tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade
-        tCol[i * 6 + 5] = 0.0
-
-        if (fade > 0.05) {
-          ePos[i * 3] = hx
-          ePos[i * 3 + 1] = hy
-          ePos[i * 3 + 2] = hz
-        } else {
-          ePos[i * 3] = 0
-          ePos[i * 3 + 1] = 0
-          ePos[i * 3 + 2] = -999
-        }
+        trailGeo.attributes.position.needsUpdate = true
+        trailGeo.attributes.color.needsUpdate = true
+        emberGeo.attributes.position.needsUpdate = true
       }
 
-      trailGeo.attributes.position.needsUpdate = true
-      trailGeo.attributes.color.needsUpdate = true
-      emberGeo.attributes.position.needsUpdate = true
-
-      composer!.render()
+      if (opts.bloom) {
+        composer!.render()
+      } else {
+        renderer!.render(scene, camera)
+      }
       animationId = requestAnimationFrame(animate)
     }
 

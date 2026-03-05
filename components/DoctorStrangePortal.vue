@@ -13,25 +13,41 @@
  * Usage in slides.md:
  *   <DoctorStrangePortal />
  *   <DoctorStrangePortal :ring-size="400" :next-slide="15" />
+ *   <DoctorStrangePortal :sparks="false" :haze="false" />  <!-- core-only minimal portal -->
  */
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useNav, useSlideContext, onSlideEnter, onSlideLeave } from '@slidev/client'
 import SlideContainer from '@slidev/client/internals/SlideContainer.vue'
 import SlideWrapper from '@slidev/client/internals/SlideWrapper.vue'
 import { getSlide } from '@slidev/client/logic/slides.ts'
 import { createFixedClicks } from '@slidev/client/composables/useClicks.ts'
 import gsap from 'gsap'
-import { usePortalScene, type PortalState } from '../composables/usePortalScene'
+import { usePortalScene, type PortalState, type PortalSceneOpts } from '../composables/usePortalScene'
 
 const props = withDefaults(defineProps<{
   ringSize?: number
   /** Enable ground plane that sparks settle on */
   ground?: boolean
+  /** Enable spark emitter with trails and ember heads */
+  sparks?: boolean
+  /** Enable core glow band around the ring */
+  core?: boolean
+  /** Enable red haze backdrop behind the ring */
+  haze?: boolean
+  /** Enable bloom post-processing */
+  bloom?: boolean
+  /** Show debug panel with runtime toggles */
+  dev?: boolean
   /** Override which slide to show through the portal (default: current + 1) */
   nextSlide?: number
 }>(), {
   ringSize: 360,
   ground: true,
+  sparks: true,
+  core: true,
+  haze: true,
+  bloom: true,
+  dev: false,
 })
 
 // --- Slidev internals: render the next slide ---
@@ -60,6 +76,7 @@ const stageRef = ref<HTMLDivElement>()
 const contentRef = ref<HTMLDivElement>()
 const canvasRef = ref<HTMLDivElement>()
 const contentOverlayRef = ref<HTMLDivElement>()
+const debugRef = ref<HTMLDivElement>()
 const nav = useNav()
 let isZooming = false
 let isZoomForward = false
@@ -75,10 +92,26 @@ const portalState: PortalState = {
   coreNeedsFullCircle: false,
 }
 
-const scene = usePortalScene(portalState, {
+// Mutable opts object — composable reads these every frame.
+// The debug panel (when dev=true) mutates this directly for live toggling.
+const sceneOpts: PortalSceneOpts = reactive({
   ringSize: props.ringSize,
   ground: props.ground,
+  sparks: props.sparks,
+  core: props.core,
+  haze: props.haze,
+  bloom: props.bloom,
 })
+
+const scene = usePortalScene(portalState, sceneOpts)
+
+const FEATURE_TOGGLES: { key: keyof PortalSceneOpts; label: string }[] = [
+  { key: 'sparks', label: 'Sparks' },
+  { key: 'core', label: 'Core' },
+  { key: 'haze', label: 'Haze' },
+  { key: 'bloom', label: 'Bloom' },
+  { key: 'ground', label: 'Ground' },
+]
 
 // --- Derived helpers ---
 
@@ -185,8 +218,12 @@ function blockEvent(e: Event) {
   e.stopImmediatePropagation()
 }
 
+function isDebugEvent(e: Event): boolean {
+  return !!debugRef.value?.contains(e.target as Node)
+}
+
 function onKeydown(e: KeyboardEvent) {
-  if (!interceptActive) return
+  if (!interceptActive || isDebugEvent(e)) return
   const isForward = FORWARD_KEYS.includes(e.key)
   const isBackward = BACKWARD_KEYS.includes(e.key)
   if (!isForward && !isBackward) return
@@ -219,7 +256,7 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 function onClickCapture(e: MouseEvent) {
-  if (!interceptActive) return
+  if (!interceptActive || isDebugEvent(e)) return
   const target = e.target as HTMLElement
   if (target.closest('.slidev-nav, nav, button, a')) return
 
@@ -502,6 +539,19 @@ onBeforeUnmount(() => {
 
     <!-- Three.js canvas fills full stage so bloom fades seamlessly -->
     <div ref="canvasRef" class="portal-canvas-full" />
+
+    <!-- Debug panel for live feature toggling -->
+    <div v-if="props.dev" ref="debugRef" class="portal-debug">
+      <div class="portal-debug-title">Portal Debug</div>
+      <label v-for="toggle in FEATURE_TOGGLES" :key="toggle.key" class="portal-debug-toggle">
+        <input
+          type="checkbox"
+          :checked="sceneOpts[toggle.key] as boolean"
+          @change="(sceneOpts[toggle.key] as any) = ($event.target as HTMLInputElement).checked"
+        />
+        {{ toggle.label }}
+      </label>
+    </div>
   </div>
 </template>
 
@@ -548,5 +598,43 @@ onBeforeUnmount(() => {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.portal-debug {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 140, 40, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #eee;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.portal-debug-title {
+  font-weight: bold;
+  color: rgba(255, 140, 40, 0.9);
+  margin-bottom: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.portal-debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.portal-debug-toggle input {
+  accent-color: #ee8811;
+  cursor: pointer;
 }
 </style>
