@@ -143,10 +143,12 @@ Context engineering builds on prompt engineering. Instead of just crafting bette
 -->
 
 ---
+clicks: 3
+---
 
 # Context Engineering in Practice
 
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', delay: 400, duration: 400 } }">
 
 - This is exactly what today's coding agents do behind the scenes
 
@@ -154,7 +156,7 @@ Context engineering builds on prompt engineering. Instead of just crafting bette
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Claude Code, Codex CLI, Gemini CLI, GitHub Copilot - they combine prompts, relevant context, and tools into a seamless experience
+- They combine prompts, relevant context, and tools into a seamless experience
 
 </div>
 
@@ -162,6 +164,13 @@ Context engineering builds on prompt engineering. Instead of just crafting bette
 
 - They explore codebases, make edits, run commands, provide review workflows
 
+</div>
+
+<div :class="{ 'tool-logos-hero': $clicks < 1 }" class="tool-logos">
+  <div class="tool-logo"><simple-icons:claude /><span>Claude Code</span></div>
+  <div class="tool-logo"><simple-icons:openai /><span>Codex CLI</span></div>
+  <div class="tool-logo"><simple-icons:googlegemini /><span>Gemini CLI</span></div>
+  <div class="tool-logo"><simple-icons:githubcopilot /><span>GitHub Copilot</span></div>
 </div>
 
 <!--
