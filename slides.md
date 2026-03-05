@@ -555,18 +555,6 @@ What if instead of one agent per task, we had two or three and took the first to
 -->
 
 ---
-layout: statement
----
-
-<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
-
-<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
-
-<!--
-The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? You become the architect, not the bricklayer.
--->
-
----
 
 # Demo 2: UI Design Agent
 
@@ -584,6 +572,18 @@ TODO: Kick off demo, switch to dashboard
 
 <!--
 I've designed an agent that's particularly good at coming up with UI design themes and prompts. I'm going to ask it to spawn 5 parallel agents that will each implement a different design.
+-->
+
+---
+layout: statement
+---
+
+<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
+
+<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
+
+<!--
+The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? You become the architect, not the bricklayer.
 -->
 
 ---
