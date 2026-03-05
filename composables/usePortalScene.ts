@@ -206,7 +206,7 @@ export function usePortalScene(
 
     let lastTime = performance.now() * 0.001
 
-    // --- Subtle red haze behind the portal ring (always allocated, visibility controlled by opts.haze) ---
+    // --- Subtle red haze behind the portal ring (arc-following shader) ---
 
     const hazeSize = 256
     const hazeCanvas = document.createElement('canvas')
@@ -224,28 +224,83 @@ export function usePortalScene(
     hazeCtx.fillStyle = hazeGrad
     hazeCtx.fillRect(0, 0, hazeSize, hazeSize)
     const hazeTex = new THREE.CanvasTexture(hazeCanvas)
-    const hazeMat = new THREE.SpriteMaterial({
-      map: hazeTex,
+
+    const hazeUniforms = {
+      map: { value: hazeTex },
+      uArcStart: { value: ARC_START },
+      uArcProgress: { value: 0.0 },
+      uSoftEdge: { value: 0.5 },  // radians of soft leading edge
+    }
+    const hazeMat = new THREE.ShaderMaterial({
+      uniforms: hazeUniforms,
       transparent: true,
-      opacity: 1.0,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
-    })
-    const hazeSprite = new THREE.Sprite(hazeMat)
-    hazeSprite.scale.set(4.0, 4.0, 1)
-    hazeSprite.position.z = -0.1
-    hazeSprite.visible = false
-    portalGroup.add(hazeSprite)
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D map;
+        uniform float uArcStart;
+        uniform float uArcProgress;
+        uniform float uSoftEdge;
+        varying vec2 vUv;
 
-    let hazeFadedIn = false
+        #define TAU 6.2831853
+
+        void main() {
+          vec4 tex = texture2D(map, vUv);
+
+          // Fragment angle relative to center, measured CCW from arc start
+          vec2 centered = vUv - 0.5;
+          float angle = atan(centered.y, centered.x);
+          // Offset so 0 = arc start, wrapping into [0, TAU)
+          float rel = mod(angle - uArcStart + TAU, TAU);
+
+          // Full circle — no masking needed
+          if (uArcProgress >= TAU) {
+            gl_FragColor = tex;
+            return;
+          }
+
+          // Signed distance to nearest arc edge (positive = inside arc)
+          float distToStart = rel;
+          float distToEnd = uArcProgress - rel;
+          float gapToStart = TAU - rel;
+
+          float nearestDist = distToEnd >= 0.0
+            ? min(distToStart, distToEnd)          // inside arc
+            : -min(-distToEnd, gapToStart);        // in gap (negative)
+
+          // Glow bleeds past arc edges and reaches full brightness quickly inside
+          float bleed = uSoftEdge * 0.6;
+          float arcMask = smoothstep(-bleed, bleed * 0.4, nearestDist);
+
+          // As arc nears completion, blend toward full visibility so the
+          // start/end edges merge smoothly rather than snapping at TAU
+          float fullness = smoothstep(TAU - uSoftEdge * 2.0, TAU, uArcProgress);
+          float mask = mix(arcMask, 1.0, fullness);
+
+          gl_FragColor = tex * mask;
+        }
+      `,
+    })
+    const hazeGeo = new THREE.PlaneGeometry(1, 1)
+    const hazeMesh = new THREE.Mesh(hazeGeo, hazeMat)
+    hazeMesh.scale.set(4.0, 4.0, 1)
+    hazeMesh.position.z = -0.1
+    hazeMesh.visible = false
+    portalGroup.add(hazeMesh)
 
     // --- Reset callback ---
     resetVisualsFn = () => {
       killAllSparks()
-      gsap.killTweensOf(hazeMat)
-      hazeSprite.visible = false
-      hazeMat.opacity = 1.0
-      hazeFadedIn = false
+      hazeMesh.visible = false
+      hazeUniforms.uArcProgress.value = 0.0
       const cPos = coreGeo.attributes.position.array as Float32Array
       for (let i = 0; i < coreCount; i++) {
         cPos[i * 3] = 0
@@ -265,6 +320,7 @@ export function usePortalScene(
       coreGeo.dispose()
       coreMat.dispose()
       glowTex.dispose()
+      hazeGeo.dispose()
       hazeTex.dispose()
       hazeMat.dispose()
       renderTarget.dispose()
@@ -311,25 +367,12 @@ export function usePortalScene(
         }
       }
 
-      // Haze: fade in when arc > PI during creation, fade out when arc < PI during reverse
-      if (opts.haze) {
-        if ((state.phase === 1 || state.phase === 3) && state.arcProgress > Math.PI && !hazeFadedIn) {
-          hazeSprite.visible = true
-          hazeMat.opacity = 0
-          gsap.killTweensOf(hazeMat)
-          gsap.to(hazeMat, { opacity: 1.0, duration: 1.0, ease: 'power2.out' })
-          hazeFadedIn = true
-        }
-        if (state.phase === 3 && state.arcProgress <= Math.PI && hazeFadedIn) {
-          gsap.killTweensOf(hazeMat)
-          gsap.to(hazeMat, { opacity: 0, duration: 0.6, ease: 'power2.in', onComplete: () => { hazeSprite.visible = false } })
-          hazeFadedIn = false
-        }
+      // Haze: arc-following shader — update uniform every frame
+      if (opts.haze && state.phase !== 0) {
+        hazeMesh.visible = true
+        hazeUniforms.uArcProgress.value = state.arcProgress
       } else {
-        if (hazeSprite.visible) {
-          gsap.killTweensOf(hazeMat)
-          hazeSprite.visible = false
-        }
+        hazeMesh.visible = false
       }
 
       // Spark visibility
