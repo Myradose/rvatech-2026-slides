@@ -37,14 +37,17 @@ layout: center
 
 # About Me
 
-<div class="about-content" v-click>
+<div class="about-content" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
-TODO: Add bio details here
+- **Full Stack Developer** at Allianz Partners (Angular, React Native, .NET)
+- Member of our **AI Committee** - shaping AI adoption strategy
+- Built an AI-powered compliance analysis tool with Claude and AWS Bedrock
+- B.S. in Computer Science, James Madison University
 
 </div>
 
 <!--
-Brief intro about yourself.
+Quick background on me. I'm a full stack developer at Allianz Partners working across Angular, React Native, and .NET. I'm on our AI Committee where I help shape how we adopt AI across the organization. I've built agentic applications for real business problems, including a compliance analysis tool powered by Claude and AWS Bedrock. And I use Claude Code extensively in my daily workflow, which is what led me to the patterns I'm going to show you today.
 -->
 
 ---
