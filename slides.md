@@ -129,40 +129,38 @@ No amount of prompt engineering can manufacture missing knowledge.
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-**Context engineering** = giving the model *just enough* relevant context to get the job done.
+**Context engineering** = giving the model the right knowledge, tools, and instructions to get the job done.
 
 </div>
 
 <!--
-Context engineering builds on prompt engineering. Instead of just crafting better prompts, you provide or cultivate the relevant context. If the model's knowledge is outdated, you give it the docs. The art is in providing just enough context - not everything, just what's relevant.
+Context engineering builds on prompt engineering. Instead of just crafting better prompts, you provide the right context - knowledge the model is missing, tools it can use, and instructions for how to use them. If the model's knowledge is outdated, you give it the docs. If it needs to interact with the world, you give it tools. The art is in curating exactly the right context for the task.
 -->
 
 ---
 
-# Capability Engineering
-
-Tools + context for how to use them
+# Context Engineering in Practice
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- You don't just give models knowledge - you give them **tools** and teach them how to use those tools
+- This is exactly what today's coding agents do behind the scenes
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Claude Code, Codex CLI, Gemini CLI, GitHub Copilot - all combine prompt, context, and capability engineering behind the scenes
+- Claude Code, Codex CLI, Gemini CLI, GitHub Copilot - they combine prompts, relevant context, and tools into a seamless experience
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- They explore codebases, make edits, provide review workflows
+- They explore codebases, make edits, run commands, provide review workflows
 
 </div>
 
 <!--
-Capability engineering is where you craft the selection of tools and the context for using them. The coding agents we have today - Claude Code, Codex CLI, Copilot - they all combine sophisticated prompt, context, and capability engineering behind the scenes.
+This is exactly what today's coding agents are doing. Claude Code, Codex CLI, Copilot - they're sophisticated context engineering systems. The tools they use - file search, code editing, terminal access - those are all forms of context engineering. Each tool gives the model more context about your project. They read your codebase to build understanding, then use that context to make changes. Context engineering in action.
 -->
 
 ---
@@ -183,13 +181,7 @@ Capability engineering is where you craft the selection of tools and the context
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Constant approval/denial of actions
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- **Approval fatigue** - accidentally approving dangerous commands
+- Constant approval/denial of actions, **approval fatigue**
 
 </div>
 
@@ -200,7 +192,7 @@ Capability engineering is where you craft the selection of tools and the context
 </div>
 
 <!--
-These systems are incredible but they have limitations out of the box. They don't know how to run or test unless you specify it. They run on your machine with heavy human oversight. You get approval fatigue - constantly approving or denying requests, sometimes approving things by accident.
+These agents are incredible but they have limitations out of the box. They don't know how to run or test unless you configure it. They run on your machine, so you're babysitting every step. You get approval fatigue from constantly approving or denying actions, sometimes approving things by accident. And there's real risk to your git history and system.
 -->
 
 ---
@@ -213,7 +205,7 @@ transition: section
 <EvolutionTimeline />
 
 <!--
-This brings me to what I believe is the next evolution: environment engineering. It's the process of creating the environment agents exist in, the infrastructure to observe and consume their work, and the agent harness that lets them tackle complex tasks with minimal but intelligent human intervention.
+This brings me to what I believe is the next evolution: environment engineering. It's the process of creating isolated environments for agents to work in, the infrastructure to observe them in real time, and the means to retrieve and use their work. It's what lets agents tackle complex tasks with minimal but intelligent human intervention.
 -->
 
 ---
@@ -230,13 +222,13 @@ This brings me to what I believe is the next evolution: environment engineering.
     <p>Dashboards to watch agents work in real time</p>
   </div>
   <div class="pillar-card" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
-    <h3>Agent Harness</h3>
-    <p>Workflow instructions and guardrails for autonomous work</p>
+    <h3>Work Retrieval</h3>
+    <p>Infrastructure to extract results from each environment</p>
   </div>
 </div>
 
 <!--
-Environment engineering has three pillars. Isolated environments - Docker containers where agents can't damage your system. Observability infrastructure - dashboards where you can watch what they're doing. And agent harnesses - the workflow instructions and guardrails.
+Environment engineering has three pillars. Isolated environments - Docker containers where agents can't damage your system. Observability infrastructure - dashboards where you can watch what they're doing. And work retrieval - the infrastructure that lets you pull git branches and artifacts out of each container so you can use the work.
 -->
 
 ---
@@ -398,7 +390,7 @@ transition: section
 <AnimatedText text='"What If?"' tag="h1" :stagger="0.15" :duration="0.6" />
 
 <!--
-Now to get you thinking - here are some what-ifs.
+So you've seen what this looks like in practice. Now I want to take it further. What else becomes possible when agents have their own isolated environments?
 -->
 
 ---
@@ -456,7 +448,7 @@ layout: statement
 <p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed *how* features get built instead of building every one by hand?</p>
 
 <!--
-The biggest what-if: what if we developed a robust agent harness where each developer is the architect that designs and reviews, rather than the bricklayer that writes every line of code?
+The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? You become the architect, not the bricklayer.
 -->
 
 ---
