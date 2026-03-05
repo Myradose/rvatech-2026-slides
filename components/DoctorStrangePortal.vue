@@ -7,8 +7,9 @@
  * zooms through the portal ring into the next slide seamlessly.
  *
  * Three.js scene logic (renderer, particles, bloom) lives in usePortalScene().
- * This component owns the Slidev integration, phase state machine, navigation
- * interception, and GSAP timeline orchestration.
+ * Navigation interception lives in usePortalNavigation().
+ * This component owns the Slidev integration, phase state machine, and GSAP
+ * timeline orchestration.
  *
  * Usage in slides.md:
  *   <DoctorStrangePortal />
@@ -23,6 +24,8 @@ import { getSlide } from '@slidev/client/logic/slides.ts'
 import { createFixedClicks } from '@slidev/client/composables/useClicks.ts'
 import gsap from 'gsap'
 import { usePortalScene, type PortalState, type PortalSceneOpts } from '../composables/usePortalScene'
+import { usePortalNavigation } from '../composables/usePortalNavigation'
+import PortalDebugPanel from './PortalDebugPanel.vue'
 
 const props = withDefaults(defineProps<{
   ringSize?: number
@@ -76,11 +79,10 @@ const stageRef = ref<HTMLDivElement>()
 const contentRef = ref<HTMLDivElement>()
 const canvasRef = ref<HTMLDivElement>()
 const contentOverlayRef = ref<HTMLDivElement>()
-const debugRef = ref<HTMLDivElement>()
+const debugPanelRef = ref<InstanceType<typeof PortalDebugPanel>>()
 const nav = useNav()
 let isZooming = false
 let isZoomForward = false
-let interceptActive = false
 let zoomTl: gsap.core.Timeline | null = null
 let creationTl: gsap.core.Timeline | null = null
 
@@ -94,10 +96,9 @@ const portalState: PortalState = {
 
 // Reactive status for the debug panel (avoids making portalState reactive)
 const debugStatus = ref('idle')
-const debugBarRef = ref<HTMLDivElement>()
 
 function setDebugProgress(p: number) {
-  if (debugBarRef.value) debugBarRef.value.style.width = `${p * 100}%`
+  debugPanelRef.value?.setProgress(p)
 }
 
 function updateDebugStatus() {
@@ -145,41 +146,6 @@ const sceneOpts: PortalSceneOpts = reactive({
 
 const scene = usePortalScene(portalState, sceneOpts)
 
-const FEATURE_TOGGLES: { key: keyof PortalSceneOpts; label: string }[] = [
-  { key: 'sparks', label: 'Sparks' },
-  { key: 'core', label: 'Core' },
-  { key: 'haze', label: 'Haze' },
-  { key: 'bloom', label: 'Bloom' },
-  { key: 'ground', label: 'Ground' },
-]
-
-const SLIDER_CONTROLS: { key: keyof PortalSceneOpts; label: string; min: number; max: number; step: number }[] = [
-  { key: 'ringSpeed', label: 'Speed', min: 1, max: 30, step: 0.5 },
-  { key: 'trailLen', label: 'Trail', min: 0.01, max: 0.5, step: 0.01 },
-  { key: 'bloomStrength', label: 'Bloom str', min: 0, max: 2, step: 0.05 },
-  { key: 'bloomRadius', label: 'Bloom rad', min: 0, max: 2, step: 0.05 },
-  { key: 'bloomThreshold', label: 'Bloom thr', min: 0, max: 1, step: 0.05 },
-  { key: 'coreSize', label: 'Core size', min: 0.01, max: 0.2, step: 0.005 },
-  { key: 'emberSize', label: 'Ember size', min: 0.01, max: 0.15, step: 0.005 },
-  { key: 'hazeIntensity', label: 'Haze int', min: 0, max: 3, step: 0.1 },
-  { key: 'groundY', label: 'Gnd pos', min: -2.5, max: -0.5, step: 0.025 },
-  { key: 'groundDim', label: 'Gnd dim', min: 0, max: 1, step: 0.05 },
-]
-
-const SCENE_OPTS_DEFAULTS: PortalSceneOpts = {
-  ringSize: props.ringSize,
-  ground: true, sparks: true, core: true, haze: true, bloom: true,
-  ringSpeed: 13.5, trailLen: 0.16,
-  bloomStrength: 0.4, bloomRadius: 0.4, bloomThreshold: 0.25,
-  coreSize: 0.12, emberSize: 0.06, hazeIntensity: 1.3,
-  groundY: -1.18,
-  groundDim: 0.35,
-}
-
-function resetSceneOpts() {
-  Object.assign(sceneOpts, SCENE_OPTS_DEFAULTS)
-}
-
 // --- Derived helpers ---
 
 function computeClipRadius(): number {
@@ -191,35 +157,26 @@ function computeClipRadius(): number {
 function advancePhase() {
   if (portalState.phase === 0) { setPhase(1); playCreation() }
   else if (portalState.phase === 1) { skipCreationToEnd() }
-  else if (portalState.phase === 2) { playZoom('forward') }
+  else if (portalState.phase === 2) { playZoom() }
   else if (portalState.phase === 3) { cancelReverseCreation() }
 }
 
 function retreatPhase() {
   if (portalState.phase === 2) { playReverseCreation() }
-  else if (portalState.phase === 3) { skipReverseCreationToEnd() }
+  else if (portalState.phase === 3) { skipCreationToEnd() }
   else if (portalState.phase === 1) {
     creationTl?.kill()
     creationTl = null
     resetState()
-    interceptActive = true
+    navControl.interceptActive = true
   }
   else if (portalState.phase === 0) {
-    interceptActive = false
+    navControl.interceptActive = false
     nav.prevSlide(true)
   }
 }
 
 function skipCreationToEnd() {
-  const tl = creationTl
-  if (tl) {
-    creationTl = null
-    tl.progress(1)
-    tl.kill()
-  }
-}
-
-function skipReverseCreationToEnd() {
   const tl = creationTl
   if (tl) {
     creationTl = null
@@ -271,81 +228,30 @@ function cancelZoomToPhase2() {
   }
   if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
   scene.getPortalGroup()?.scale.setScalar(1)
-  interceptActive = true
+  navControl.interceptActive = true
 }
 
 // --- Navigation interception ---
 
-const FORWARD_KEYS = ['ArrowRight', 'ArrowDown', ' ', 'Enter', 'PageDown']
-const BACKWARD_KEYS = ['ArrowLeft', 'ArrowUp', 'PageUp']
-
-function blockEvent(e: Event) {
-  e.preventDefault()
-  e.stopPropagation()
-  e.stopImmediatePropagation()
-}
-
-function isDebugEvent(e: Event): boolean {
-  return !!debugRef.value?.contains(e.target as Node)
-}
-
-function onKeydown(e: KeyboardEvent) {
-  if (!interceptActive || isDebugEvent(e)) return
-  const isForward = FORWARD_KEYS.includes(e.key)
-  const isBackward = BACKWARD_KEYS.includes(e.key)
-  if (!isForward && !isBackward) return
-
-  if (portalState.phase === 0 && isForward && nav.clicks.value < nav.clicksTotal.value) return
-  if (portalState.phase === 0 && isBackward && nav.clicks.value > 0) return
-
-  blockEvent(e)
-
-  if (isZooming) {
-    if (isZoomForward) {
-      if (isForward) skipZoomToEnd()
-      else cancelZoomToPhase2()
-    } else {
-      if (isForward) {
-        zoomTl?.kill()
-        zoomTl = null
-        setZoom(false)
-        interceptActive = false
-        nav.nextSlide()
-        resetState()
-      } else {
-        skipZoomToEnd()
-      }
-    }
-    return
-  }
-  if (isForward) advancePhase()
-  else retreatPhase()
-}
-
-function onClickCapture(e: MouseEvent) {
-  if (!interceptActive || isDebugEvent(e)) return
-  const target = e.target as HTMLElement
-  if (target.closest('.slidev-nav, nav, button, a')) return
-
-  if (portalState.phase === 0 && nav.clicks.value < nav.clicksTotal.value) return
-
-  blockEvent(e)
-
-  if (isZooming) {
-    if (isZoomForward) {
-      skipZoomToEnd()
-    } else {
-      zoomTl?.kill()
-      zoomTl = null
-      setZoom(false)
-      interceptActive = false
-      nav.nextSlide()
-      resetState()
-    }
-    return
-  }
-  advancePhase()
-}
+const navControl = usePortalNavigation({
+  portalState,
+  clicks: () => nav.clicks.value,
+  clicksTotal: () => nav.clicksTotal.value,
+  isDebugElement: (target) => debugPanelRef.value?.containsElement(target as Node) ?? false,
+  getZoomState: () => ({ zooming: isZooming, forward: isZoomForward }),
+  onAdvance: advancePhase,
+  onRetreat: retreatPhase,
+  onSkipZoom: skipZoomToEnd,
+  onCancelZoom: cancelZoomToPhase2,
+  onForwardDuringReverseZoom() {
+    zoomTl?.kill()
+    zoomTl = null
+    setZoom(false)
+    navControl.interceptActive = false
+    nav.nextSlide()
+    resetState()
+  },
+})
 
 function applyProgress(p: number, content: HTMLElement, initialClipRadius: number, maxRadius: number) {
   const ringScale = 1 + (RING_SCALE_END - 1) * p
@@ -395,7 +301,7 @@ function playReverseCreation() {
   creationTl = gsap.timeline({
     onComplete: () => {
       resetState()
-      interceptActive = true
+      navControl.interceptActive = true
     },
   })
   if (contentOverlayRef.value) {
@@ -414,7 +320,7 @@ function playReverseCreation() {
   }, 0)
 }
 
-function playZoom(direction: 'forward') {
+function playZoom() {
   if (isZooming || !stageRef.value || !contentRef.value) return
   setZoom(true, true)
 
@@ -427,7 +333,7 @@ function playZoom(direction: 'forward') {
 
   zoomTl = gsap.timeline({
     onComplete: () => {
-      interceptActive = false
+      navControl.interceptActive = false
       nav.nextSlide()
       resetState()
     },
@@ -443,7 +349,7 @@ function playZoom(direction: 'forward') {
 function playReverseEntrance() {
   if (!stageRef.value || !contentRef.value) return
   setZoom(true, false)
-  interceptActive = true
+  navControl.interceptActive = true
 
   setPhase(2)
   portalState.arcProgress = Math.PI * 2
@@ -479,7 +385,7 @@ function playReverseEntrance() {
       }
       scene.getPortalGroup()?.scale.setScalar(1)
       if (canvasRef.value) canvasRef.value.style.opacity = '1'
-      interceptActive = true
+      navControl.interceptActive = true
     },
   })
 
@@ -519,28 +425,25 @@ function resetState() {
 }
 
 onSlideEnter(async () => {
-  window.addEventListener('keydown', onKeydown, { capture: true })
-  window.addEventListener('click', onClickCapture, { capture: true })
+  navControl.attach()
 
   if (nav.navDirection.value < 0) {
     await nextTick()
     playReverseEntrance()
   } else {
     resetState()
-    interceptActive = true
+    navControl.interceptActive = true
   }
 })
 
 onSlideLeave(() => {
-  interceptActive = false
+  navControl.detach()
   zoomTl?.kill()
   zoomTl = null
   creationTl?.kill()
   creationTl = null
   setZoom(false)
   resetState()
-  window.removeEventListener('keydown', onKeydown, { capture: true })
-  window.removeEventListener('click', onClickCapture, { capture: true })
 })
 
 onMounted(() => {
@@ -569,9 +472,7 @@ onBeforeUnmount(() => {
   creationTl?.kill()
   creationTl = null
   scene.dispose()
-  interceptActive = false
-  window.removeEventListener('keydown', onKeydown, { capture: true })
-  window.removeEventListener('click', onClickCapture, { capture: true })
+  navControl.detach()
 })
 </script>
 
@@ -606,35 +507,12 @@ onBeforeUnmount(() => {
     <div ref="canvasRef" class="portal-canvas-full" />
 
     <!-- Debug panel for live feature toggling -->
-    <div v-if="props.dev" ref="debugRef" class="portal-debug">
-      <div class="portal-debug-title">Portal Debug</div>
-      <div class="portal-debug-phase">{{ debugStatus }}</div>
-      <div class="portal-debug-bar-track">
-        <div ref="debugBarRef" class="portal-debug-bar-fill" />
-      </div>
-      <label v-for="toggle in FEATURE_TOGGLES" :key="toggle.key" class="portal-debug-toggle">
-        <input
-          type="checkbox"
-          :checked="sceneOpts[toggle.key] as boolean"
-          @change="(sceneOpts[toggle.key] as any) = ($event.target as HTMLInputElement).checked"
-        />
-        {{ toggle.label }}
-      </label>
-      <div class="portal-debug-divider" />
-      <label v-for="slider in SLIDER_CONTROLS" :key="slider.key" class="portal-debug-slider">
-        <span class="portal-debug-slider-label">{{ slider.label }}</span>
-        <input
-          type="range"
-          :min="slider.min"
-          :max="slider.max"
-          :step="slider.step"
-          :value="sceneOpts[slider.key]"
-          @input="(sceneOpts[slider.key] as any) = parseFloat(($event.target as HTMLInputElement).value)"
-        />
-        <span class="portal-debug-slider-value">{{ (sceneOpts[slider.key] as number).toFixed(2) }}</span>
-      </label>
-      <button class="portal-debug-reset" @click="resetSceneOpts">Reset</button>
-    </div>
+    <PortalDebugPanel
+      v-if="props.dev"
+      ref="debugPanelRef"
+      :status="debugStatus"
+      :opts="sceneOpts"
+    />
   </div>
 </template>
 
@@ -681,138 +559,5 @@ onBeforeUnmount(() => {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-.portal-debug {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 100;
-  width: 195px;
-  background: rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(255, 140, 40, 0.4);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-family: monospace;
-  font-size: 13px;
-  color: #eee;
-  pointer-events: auto;
-  user-select: none;
-}
-
-.portal-debug-phase {
-  margin-bottom: 4px;
-  color: rgba(255, 200, 100, 0.9);
-}
-
-.portal-debug-bar-track {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  margin-bottom: 8px;
-  overflow: hidden;
-}
-
-.portal-debug-bar-fill {
-  height: 100%;
-  background: rgba(255, 140, 40, 0.8);
-  border-radius: 2px;
-}
-
-.portal-debug-title {
-  font-weight: bold;
-  color: rgba(255, 140, 40, 0.9);
-  margin-bottom: 6px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.portal-debug-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 0;
-  cursor: pointer;
-}
-
-.portal-debug-toggle input {
-  accent-color: #ee8811;
-  cursor: pointer;
-}
-
-.portal-debug-divider {
-  height: 1px;
-  background: rgba(255, 140, 40, 0.2);
-  margin: 6px 0;
-}
-
-.portal-debug-slider {
-  display: grid;
-  grid-template-columns: 66px 1fr 36px;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 0;
-  font-size: 11px;
-}
-
-.portal-debug-slider-label {
-  color: #ccc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.portal-debug-slider input[type="range"] {
-  width: 100%;
-  height: 4px;
-  appearance: none;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-}
-
-.portal-debug-slider input[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ee8811;
-  cursor: pointer;
-}
-
-.portal-debug-slider input[type="range"]::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ee8811;
-  border: none;
-  cursor: pointer;
-}
-
-.portal-debug-slider-value {
-  color: rgba(255, 200, 100, 0.8);
-  text-align: right;
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
-.portal-debug-reset {
-  margin-top: 6px;
-  width: 100%;
-  padding: 3px 0;
-  background: rgba(255, 140, 40, 0.15);
-  border: 1px solid rgba(255, 140, 40, 0.35);
-  border-radius: 4px;
-  color: rgba(255, 200, 100, 0.9);
-  font-family: monospace;
-  font-size: 11px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.portal-debug-reset:hover {
-  background: rgba(255, 140, 40, 0.3);
 }
 </style>
