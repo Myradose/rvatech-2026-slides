@@ -301,7 +301,7 @@ You've got a design decision to make:
 
 </div>
 
-<DoctorStrangePortal :ring-size="360" />
+<DoctorStrangePortal :ring-size="360" dev />
 
 <!--
 I want to improve the layout. Maybe tabs, maybe accordions, maybe a side navigation panel. But I'm not sure which is best. What if I could see all of them? I can open up portals and peer into the realities where each one of these exists.

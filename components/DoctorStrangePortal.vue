@@ -92,6 +92,29 @@ const portalState: PortalState = {
   coreNeedsFullCircle: false,
 }
 
+// Reactive status for the debug panel (avoids making portalState reactive)
+const debugStatus = ref('idle')
+
+function updateDebugStatus() {
+  if (isZooming) {
+    debugStatus.value = isZoomForward ? 'zooming forward' : 'reverse entrance'
+  } else {
+    const labels = ['idle', 'creating', 'ready', 'reversing']
+    debugStatus.value = labels[portalState.phase]
+  }
+}
+
+function setPhase(p: 0 | 1 | 2 | 3) {
+  portalState.phase = p
+  updateDebugStatus()
+}
+
+function setZoom(zooming: boolean, forward = false) {
+  isZooming = zooming
+  isZoomForward = forward
+  updateDebugStatus()
+}
+
 // Mutable opts object — composable reads these every frame.
 // The debug panel (when dev=true) mutates this directly for live toggling.
 const sceneOpts: PortalSceneOpts = reactive({
@@ -122,7 +145,7 @@ function computeClipRadius(): number {
 // --- Phase dispatchers ---
 
 function advancePhase() {
-  if (portalState.phase === 0) { portalState.phase = 1; playCreation() }
+  if (portalState.phase === 0) { setPhase(1); playCreation() }
   else if (portalState.phase === 1) { skipCreationToEnd() }
   else if (portalState.phase === 2) { playZoom('forward') }
   else if (portalState.phase === 3) { cancelReverseCreation() }
@@ -164,7 +187,7 @@ function skipReverseCreationToEnd() {
 function cancelReverseCreation() {
   creationTl?.kill()
   creationTl = null
-  portalState.phase = 2
+  setPhase(2)
   portalState.arcProgress = Math.PI * 2
   portalState.sparksActivated = Infinity
   portalState.coreNeedsFullCircle = true
@@ -185,8 +208,8 @@ function skipZoomToEnd() {
 function cancelZoomToPhase2() {
   zoomTl?.kill()
   zoomTl = null
-  isZooming = false
-  portalState.phase = 2
+  setZoom(false)
+  setPhase(2)
   portalState.arcProgress = Math.PI * 2
   portalState.sparksActivated = Infinity
   portalState.coreNeedsFullCircle = true
@@ -241,7 +264,7 @@ function onKeydown(e: KeyboardEvent) {
       if (isForward) {
         zoomTl?.kill()
         zoomTl = null
-        isZooming = false
+        setZoom(false)
         interceptActive = false
         nav.nextSlide()
         resetState()
@@ -270,7 +293,7 @@ function onClickCapture(e: MouseEvent) {
     } else {
       zoomTl?.kill()
       zoomTl = null
-      isZooming = false
+      setZoom(false)
       interceptActive = false
       nav.nextSlide()
       resetState()
@@ -302,7 +325,7 @@ function playCreation() {
   if (canvasRef.value) canvasRef.value.style.visibility = 'visible'
   const proxy = { arc: 0 }
   creationTl = gsap.timeline({
-    onComplete: () => { portalState.phase = 2; portalState.sparksActivated = Infinity; portalState.coreNeedsFullCircle = true },
+    onComplete: () => { setPhase(2); portalState.sparksActivated = Infinity; portalState.coreNeedsFullCircle = true },
   })
   creationTl.to(proxy, {
     arc: Math.PI * 2,
@@ -323,7 +346,7 @@ function playCreation() {
 // --- Reverse creation animation ---
 
 function playReverseCreation() {
-  portalState.phase = 3
+  setPhase(3)
   const proxy = { arc: portalState.arcProgress }
   creationTl = gsap.timeline({
     onComplete: () => {
@@ -349,8 +372,7 @@ function playReverseCreation() {
 
 function playZoom(direction: 'forward') {
   if (isZooming || !stageRef.value || !contentRef.value) return
-  isZooming = true
-  isZoomForward = true
+  setZoom(true, true)
 
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
@@ -376,11 +398,10 @@ function playZoom(direction: 'forward') {
 
 function playReverseEntrance() {
   if (!stageRef.value || !contentRef.value) return
-  isZooming = true
-  isZoomForward = false
+  setZoom(true, false)
   interceptActive = true
 
-  portalState.phase = 2
+  setPhase(2)
   portalState.arcProgress = Math.PI * 2
   portalState.sparksActivated = Infinity
   portalState.coreNeedsFullCircle = true
@@ -399,9 +420,9 @@ function playReverseEntrance() {
 
   zoomTl = gsap.timeline({
     onComplete: () => {
-      isZooming = false
+      setZoom(false)
       zoomTl = null
-      portalState.phase = 2
+      setPhase(2)
       portalState.arcProgress = Math.PI * 2
       portalState.sparksActivated = Infinity
       if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
@@ -440,15 +461,14 @@ function resetState() {
     canvasRef.value.style.opacity = '1'
     canvasRef.value.style.visibility = 'hidden'
   }
-  portalState.phase = 0
+  setPhase(0)
   portalState.arcProgress = 0
   portalState.sparksActivated = 0
   portalState.coreNeedsFullCircle = false
   if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '1'
   creationTl?.kill()
   creationTl = null
-  isZooming = false
-  isZoomForward = false
+  setZoom(false)
   zoomTl = null
   scene.resetVisuals()
 }
@@ -472,7 +492,7 @@ onSlideLeave(() => {
   zoomTl = null
   creationTl?.kill()
   creationTl = null
-  isZooming = false
+  setZoom(false)
   resetState()
   window.removeEventListener('keydown', onKeydown, { capture: true })
   window.removeEventListener('click', onClickCapture, { capture: true })
@@ -543,6 +563,7 @@ onBeforeUnmount(() => {
     <!-- Debug panel for live feature toggling -->
     <div v-if="props.dev" ref="debugRef" class="portal-debug">
       <div class="portal-debug-title">Portal Debug</div>
+      <div class="portal-debug-phase">{{ debugStatus }}</div>
       <label v-for="toggle in FEATURE_TOGGLES" :key="toggle.key" class="portal-debug-toggle">
         <input
           type="checkbox"
@@ -614,6 +635,11 @@ onBeforeUnmount(() => {
   color: #eee;
   pointer-events: auto;
   user-select: none;
+}
+
+.portal-debug-phase {
+  margin-bottom: 6px;
+  color: rgba(255, 200, 100, 0.9);
 }
 
 .portal-debug-title {
