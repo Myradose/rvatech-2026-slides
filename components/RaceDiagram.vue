@@ -206,7 +206,7 @@ onMounted(() => {
     <div class="race-lanes">
       <div v-for="(lane, i) in lanes" :key="i" class="race-lane">
         <div class="race-agent"><carbon:container-software /><span>{{ lane.label }}</span></div>
-        <div class="race-track"><div class="race-progress" /></div>
+        <div class="race-track"><div class="race-progress" style="width: 0%" /></div>
         <div :class="['race-finish', { 'race-winner': lane.winner }]">
           <span v-if="lane.winner">&#10003;</span>
         </div>

@@ -211,6 +211,50 @@ blockquote p {
 }
 
 
+/* Context engineering flow (slide 5) */
+
+.context-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2rem 0 1rem;
+}
+
+.context-flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: var(--color-bg-light);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.context-flow-step svg {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.context-flow-step span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.context-flow-step.highlight {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+.context-flow-step.highlight svg {
+  color: var(--color-accent);
+}
+
+.context-flow-step.highlight span {
+  color: var(--color-text);
+}
+
 /* v-click animation override — smoother than default */
 .slidev-vclick-target {
   transition: opacity 400ms ease, transform 400ms ease;
@@ -461,7 +505,7 @@ li::marker {
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
-  margin-top: 1.25rem;
+  margin-top: 2rem;
 }
 
 .architect-input {
