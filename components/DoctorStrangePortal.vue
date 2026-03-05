@@ -50,6 +50,7 @@ const stageRef = ref<HTMLDivElement>()
 const contentRef = ref<HTMLDivElement>()
 const ringRef = ref<HTMLDivElement>()
 const canvasRef = ref<HTMLDivElement>()
+const contentOverlayRef = ref<HTMLDivElement>()
 const nav = useNav()
 let animationId = 0
 let renderer: THREE.WebGLRenderer | null = null
@@ -59,20 +60,64 @@ let isZooming = false
 let interceptActive = false
 let zoomTl: gsap.core.Timeline | null = null
 
+// Phase state machine: 0=black, 1=drawing, 2=ready, 3=un-drawing (reverse)
+let phase: 0 | 1 | 2 | 3 = 0
+let arcProgress = 0              // radians drawn (0 to 2*PI)
+let sparksActivated = 0          // how many sparks are "alive"
+let creationTl: gsap.core.Timeline | null = null
+let coreNeedsFullCircle = false
+
+// Callback set by initThreeScene to reset Three.js visual state
+let resetPortalVisuals: (() => void) | null = null
+
 // Content renders at near-full scale — the portal is a peephole, not a miniature.
 // Starts slightly pulled back so advancing feels like "entering" the slide.
 const CONTENT_SCALE_INITIAL = 0.95
 const CONTENT_SCALE_FINAL = 1
 
+// --- Phase dispatchers ---
+
+function advancePhase() {
+  if (phase === 0) { phase = 1; playCreation() }
+  else if (phase === 1) { return } // ignore during draw
+  else if (phase === 2) { playZoom('forward') }
+  else if (phase === 3) { return } // ignore during reverse draw
+}
+
+function retreatPhase() {
+  if (phase === 2) { playReverseCreation() }
+  else if (phase === 3) { return } // ignore during reverse draw
+  else if (phase === 1) {
+    // Cancel in-progress creation, go back
+    creationTl?.kill()
+    creationTl = null
+    interceptActive = false
+    resetState()
+    nav.prevSlide(true)
+  }
+  else if (phase === 0) {
+    interceptActive = false
+    nav.prevSlide(true)
+  }
+}
+
 // --- Navigation interception ---
+
+const FORWARD_KEYS = ['ArrowRight', 'ArrowDown', ' ', 'Enter', 'PageDown']
+const BACKWARD_KEYS = ['ArrowLeft', 'ArrowUp', 'PageUp']
 
 function onKeydown(e: KeyboardEvent) {
   if (!interceptActive || isZooming) return
-  if (['ArrowRight', 'ArrowDown', 'Space', 'Enter', 'PageDown'].includes(e.key)) {
+  if (FORWARD_KEYS.includes(e.key)) {
     e.preventDefault()
     e.stopPropagation()
     e.stopImmediatePropagation()
-    playZoom('forward')
+    advancePhase()
+  } else if (BACKWARD_KEYS.includes(e.key)) {
+    e.preventDefault()
+    e.stopPropagation()
+    e.stopImmediatePropagation()
+    retreatPhase()
   }
 }
 
@@ -83,7 +128,7 @@ function onClickCapture(e: MouseEvent) {
   e.preventDefault()
   e.stopPropagation()
   e.stopImmediatePropagation()
-  playZoom('forward')
+  advancePhase()
 }
 
 function applyProgress(p: number, content: HTMLElement, initialClipRadius: number, ringScaleEnd: number, maxRadius: number) {
@@ -101,6 +146,57 @@ function applyProgress(p: number, content: HTMLElement, initialClipRadius: numbe
   if (canvasRef.value) {
     canvasRef.value.style.opacity = `${Math.max(0, 1 - p * p * p * 2.5)}`
   }
+}
+
+// --- Creation animation ---
+
+function playCreation() {
+  arcProgress = 0
+  sparksActivated = 0
+  const proxy = { arc: 0 }
+  creationTl = gsap.timeline({
+    onComplete: () => { phase = 2; sparksActivated = Infinity; coreNeedsFullCircle = true },
+  })
+  // Draw the arc CCW from top
+  creationTl.to(proxy, {
+    arc: Math.PI * 2,
+    duration: 2.5,
+    ease: 'power2.inOut',
+    onUpdate: () => { arcProgress = proxy.arc },
+  })
+  // Fade overlay to reveal content — starts 0.2s before arc completes for seamless feel
+  if (contentOverlayRef.value) {
+    creationTl.to(contentOverlayRef.value, {
+      opacity: 0, duration: 0.8, ease: 'power2.out',
+    }, 2.3)
+  }
+}
+
+// --- Reverse creation animation ---
+
+function playReverseCreation() {
+  phase = 3
+  const proxy = { arc: arcProgress }
+  creationTl = gsap.timeline({
+    onComplete: () => {
+      interceptActive = false
+      resetState()
+      nav.prevSlide(true)
+    },
+  })
+  // Fade content back to black first
+  if (contentOverlayRef.value) {
+    creationTl.to(contentOverlayRef.value, {
+      opacity: 1, duration: 0.6, ease: 'power2.in',
+    })
+  }
+  // Then reverse the arc
+  creationTl.to(proxy, {
+    arc: 0,
+    duration: 2.5,
+    ease: 'power2.inOut',
+    onUpdate: () => { arcProgress = proxy.arc },
+  })
 }
 
 function playZoom(direction: 'forward') {
@@ -135,6 +231,16 @@ function playReverseEntrance() {
   isZooming = true
   interceptActive = false
 
+  // Skip to phase 2 — portal fully formed
+  phase = 2
+  arcProgress = Math.PI * 2
+  sparksActivated = Infinity // all sparks active
+  coreNeedsFullCircle = true
+  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+  resetPortalVisuals?.() // ensure haze is visible for phase 2
+  // Re-show haze immediately for reverse entrance
+  // (resetPortalVisuals hides it, but we need it for phase 2)
+
   const stage = stageRef.value
   const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
   const initialClipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
@@ -147,7 +253,23 @@ function playReverseEntrance() {
 
   zoomTl = gsap.timeline({
     onComplete: () => {
-      resetState()
+      isZooming = false
+      zoomTl = null
+      // Settle at phase 2
+      phase = 2
+      arcProgress = Math.PI * 2
+      sparksActivated = Infinity
+      if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '0'
+      // Reset clip/scale to resting state
+      const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
+      if (contentRef.value) {
+        gsap.set(contentRef.value, {
+          scale: CONTENT_SCALE_INITIAL,
+          clipPath: `circle(${clipRadius}px at 50% 50%)`,
+        })
+      }
+      if (portalGroup) portalGroup.scale.setScalar(1)
+      if (canvasRef.value) canvasRef.value.style.opacity = '1'
       interceptActive = true
     },
   })
@@ -162,9 +284,6 @@ function playReverseEntrance() {
 }
 
 function resetState() {
-  // Clip radius matches the portal ring's inner visual radius on screen.
-  // The torus inner edge (~radius 1.1) maps to roughly ringSize * 0.38 in screen px.
-  // Divide by initial scale so the circle aligns correctly in element coordinates.
   const clipRadius = (props.ringSize * 0.38) / CONTENT_SCALE_INITIAL
   if (contentRef.value) {
     gsap.set(contentRef.value, {
@@ -178,8 +297,18 @@ function resetState() {
   if (canvasRef.value) {
     canvasRef.value.style.opacity = '1'
   }
+  // Reset phase state
+  phase = 0
+  arcProgress = 0
+  sparksActivated = 0
+  coreNeedsFullCircle = false
+  if (contentOverlayRef.value) contentOverlayRef.value.style.opacity = '1'
+  creationTl?.kill()
+  creationTl = null
   isZooming = false
   zoomTl = null
+  // Reset Three.js visual state (haze, core particles, kill alive sparks)
+  resetPortalVisuals?.()
 }
 
 onSlideEnter(async () => {
@@ -188,7 +317,6 @@ onSlideEnter(async () => {
 
   if (nav.navDirection.value < 0) {
     // Entered from the next slide (backward navigation)
-    // Wait for the SlideContainer content to render before animating
     await nextTick()
     playReverseEntrance()
   } else {
@@ -201,6 +329,8 @@ onSlideLeave(() => {
   interceptActive = false
   zoomTl?.kill()
   zoomTl = null
+  creationTl?.kill()
+  creationTl = null
   isZooming = false
   window.removeEventListener('keydown', onKeydown, { capture: true })
   window.removeEventListener('click', onClickCapture, { capture: true })
@@ -235,10 +365,6 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   const fov = 50
   const aspect = w / h
   const camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 100)
-  // Position camera so the torus (diameter ~2.4 world units) maps to ringSize pixels.
-  // visibleHeight = 2 * z * tan(fov/2);  torusScreenPx = 2.4 * h / visibleHeight
-  // Solve for z: z = 2.4 * h / (2 * ringSize * tan(fov/2))
-  // Effective visual diameter includes spark spread beyond the torus
   const visualDiameter = 3.0
   camera.position.z = visualDiameter * h / (2 * props.ringSize * Math.tan((fov / 2) * Math.PI / 180))
 
@@ -305,15 +431,15 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   outerGlow.visible = false // TEMP
   portalGroup.add(outerGlow)
 
-  // --- Spark emitter: sparks fly off a spinning ring like a sparkler on a rope ---
-  // Each spark is born on the ring, inherits tangential velocity, flies outward, fades, dies, respawns.
+  // --- Spark emitter ---
 
   const glowTex = createGlowTexture()
-  const RING_SPEED = 14.0        // ring rotation speed (rad/s) — fast spinning
-  const RING_RADIUS = 1.15       // where sparks emit from
+  const RING_SPEED = 14.0
+  const RING_RADIUS = 1.15
   const SPARK_COUNT = 2800
-  const TRAIL_LEN = 0.18         // trail length in seconds (how far back the tail reaches)
-  const GROUND_Y = -RING_RADIUS - 0.025 // flat ground just below the ring
+  const TRAIL_LEN = 0.18
+  const GROUND_Y = -RING_RADIUS - 0.025
+  const ARC_START = Math.PI / 2  // start drawing from top (12 o'clock)
 
   // Per-spark state
   const sparkX = new Float32Array(SPARK_COUNT)
@@ -325,38 +451,44 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   const sparkZ = new Float32Array(SPARK_COUNT)
 
   function spawnSpark(i: number, t: number) {
-    // Spawn at a random point on the ring at its current rotation
-    const ringAngle = t * RING_SPEED + Math.random() * Math.PI * 2
+    let ringAngle: number
+    if (phase === 1 || phase === 3) {
+      // Constrain to drawn arc (phases 1 and 3)
+      ringAngle = ARC_START + Math.random() * arcProgress
+    } else {
+      // Phase 2: full circle with rotation
+      ringAngle = t * RING_SPEED + Math.random() * Math.PI * 2
+    }
     const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
     sparkX[i] = Math.cos(ringAngle) * r
     sparkY[i] = Math.sin(ringAngle) * r
     sparkZ[i] = (Math.random() - 0.5) * 0.08
 
-    // Velocity: mostly tangential, gentle radial push so sparks hug the ring
     const tangentSpeed = RING_SPEED * r
     const tx = -Math.sin(ringAngle)
     const ty = Math.cos(ringAngle)
     const rx = Math.cos(ringAngle)
     const ry = Math.sin(ringAngle)
-    const radialKick = 0.1 + Math.random() * 0.3 // gentle outward push
+    const radialKick = 0.1 + Math.random() * 0.3
     const jitter = (Math.random() - 0.5) * 0.2
     sparkVx[i] = tx * tangentSpeed * (0.15 + Math.random() * 0.15) + rx * radialKick + jitter
     sparkVy[i] = ty * tangentSpeed * (0.15 + Math.random() * 0.15) + ry * radialKick + jitter
 
     sparkAge[i] = 0
-    sparkMaxAge[i] = 0.12 + Math.random() * 0.35 // short lives, stay close to ring
+    sparkMaxAge[i] = 0.12 + Math.random() * 0.35
   }
 
-  // Initialize all sparks with staggered ages so the ring is pre-filled
-  for (let i = 0; i < SPARK_COUNT; i++) {
-    spawnSpark(i, 0)
-    sparkAge[i] = Math.random() * sparkMaxAge[i] // pre-age
-    // Advance position by age
-    sparkX[i] += sparkVx[i] * sparkAge[i]
-    sparkY[i] += sparkVy[i] * sparkAge[i]
+  function killAllSparks() {
+    for (let i = 0; i < SPARK_COUNT; i++) {
+      sparkAge[i] = 999
+      sparkMaxAge[i] = 1
+    }
   }
 
-  // Trail line segments: head (current pos) → tail (pos - velocity * TRAIL_LEN)
+  // Initialize all sparks as dead
+  killAllSparks()
+
+  // Trail line segments
   const trailPositions = new Float32Array(SPARK_COUNT * 2 * 3)
   const trailColors = new Float32Array(SPARK_COUNT * 2 * 3)
   const trailGeo = new THREE.BufferGeometry()
@@ -369,9 +501,10 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   }))
+  trailMesh.frustumCulled = false
   portalGroup.add(trailMesh)
 
-  // Ember heads (glowing point at each spark's current position)
+  // Ember heads
   const emberPositions = new Float32Array(SPARK_COUNT * 3)
   const emberGeo = new THREE.BufferGeometry()
   emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3))
@@ -384,17 +517,14 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   }))
+  emberMesh.frustumCulled = false
   portalGroup.add(emberMesh)
 
-  // Core glow band along the ring (stays on the ring, bright gold)
+  // Core glow band
   const coreCount = 800
   const corePositions = new Float32Array(coreCount * 3)
   for (let i = 0; i < coreCount; i++) {
-    const angle = Math.random() * Math.PI * 2
-    const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
-    corePositions[i * 3] = Math.cos(angle) * r
-    corePositions[i * 3 + 1] = Math.sin(angle) * r
-    corePositions[i * 3 + 2] = (Math.random() - 0.5) * 0.05
+    corePositions[i * 3 + 2] = -999
   }
   const coreGeo = new THREE.BufferGeometry()
   coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3))
@@ -403,6 +533,7 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
     transparent: true, opacity: 0.7,
     blending: THREE.AdditiveBlending, depthWrite: false,
   }))
+  coreParticles.frustumCulled = false
   portalGroup.add(coreParticles)
 
   let lastTime = performance.now() * 0.001
@@ -424,30 +555,106 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
   hazeCtx.fillStyle = hazeGrad
   hazeCtx.fillRect(0, 0, hazeSize, hazeSize)
   const hazeTex = new THREE.CanvasTexture(hazeCanvas)
-  const hazeSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  const hazeMat = new THREE.SpriteMaterial({
     map: hazeTex,
     transparent: true,
     opacity: 1.0,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-  }))
+  })
+  const hazeSprite = new THREE.Sprite(hazeMat)
   hazeSprite.scale.set(4.0, 4.0, 1)
   hazeSprite.position.z = -0.1
+  hazeSprite.visible = false
   portalGroup.add(hazeSprite)
+
+  // Track whether haze fade-in has been triggered (reset on portal reset)
+  let hazeFadedIn = false
+
+  // --- Reset callback for external use ---
+  resetPortalVisuals = () => {
+    // Kill all sparks
+    killAllSparks()
+    // Hide haze
+    gsap.killTweensOf(hazeMat)
+    hazeSprite.visible = false
+    hazeMat.opacity = 1.0
+    hazeFadedIn = false
+    // Move core particles off-screen
+    const cPos = coreGeo.attributes.position.array as Float32Array
+    for (let i = 0; i < coreCount; i++) {
+      cPos[i * 3] = 0
+      cPos[i * 3 + 1] = 0
+      cPos[i * 3 + 2] = -999
+    }
+    coreGeo.attributes.position.needsUpdate = true
+    coreParticles.rotation.z = 0
+  }
 
   function animate() {
     const t = performance.now() * 0.001
-    const dt = Math.min(t - lastTime, 0.05) // cap delta to avoid explosion on tab switch
+    const dt = Math.min(t - lastTime, 0.05)
     lastTime = t
 
-    // Rotate torus rings (visual only, slower than spark emission)
+    // Rotate torus rings (visual only)
     torus.rotation.z = t * 0.5
     inner.rotation.z = -t * 0.36 + 0.3
     outer.rotation.z = t * 0.2
     outerGlow.rotation.z = -t * 0.16
 
-    // Core glow rotates with the ring
-    coreParticles.rotation.z = t * RING_SPEED
+    // Core glow: phase-aware positioning
+    const cPos = coreGeo.attributes.position.array as Float32Array
+    if (phase === 0) {
+      // No-op — core particles stay off-screen from reset
+    } else if (phase === 1 || phase === 3) {
+      // Constrain core particles to the drawn arc, no rotation
+      coreParticles.rotation.z = 0
+      for (let i = 0; i < coreCount; i++) {
+        if (arcProgress < 0.01) {
+          cPos[i * 3 + 2] = -999
+        } else {
+          const angle = ARC_START + Math.random() * arcProgress
+          const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
+          cPos[i * 3] = Math.cos(angle) * r
+          cPos[i * 3 + 1] = Math.sin(angle) * r
+          cPos[i * 3 + 2] = (Math.random() - 0.5) * 0.05
+        }
+      }
+      coreGeo.attributes.position.needsUpdate = true
+    } else {
+      // Phase 2: full circle, resume rotation
+      if (coreNeedsFullCircle) {
+        coreNeedsFullCircle = false
+        for (let i = 0; i < coreCount; i++) {
+          const angle = Math.random() * Math.PI * 2
+          const r = RING_RADIUS + (Math.random() - 0.5) * 0.06
+          cPos[i * 3] = Math.cos(angle) * r
+          cPos[i * 3 + 1] = Math.sin(angle) * r
+          cPos[i * 3 + 2] = (Math.random() - 0.5) * 0.05
+        }
+        coreGeo.attributes.position.needsUpdate = true
+      }
+      coreParticles.rotation.z = t * RING_SPEED
+    }
+
+    // Haze: fade in when arc > PI during creation, fade out when arc < PI during reverse
+    if ((phase === 1 || phase === 3) && arcProgress > Math.PI && !hazeFadedIn) {
+      hazeSprite.visible = true
+      hazeMat.opacity = 0
+      gsap.killTweensOf(hazeMat)
+      gsap.to(hazeMat, { opacity: 1.0, duration: 1.0, ease: 'power2.out' })
+      hazeFadedIn = true
+    }
+    if (phase === 3 && arcProgress <= Math.PI && hazeFadedIn) {
+      gsap.killTweensOf(hazeMat)
+      gsap.to(hazeMat, { opacity: 0, duration: 0.6, ease: 'power2.in', onComplete: () => { hazeSprite.visible = false } })
+      hazeFadedIn = false
+    }
+
+    // Gradually adjust sparksActivated proportional to arc progress
+    if (phase === 1 || phase === 3) {
+      sparksActivated = Math.floor((arcProgress / (Math.PI * 2)) * SPARK_COUNT)
+    }
 
     // Update sparks
     const tPos = trailGeo.attributes.position.array as Float32Array
@@ -457,9 +664,21 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
     for (let i = 0; i < SPARK_COUNT; i++) {
       sparkAge[i] += dt
 
-      // Respawn dead sparks
+      // Respawn dead sparks — only if phase >= 1 and within activated count
       if (sparkAge[i] >= sparkMaxAge[i]) {
-        spawnSpark(i, t)
+        if (phase >= 1 && i < sparksActivated) {
+          spawnSpark(i, t)
+        } else {
+          // Keep dead — move ember off-screen
+          ePos[i * 3] = 0
+          ePos[i * 3 + 1] = 0
+          ePos[i * 3 + 2] = -999
+          tPos[i * 6] = 0; tPos[i * 6 + 1] = 0; tPos[i * 6 + 2] = -999
+          tPos[i * 6 + 3] = 0; tPos[i * 6 + 4] = 0; tPos[i * 6 + 5] = -999
+          tCol[i * 6] = 0; tCol[i * 6 + 1] = 0; tCol[i * 6 + 2] = 0
+          tCol[i * 6 + 3] = 0; tCol[i * 6 + 4] = 0; tCol[i * 6 + 5] = 0
+          continue
+        }
       }
 
       // Gravity pulls sparks downward
@@ -473,31 +692,25 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
       sparkVx[i] *= (1 - 3.0 * dt)
       sparkVy[i] *= (1 - 3.0 * dt)
 
-      // Ground collision: sparks settle on the floor
+      // Ground collision
       if (props.ground && sparkY[i] < GROUND_Y) {
         sparkY[i] = GROUND_Y
         sparkVy[i] = 0
-        sparkVx[i] *= 0.85 // friction along the ground
+        sparkVx[i] *= 0.85
       }
 
-      const life = sparkAge[i] / sparkMaxAge[i] // 0→1
+      const life = sparkAge[i] / sparkMaxAge[i]
 
-      // Head position (current)
       const hx = sparkX[i]
       const hy = sparkY[i]
       const hz = sparkZ[i]
-      // Trail shrinks with age so sparks fade out smoothly instead of popping
-      const trailScale = Math.max(0, 1 - life * life) // matches the color fade curve
-      // Tail: project where the spark was TRAIL_LEN ago onto the ring
-      // so the trail starts on the circle and extends CCW to current position
+      const trailScale = Math.max(0, 1 - life * life)
       const rawTailX = hx - sparkVx[i] * TRAIL_LEN * trailScale
       const rawTailY = hy - sparkVy[i] * TRAIL_LEN * trailScale
       const rawTailDist = Math.sqrt(rawTailX * rawTailX + rawTailY * rawTailY)
       const tailX = rawTailDist > 0 ? (rawTailX / rawTailDist) * RING_RADIUS : rawTailX
       const tailY = rawTailDist > 0 ? (rawTailY / rawTailDist) * RING_RADIUS : rawTailY
 
-      // Trail: head = vertex 0, tail = vertex 1
-      // Lerp head toward tail as spark dies so the segment shrinks to nothing
       const headX = tailX + (hx - tailX) * trailScale
       const headY = tailY + (hy - tailY) * trailScale
       tPos[i * 6] = headX
@@ -507,33 +720,25 @@ function initThreeScene(el: HTMLDivElement, w: number, h: number) {
       tPos[i * 6 + 4] = tailY
       tPos[i * 6 + 5] = hz
 
-      // Color: distance from ring drives orange→red hue shift, age drives fade to black
       const dist = Math.sqrt(hx * hx + hy * hy)
       const distFromRing = Math.max(0, dist - RING_RADIUS)
-      // Hue shift: 0 at ring (orange), 1 at ~0.15 units out (deep red)
       const rs = Math.min(1, distFromRing * 7.0)
-      // Smooth fade: full brightness early, gradual fade to black over full lifetime
-      const fade = Math.max(0, 1 - life * life) // quadratic — gentle at first, steeper at end
+      const fade = Math.max(0, 1 - life * life)
 
-      // Head: orange at ring, shifting to deep red further out
-      // Lower base brightness so additive overlap reads as orange, not white
-      tCol[i * 6]     = (0.6 - rs * 0.15) * fade   // R: stays high
-      tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade  // G: drops fast → red
-      tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade  // B: near zero
-      // Tail: one step redder + dimmer than head
+      tCol[i * 6]     = (0.6 - rs * 0.15) * fade
+      tCol[i * 6 + 1] = (0.25 - rs * 0.22) * fade
+      tCol[i * 6 + 2] = (0.02 - rs * 0.02) * fade
       const trs = Math.min(1, rs + 0.4)
       const tailFade = fade * 0.6
       tCol[i * 6 + 3] = (0.5 - trs * 0.15) * tailFade
       tCol[i * 6 + 4] = (0.1 - trs * 0.09) * tailFade
       tCol[i * 6 + 5] = 0.0
 
-      // Ember at head position — hide when mostly faded
       if (fade > 0.05) {
         ePos[i * 3] = hx
         ePos[i * 3 + 1] = hy
         ePos[i * 3 + 2] = hz
       } else {
-        // Move far off-screen so the ember doesn't pop
         ePos[i * 3] = 0
         ePos[i * 3 + 1] = 0
         ePos[i * 3 + 2] = -999
@@ -560,10 +765,8 @@ onMounted(() => {
   const h = stage.offsetHeight
 
   if (w > 0 && h > 0) {
-    // Stage already has dimensions — initialize immediately
     initThreeScene(el, w, h)
   } else {
-    // Stage has zero size (slide transition in progress) — wait for layout
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
@@ -577,6 +780,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (animationId) cancelAnimationFrame(animationId)
+  creationTl?.kill()
+  creationTl = null
   if (composer) {
     composer.dispose()
     composer = null
@@ -615,6 +820,8 @@ onBeforeUnmount(() => {
           render-context="overview"
         />
       </SlideContainer>
+      <!-- Black overlay hides content until portal creation completes -->
+      <div ref="contentOverlayRef" class="portal-content-overlay" />
     </div>
 
     <!-- Three.js canvas fills full stage so bloom fades seamlessly -->
@@ -642,6 +849,14 @@ onBeforeUnmount(() => {
 .portal-slide-container {
   width: 100%;
   height: 100%;
+}
+
+.portal-content-overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .portal-ring {
