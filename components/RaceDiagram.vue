@@ -201,3 +201,70 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.race-diagram {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.race-lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.race-lane {
+  display: grid;
+  grid-template-columns: 100px 1fr 32px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.race-agent {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.race-agent svg {
+  font-size: 0.9rem;
+  color: var(--color-accent);
+}
+
+.race-agent span {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.race-track {
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.race-progress {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright));
+}
+
+.race-finish {
+  font-size: 0.85rem;
+  text-align: center;
+  min-width: 32px;
+}
+
+.race-winner {
+  color: var(--color-success);
+  font-weight: 700;
+}
+</style>

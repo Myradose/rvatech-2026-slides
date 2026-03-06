@@ -73,23 +73,6 @@ strong {
 }
 
 /* ========================================
-   Shared utility patterns
-   ======================================== */
-
-/* Base card: dark surface with subtle border */
-.card-base {
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-}
-
-/* Accent glow border + shadow */
-.glow-accent {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 20px var(--color-accent-glow);
-}
-
-/* ========================================
    Prompt comparison cards
    ======================================== */
 
@@ -134,56 +117,6 @@ strong {
 .prompt-card-note {
   font-size: 0.85rem;
   margin-top: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-/* ========================================
-   Evolution timeline
-   ======================================== */
-
-.evolution-timeline {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 3rem;
-}
-
-.evo-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  min-width: 180px;
-}
-
-.evo-item.highlight {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 30px var(--color-accent-glow);
-}
-
-.evo-item.highlight .evo-label {
-  color: var(--color-accent);
-}
-
-.evo-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.evo-desc {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-.evo-arrow {
-  font-size: 1.5rem;
   color: var(--color-text-muted);
 }
 
@@ -249,7 +182,6 @@ blockquote p {
   color: var(--color-text) !important;
   font-style: italic;
 }
-
 
 /* ========================================
    Context engineering flow
@@ -640,76 +572,6 @@ li::marker {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.2);
   letter-spacing: 0.15em;
-}
-
-/* ========================================
-   Race diagram (race & compare)
-   ======================================== */
-
-.race-diagram {
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.race-lanes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.race-lane {
-  display: grid;
-  grid-template-columns: 100px 1fr 32px;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.race-agent {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-}
-
-.race-agent svg {
-  font-size: 0.9rem;
-  color: var(--color-accent);
-}
-
-.race-agent span {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.race-track {
-  height: 6px;
-  background: var(--color-border);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.race-progress {
-  height: 100%;
-  width: 0%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright));
-}
-
-
-.race-finish {
-  font-size: 0.85rem;
-  text-align: center;
-  min-width: 32px;
-}
-
-.race-winner {
-  color: var(--color-success);
-  font-weight: 700;
 }
 
 /* ========================================

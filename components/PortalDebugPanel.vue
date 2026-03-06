@@ -79,6 +79,7 @@ function resetOpts() {
 </template>
 
 <style scoped>
+/* Accent rgba values derived from --color-accent (#f59e0b = rgb(245, 158, 11)) */
 .portal-debug {
   position: absolute;
   top: 12px;
@@ -86,19 +87,19 @@ function resetOpts() {
   z-index: 100;
   width: 195px;
   background: rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(255, 140, 40, 0.4);
+  border: 1px solid rgba(245, 158, 11, 0.4);
   border-radius: 8px;
   padding: 10px 14px;
   font-family: monospace;
   font-size: 13px;
-  color: #eee;
+  color: var(--color-text);
   pointer-events: auto;
   user-select: none;
 }
 
 .portal-debug-phase {
   margin-bottom: 4px;
-  color: rgba(255, 200, 100, 0.9);
+  color: rgba(245, 180, 100, 0.9);
 }
 
 .portal-debug-bar-track {
@@ -111,13 +112,13 @@ function resetOpts() {
 
 .portal-debug-bar-fill {
   height: 100%;
-  background: rgba(255, 140, 40, 0.8);
+  background: rgba(245, 158, 11, 0.8);
   border-radius: 2px;
 }
 
 .portal-debug-title {
   font-weight: bold;
-  color: rgba(255, 140, 40, 0.9);
+  color: rgba(245, 158, 11, 0.9);
   margin-bottom: 6px;
   font-size: 11px;
   text-transform: uppercase;
@@ -133,13 +134,13 @@ function resetOpts() {
 }
 
 .portal-debug-toggle input {
-  accent-color: #ee8811;
+  accent-color: var(--color-accent);
   cursor: pointer;
 }
 
 .portal-debug-divider {
   height: 1px;
-  background: rgba(255, 140, 40, 0.2);
+  background: rgba(245, 158, 11, 0.2);
   margin: 6px 0;
 }
 
@@ -153,7 +154,7 @@ function resetOpts() {
 }
 
 .portal-debug-slider-label {
-  color: #ccc;
+  color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -174,7 +175,7 @@ function resetOpts() {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #ee8811;
+  background: var(--color-accent);
   cursor: pointer;
 }
 
@@ -182,13 +183,13 @@ function resetOpts() {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #ee8811;
+  background: var(--color-accent);
   border: none;
   cursor: pointer;
 }
 
 .portal-debug-slider-value {
-  color: rgba(255, 200, 100, 0.8);
+  color: rgba(245, 180, 100, 0.8);
   text-align: right;
   font-size: 10px;
   font-variant-numeric: tabular-nums;
@@ -198,10 +199,10 @@ function resetOpts() {
   margin-top: 6px;
   width: 100%;
   padding: 3px 0;
-  background: rgba(255, 140, 40, 0.15);
-  border: 1px solid rgba(255, 140, 40, 0.35);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: 4px;
-  color: rgba(255, 200, 100, 0.9);
+  color: rgba(245, 180, 100, 0.9);
   font-family: monospace;
   font-size: 11px;
   cursor: pointer;
@@ -209,6 +210,6 @@ function resetOpts() {
 }
 
 .portal-debug-reset:hover {
-  background: rgba(255, 140, 40, 0.3);
+  background: rgba(245, 158, 11, 0.3);
 }
 </style>

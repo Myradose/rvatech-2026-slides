@@ -93,3 +93,51 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.evolution-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.evo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  min-width: 180px;
+}
+
+.evo-item.highlight {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 30px var(--color-accent-glow);
+}
+
+.evo-item.highlight .evo-label {
+  color: var(--color-accent);
+}
+
+.evo-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.evo-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.evo-arrow {
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+}
+</style>
