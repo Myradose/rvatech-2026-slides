@@ -520,6 +520,55 @@ What if instead of one agent per task, we had two or three and took the first to
 -->
 
 ---
+
+# What If: Beyond Developers
+
+<div class="beyond-dev-layout">
+<div class="beyond-dev-bullets">
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- Powerful AI skills already exist — **presentations, data analysis, document generation**
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- But they require a **terminal**, manual approvals, and developer knowledge
+
+</div>
+
+<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+
+- A simple frontend + SDK agent + tsk sandbox makes them **accessible to everyone**
+
+</div>
+
+<p v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="takeaway">Build the workflow once. The entire organization benefits.</p>
+
+</div>
+<div class="beyond-dev-flow" v-motion :initial="{ opacity: 0, x: 40 }" :enter="{ opacity: 1, x: 0, transition: { delay: 400, duration: 600 } }">
+  <div class="beyond-dev-step"><carbon:user /><span>Employee</span></div>
+  <div class="env-arrows">
+    <span class="env-arrow-down">↓</span>
+  </div>
+  <div class="beyond-dev-step"><carbon:application-web /><span>Simple Frontend</span></div>
+  <div class="env-arrows">
+    <span class="env-arrow-down">↓</span>
+  </div>
+  <GlowReveal><div class="beyond-dev-step highlight"><carbon:machine-learning-model /><span>SDK Agent</span></div></GlowReveal>
+  <div class="env-arrows">
+    <span class="env-arrow-down">↓</span>
+  </div>
+  <div class="beyond-dev-step"><carbon:container-software /><span>tsk Sandbox</span></div>
+</div>
+</div>
+
+<!--
+Here's something I think about a lot. These powerful AI skills already exist — things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form — their topic, brand guidelines, source material. Behind the scenes, an SDK-powered agent orchestrates the work. And it all executes inside a tsk sandbox where scripts can run freely without any risk. The employee never sees a terminal, never approves a file write, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
+-->
+
+---
 layout: center
 ---
 

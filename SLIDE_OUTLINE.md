@@ -121,31 +121,36 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Visual:** Racing lanes or parallel arrows converging.
 **Animation:** Staggered bullet reveals.
 
-### Slide 20 — Developer as Architect
-**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand?
-**Visual:** Key quote/statement. Larger typography.
-**Animation:** Text reveal, word-by-word with GSAP.
+### Slide 20 — What If: Beyond Developers
+**Content:** What if anyone in the organization could use these AI workflows, not just developers? Powerful AI skills exist (presentations, data analysis, document generation) but require a terminal and developer knowledge. The pattern: simple frontend → SDK agent → tsk sandbox. The developer builds the workflow once, the entire org benefits.
+**Visual:** Two-column layout — bullet points on the left, vertical flow diagram on the right (Employee → Simple Frontend → SDK Agent (highlighted) → tsk Sandbox).
+**Animation:** Bullets v-click on left, diagram slides in from right.
 
 ---
 
-## Section 7: Demo 2 + Close (slides 21-24)
+## Section 7: Demo 2 + Close (slides 21-25)
 
 ### Slide 21 — Demo 2: UI Design Agent
 **Content:** An agent that specializes in UI design generates 5 different themes, then spawns 5 parallel agents to implement them. Brief mention of agent harness concept — the agent harness is what makes this possible, and it's an important area for the future.
 **Visual:** Brief setup slide before switching to live demo.
 **Animation:** Simple v-click reveals.
 
-### Slide 22 — Agent Harness: Looking Ahead
+### Slide 22 — Developer as Architect
+**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand?
+**Visual:** Key quote/statement. Larger typography.
+**Animation:** Text reveal, word-by-word with GSAP.
+
+### Slide 23 — Agent Harness: Looking Ahead
 **Content:** The agent harness is the missing piece — workflow instructions, guardrails, and the system that lets agents tackle complex tasks with minimal but intelligent human intervention. Not demoed today, but a critical concept for the future of this approach. Point to resources.
 **Visual:** Minimal, forward-looking. Clean text with accent highlights.
 **Animation:** Simple staggered reveals.
 
-### Slide 23 — Resources + Open Source
+### Slide 24 — Resources + Open Source
 **Content:** Links to source code, recording, resources, shoutouts.
 **Visual:** Clean list of links/QR codes.
 **Animation:** Fade in.
 
-### Slide 24 — Q&A / Thank You
+### Slide 25 — Q&A / Thank You
 **Content:** "Thank you" + open floor for questions. Mention agents running in background — check on them at end if time allows.
 **Visual:** Clean closing slide. Maybe the portal as a subtle background element again.
 **Animation:** Gentle ambient motion while Q&A happens.
@@ -159,6 +164,6 @@ Rough classification of how much animation effort each slide gets:
 | Level | Slides | Description |
 |-------|--------|-------------|
 | **Hero** | 12 (portal) | Three.js 3D portal, major production |
-| **Rich** | 1, 5, 8, 14, 18, 20 | Multi-step GSAP timelines, diagram builds |
-| **Standard** | 3-4, 6-7, 9, 11, 15-16, 19 | Simple GSAP fades, staggers, reveals |
-| **Minimal** | 2, 10, 13, 17, 21-24 | Basic transitions, static content |
+| **Rich** | 1, 5, 8, 14, 18, 22 | Multi-step GSAP timelines, diagram builds |
+| **Standard** | 3-4, 6-7, 9, 11, 15-16, 19-20 | Simple GSAP fades, staggers, reveals |
+| **Minimal** | 2, 10, 13, 17, 21, 23-25 | Basic transitions, static content |
