@@ -133,6 +133,7 @@ const navControl = usePortalNavigation({
 
 onSlideEnter(async () => {
   navControl.attach()
+  scene.resume()
 
   if (nav.navDirection.value < 0) {
     await nextTick()
@@ -147,6 +148,7 @@ onSlideLeave(() => {
   navControl.detach()
   timelines.killAll()
   timelines.resetState()
+  scene.pause()
 })
 
 onMounted(() => {

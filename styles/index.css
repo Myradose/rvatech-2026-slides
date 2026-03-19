@@ -670,30 +670,85 @@ li::marker {
    Demo slide
    ======================================== */
 
-.demo-slide {
+.demo-slide-root {
+  padding: 24px 40px;
+}
+
+.demo-title-wrap {
+  width: fit-content;
+  position: relative;
+  left: 0;
+  transform: translateX(0) translateY(0);
+  will-change: left, transform;
+  transition: left 0.6s ease-in-out,
+              transform 0.6s ease-in-out;
+}
+
+.demo-title-wrap h1 {
+  transition: font-size 0.6s ease-in-out;
+  font-size: 1.5rem !important;
+}
+
+.demo-title-wrap.demo-centered {
+  left: 50%;
+  transform: translateX(-50%) translateY(170px);
+}
+
+.demo-title-wrap.demo-centered h1 {
+  font-size: 2.25rem !important;
+}
+
+.demo-subtitle {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 1rem);
+  transform: translateX(-50%);
   text-align: center;
-}
-
-.demo-slide h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 1.5rem 0;
-}
-
-.demo-slide .demo-frame {
-  padding: 1.25rem 2rem;
-}
-
-.demo-slide .demo-frame p {
-  margin: 0;
-  color: var(--color-text);
-  line-height: 1.7;
-}
-
-.demo-todo {
-  margin-top: 1rem;
   color: var(--color-text-muted);
+  font-size: 1rem;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.demo-subtitle-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.demo-viewer-container {
+  opacity: 0;
+  pointer-events: none;
+  width: 100%;
+  margin-top: -0.5rem;
+  transition: opacity 0.3s ease;
+}
+
+.demo-viewer-shown {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.4s ease 0.5s;
+}
+
+.demo-viewer-wrap {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  margin-top: 0.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  background: var(--color-bg-light);
+}
+
+.demo-viewer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 133.33%;
+  height: 133.33%;
+  transform: scale(0.75);
+  transform-origin: top left;
+  border: none;
 }
 
 /* ========================================

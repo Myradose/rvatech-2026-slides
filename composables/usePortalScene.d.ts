@@ -11,6 +11,8 @@ export interface PortalSceneApi {
   init(el: HTMLDivElement, width: number, height: number): void
   resetVisuals(): void
   dispose(): void
+  pause(): void
+  resume(): void
   getPortalGroup(): THREE.Group | null
   getRenderer(): THREE.WebGLRenderer | null
 }

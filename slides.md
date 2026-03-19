@@ -279,16 +279,13 @@ Instead of doing a deep dive explanation, it would be easier to just show you wi
 -->
 
 ---
+layout: none
+clicks: 1
+---
 
-# Meet the App
-
-<div class="app-screenshot">
-
-TODO: Screenshot of the plain fullstack app
-
-</div>
-
-A simple fullstack application - users and products. Functional, but not pretty.
+<DemoSlide title="Meet the App" subtitle="A simple fullstack application - users and products. Functional, but not pretty." :clicks="$clicks">
+  <DemoViewer src="app" />
+</DemoSlide>
 
 <!--
 Here's a very simple fullstack application. Basic functionality - adding users and products - but it doesn't look very appealing.
@@ -334,17 +331,14 @@ I want to improve the layout. Maybe tabs, maybe accordions, maybe a side navigat
 -->
 
 ---
-layout: center
+layout: none
 transition: none
+clicks: 1
 ---
 
-<div class="demo-slide">
-  <h1>Live Demo: Parallel Agents</h1>
-  <div class="demo-frame">
-    <p>Three agents. Three sandboxed environments. Three implementations. One choice.</p>
-    <p class="demo-todo">TODO: Demo section - switch to TSK dashboard</p>
-  </div>
-</div>
+<DemoSlide title="Live Demo: Parallel Agents" subtitle="Three agents. Three sandboxed environments. Three implementations. One choice." :clicks="$clicks">
+  <DemoViewer src="viewer" />
+</DemoSlide>
 
 <!--
 Three developer agents, each in their own fully isolated Docker container with the full application stack. They implement tabs, accordions, and side navigation simultaneously. When they're done, I review all three and pick which reality to merge.
@@ -571,16 +565,13 @@ Here's something I think about a lot. These powerful AI skills already exist —
 -->
 
 ---
-layout: center
+layout: none
+clicks: 1
 ---
 
-<div class="demo-slide">
-  <h1>Live Demo: UI Design Agent</h1>
-  <div class="demo-frame">
-    <p>One architect agent. Five design themes. Five parallel agents implementing them.</p>
-    <p class="demo-todo">TODO: Kick off demo, switch to dashboard</p>
-  </div>
-</div>
+<DemoSlide title="Live Demo: UI Design Agent" subtitle="One architect agent. Five design themes. Five parallel agents implementing them." :clicks="$clicks">
+  <DemoViewer src="viewer" />
+</DemoSlide>
 
 <!--
 I've designed an agent that's particularly good at coming up with UI design themes and prompts. I'm going to ask it to spawn 5 parallel agents that will each implement a different design.

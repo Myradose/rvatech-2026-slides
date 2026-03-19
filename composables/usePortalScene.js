@@ -446,15 +446,20 @@ export function createPortalScene(state, opts) {
   let sparks = null
   let core = null
   let haze = null
+  let sceneObj = null
+  let cameraObj = null
+  let lastTime = 0
 
   function init(el, w, h) {
     if (renderer) return
 
     const dpr = opts.dpr ?? Math.min(window.devicePixelRatio || 1, 2)
-    const scene = new THREE.Scene()
+    sceneObj = new THREE.Scene()
+    const scene = sceneObj
     const fov = 50
     const aspect = w / h
-    const camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 100)
+    cameraObj = new THREE.PerspectiveCamera(fov, aspect, 0.1, 100)
+    const camera = cameraObj
     const visualDiameter = 3.0
     camera.position.z = visualDiameter * h / (2 * opts.ringSize * Math.tan((fov / 2) * Math.PI / 180))
 
@@ -490,30 +495,41 @@ export function createPortalScene(state, opts) {
     core = createCoreSystem(state, opts, glowTex, portalGroup)
     haze = createHazeSystem(state, opts, portalGroup)
 
-    let lastTime = performance.now() * 0.001
+    lastTime = performance.now() * 0.001
+    resume()
+  }
 
-    function animate() {
-      const t = performance.now() * 0.001
-      const dt = Math.min(t - lastTime, 0.05)
-      lastTime = t
+  function animate() {
+    const t = performance.now() * 0.001
+    const dt = Math.min(t - lastTime, 0.05)
+    lastTime = t
 
-      core.update(t)
-      haze.update()
-      sparks.update(dt, t)
+    core?.update(t)
+    haze?.update()
+    sparks?.update(dt, t)
 
+    if (bloomPass) {
       bloomPass.strength = opts.bloomStrength
       bloomPass.radius = opts.bloomRadius
       bloomPass.threshold = opts.bloomThreshold
-
-      if (opts.bloom) {
-        composer.render()
-      } else {
-        renderer.render(scene, camera)
-      }
-      animationId = requestAnimationFrame(animate)
     }
 
-    animate()
+    if (opts.bloom && composer) {
+      composer.render()
+    } else if (renderer && sceneObj && cameraObj) {
+      renderer.render(sceneObj, cameraObj)
+    }
+    animationId = requestAnimationFrame(animate)
+  }
+
+  function pause() {
+    if (animationId) { cancelAnimationFrame(animationId); animationId = 0 }
+  }
+
+  function resume() {
+    if (!renderer || animationId) return
+    lastTime = performance.now() * 0.001
+    animationId = requestAnimationFrame(animate)
   }
 
   function resetVisuals() {
@@ -543,7 +559,7 @@ export function createPortalScene(state, opts) {
   function getPortalGroup() { return portalGroup }
   function getRenderer() { return renderer }
 
-  return { init, resetVisuals, dispose, getPortalGroup, getRenderer }
+  return { init, resetVisuals, dispose, pause, resume, getPortalGroup, getRenderer }
 }
 
 // Vue composable wrapper for Slidev (same API as before)
