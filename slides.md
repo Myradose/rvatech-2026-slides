@@ -494,7 +494,7 @@ In that demo, I created the task instructions. But what if we designed an agent 
 -->
 
 ---
-clicks: 3
+clicks: 4
 ---
 
 # What If: Race & Compare
@@ -503,20 +503,22 @@ clicks: 3
 
 <div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- **First to finish wins**, or compare all results and pick the best
+- Or let them **all finish** and compare the results side by side
 
 </div>
 
-<div v-click="3" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<span v-click="3" class="hidden" />
+
+<div v-click="4" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 - Works across **different agents**, **different LLMs**, or **different approaches**
 
 </div>
 
-<RaceDiagram :click="1" />
+<RaceDiagram :click="1" :compare-click="3" />
 
 <!--
-What if instead of one agent per task, we had two or three and took the first to finish? Or what if we had different LLM models tackling the same task to compare which was best suited for the job? You could race Claude against GPT against Gemini on the same prompt and pick the winner.
+What if instead of one agent per task, we had two or three and took the first to finish? That's the race approach. But you could also let them all finish and compare the results. Maybe Agent A's implementation is more maintainable even though it was slower. You could race Claude against GPT against Gemini on the same prompt and evaluate which one produced the best result for your use case.
 -->
 
 ---
@@ -655,7 +657,6 @@ Two things I didn't demo but are critical for the future. First, agent harnesses
 <div class="resources-qr" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 400, duration: 600 } }">
   <img src="/qr-code.png" class="qr-image" alt="QR code" />
   <span class="qr-label">Scan for all links</span>
-  <span class="qr-label" style="color: var(--color-accent); font-style: italic;">TODO: replace with real URL</span>
 </div>
 </div>
 
@@ -676,7 +677,6 @@ Thank you for your time.
 <div class="qa-qr-overlay">
   <img src="/qr-code.png" alt="QR code" />
   <span class="qr-label">Resources</span>
-  <span class="qr-label" style="color: var(--color-accent); font-style: italic;">TODO: replace</span>
 </div>
 
 <!--

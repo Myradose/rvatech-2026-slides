@@ -92,6 +92,7 @@ const sceneOpts: PortalSceneOpts = reactive({
   core: props.core,
   haze: props.haze,
   bloom: props.bloom,
+  dpr: 2,
 })
 
 const scene = usePortalScene(portalState, sceneOpts)

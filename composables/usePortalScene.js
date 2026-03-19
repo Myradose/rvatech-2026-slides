@@ -1,43 +1,16 @@
+// Shared portal scene — single source of truth for both the Slidev presentation
+// and the standalone index.html page.
+//
+// Written in plain JS so the browser can import it directly (via import map).
+// TypeScript consumers: see usePortalScene.d.ts for type definitions.
+
 import * as THREE from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
-export interface PortalState {
-  phase: 0 | 1 | 2 | 3
-  arcProgress: number
-  sparksActivated: number
-  coreNeedsFullCircle: boolean
-}
-
-export interface PortalSceneApi {
-  init(el: HTMLDivElement, width: number, height: number): void
-  resetVisuals(): void
-  dispose(): void
-  getPortalGroup(): THREE.Group | null
-}
-
-export interface PortalSceneOpts {
-  ringSize: number
-  ground: boolean
-  sparks: boolean
-  core: boolean
-  haze: boolean
-  bloom: boolean
-  ringSpeed: number
-  trailLen: number
-  bloomStrength: number
-  bloomRadius: number
-  bloomThreshold: number
-  coreSize: number
-  emberSize: number
-  hazeIntensity: number
-  groundY: number
-  groundDim: number
-}
-
-export const PORTAL_SCENE_DEFAULTS: Omit<PortalSceneOpts, 'ringSize'> = {
+export const PORTAL_SCENE_DEFAULTS = {
   ground: true,
   sparks: true,
   core: true,
@@ -60,12 +33,12 @@ const SPARK_COUNT = 2800
 const CORE_COUNT = 800
 const ARC_START = Math.PI / 2
 
-function createGlowTexture(): THREE.Texture {
+function createGlowTexture() {
   const size = 128
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext('2d')
   const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
   gradient.addColorStop(0, 'rgba(255, 180, 60, 0.9)')
   gradient.addColorStop(0.2, 'rgba(240, 120, 20, 0.6)')
@@ -79,18 +52,7 @@ function createGlowTexture(): THREE.Texture {
 
 // --- Spark subsystem ---
 
-interface SparkSystem {
-  update(dt: number, t: number): void
-  reset(): void
-  dispose(): void
-}
-
-function createSparkSystem(
-  state: PortalState,
-  opts: PortalSceneOpts,
-  glowTex: THREE.Texture,
-  portalGroup: THREE.Group,
-): SparkSystem {
+function createSparkSystem(state, opts, glowTex, portalGroup) {
   const sparkX = new Float32Array(SPARK_COUNT)
   const sparkY = new Float32Array(SPARK_COUNT)
   const sparkVx = new Float32Array(SPARK_COUNT)
@@ -100,8 +62,8 @@ function createSparkSystem(
   const sparkZ = new Float32Array(SPARK_COUNT)
   const sparkGrounded = new Uint8Array(SPARK_COUNT)
 
-  function spawn(i: number, t: number) {
-    let ringAngle: number
+  function spawn(i, t) {
+    let ringAngle
     if (state.phase === 1 || state.phase === 3) {
       ringAngle = ARC_START + Math.random() * state.arcProgress
     } else {
@@ -137,7 +99,6 @@ function createSparkSystem(
 
   killAll()
 
-  // Trail line segments
   const trailPositions = new Float32Array(SPARK_COUNT * 2 * 3)
   const trailColors = new Float32Array(SPARK_COUNT * 2 * 3)
   const trailGeo = new THREE.BufferGeometry()
@@ -154,7 +115,6 @@ function createSparkSystem(
   trailMesh.frustumCulled = false
   portalGroup.add(trailMesh)
 
-  // Ember heads
   const emberPositions = new Float32Array(SPARK_COUNT * 3)
   const emberGeo = new THREE.BufferGeometry()
   emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3))
@@ -171,19 +131,18 @@ function createSparkSystem(
   emberMesh.frustumCulled = false
   portalGroup.add(emberMesh)
 
-  function update(dt: number, t: number) {
+  function update(dt, t) {
     trailMesh.visible = opts.sparks
     emberMesh.visible = opts.sparks
     if (!opts.sparks) return
 
-    // Gradually adjust sparksActivated proportional to arc progress
     if (state.phase === 1 || state.phase === 3) {
       state.sparksActivated = Math.floor((state.arcProgress / (Math.PI * 2)) * SPARK_COUNT)
     }
 
-    const tPos = trailGeo.attributes.position.array as Float32Array
-    const tCol = trailGeo.attributes.color.array as Float32Array
-    const ePos = emberGeo.attributes.position.array as Float32Array
+    const tPos = trailGeo.attributes.position.array
+    const tCol = trailGeo.attributes.color.array
+    const ePos = emberGeo.attributes.position.array
 
     for (let i = 0; i < SPARK_COUNT; i++) {
       sparkAge[i] += dt
@@ -192,9 +151,7 @@ function createSparkSystem(
         if (state.phase >= 1 && i < state.sparksActivated) {
           spawn(i, t)
         } else {
-          ePos[i * 3] = 0
-          ePos[i * 3 + 1] = 0
-          ePos[i * 3 + 2] = -999
+          ePos[i * 3] = 0; ePos[i * 3 + 1] = 0; ePos[i * 3 + 2] = -999
           tPos[i * 6] = 0; tPos[i * 6 + 1] = 0; tPos[i * 6 + 2] = -999
           tPos[i * 6 + 3] = 0; tPos[i * 6 + 4] = 0; tPos[i * 6 + 5] = -999
           tCol[i * 6] = 0; tCol[i * 6 + 1] = 0; tCol[i * 6 + 2] = 0
@@ -227,7 +184,7 @@ function createSparkSystem(
       const rawTailX = hx - sparkVx[i] * opts.trailLen * trailScale
       const rawTailY = hy - sparkVy[i] * opts.trailLen * trailScale
 
-      let tailX: number, tailY: number, headX: number, headY: number
+      let tailX, tailY, headX, headY
       if (sparkGrounded[i]) {
         tailX = rawTailX
         tailY = rawTailY
@@ -246,7 +203,6 @@ function createSparkSystem(
       const rs = Math.min(1, distFromRing * 7.0)
       const fade = Math.max(0, 1 - life * life)
 
-      // Dim grounded sparks
       const dim = sparkGrounded[i] ? opts.groundDim : 1.0
 
       tPos[i * 6] = headX
@@ -282,9 +238,7 @@ function createSparkSystem(
     emberGeo.attributes.position.needsUpdate = true
   }
 
-  function reset() {
-    killAll()
-  }
+  function reset() { killAll() }
 
   function dispose() {
     trailGeo.dispose()
@@ -298,18 +252,7 @@ function createSparkSystem(
 
 // --- Core glow subsystem ---
 
-interface CoreSystem {
-  update(t: number): void
-  reset(): void
-  dispose(): void
-}
-
-function createCoreSystem(
-  state: PortalState,
-  opts: PortalSceneOpts,
-  glowTex: THREE.Texture,
-  portalGroup: THREE.Group,
-): CoreSystem {
+function createCoreSystem(state, opts, glowTex, portalGroup) {
   const corePositions = new Float32Array(CORE_COUNT * 3)
   const coreGeo = new THREE.BufferGeometry()
   coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3))
@@ -322,13 +265,13 @@ function createCoreSystem(
   coreParticles.frustumCulled = false
   portalGroup.add(coreParticles)
 
-  function update(t: number) {
+  function update(t) {
     coreParticles.visible = opts.core
     if (!opts.core) return
 
-    const cPos = coreGeo.attributes.position.array as Float32Array
+    const cPos = coreGeo.attributes.position.array
     if (state.phase === 0) {
-      // No-op — core particles stay off-screen from reset
+      // no-op
     } else if (state.phase === 1 || state.phase === 3) {
       coreParticles.rotation.z = 0
       for (let i = 0; i < CORE_COUNT; i++) {
@@ -361,7 +304,7 @@ function createCoreSystem(
   }
 
   function reset() {
-    const cPos = coreGeo.attributes.position.array as Float32Array
+    const cPos = coreGeo.attributes.position.array
     for (let i = 0; i < CORE_COUNT; i++) {
       cPos[i * 3] = 0
       cPos[i * 3 + 1] = 0
@@ -383,22 +326,12 @@ function createCoreSystem(
 
 // --- Haze subsystem ---
 
-interface HazeSystem {
-  update(): void
-  reset(): void
-  dispose(): void
-}
-
-function createHazeSystem(
-  state: PortalState,
-  opts: PortalSceneOpts,
-  portalGroup: THREE.Group,
-): HazeSystem {
+function createHazeSystem(state, opts, portalGroup) {
   const hazeSize = 256
   const hazeCanvas = document.createElement('canvas')
   hazeCanvas.width = hazeSize
   hazeCanvas.height = hazeSize
-  const hazeCtx = hazeCanvas.getContext('2d')!
+  const hazeCtx = hazeCanvas.getContext('2d')
   const hazeCx = hazeSize / 2
   const hazeGrad = hazeCtx.createRadialGradient(hazeCx, hazeCx, 0, hazeCx, hazeCx, hazeCx)
   hazeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)')
@@ -423,14 +356,14 @@ function createHazeSystem(
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-    vertexShader: /* glsl */ `
+    vertexShader: `
       varying vec2 vUv;
       void main() {
         vUv = uv;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
-    fragmentShader: /* glsl */ `
+    fragmentShader: `
       uniform sampler2D map;
       uniform float uArcStart;
       uniform float uArcProgress;
@@ -443,33 +376,26 @@ function createHazeSystem(
       void main() {
         vec4 tex = texture2D(map, vUv);
 
-        // Fragment angle relative to center, measured CCW from arc start
         vec2 centered = vUv - 0.5;
         float angle = atan(centered.y, centered.x);
-        // Offset so 0 = arc start, wrapping into [0, TAU)
         float rel = mod(angle - uArcStart + TAU, TAU);
 
-        // Full circle — no masking needed
         if (uArcProgress >= TAU) {
           gl_FragColor = tex * uIntensity;
           return;
         }
 
-        // Signed distance to nearest arc edge (positive = inside arc)
         float distToStart = rel;
         float distToEnd = uArcProgress - rel;
         float gapToStart = TAU - rel;
 
         float nearestDist = distToEnd >= 0.0
-          ? min(distToStart, distToEnd)          // inside arc
-          : -min(-distToEnd, gapToStart);        // in gap (negative)
+          ? min(distToStart, distToEnd)
+          : -min(-distToEnd, gapToStart);
 
-        // Glow bleeds past arc edges and reaches full brightness quickly inside
         float bleed = uSoftEdge * 0.6;
         float arcMask = smoothstep(-bleed, bleed * 0.4, nearestDist);
 
-        // As arc nears completion, blend toward full visibility so the
-        // start/end edges merge smoothly rather than snapping at TAU
         float fullness = smoothstep(TAU - uSoftEdge * 2.0, TAU, uArcProgress);
         float mask = mix(arcMask, 1.0, fullness);
 
@@ -508,30 +434,23 @@ function createHazeSystem(
   return { update, reset, dispose }
 }
 
-// --- Main composable ---
+// --- Main factory ---
 
-/**
- * All Three.js objects are always created. `opts` flags are checked every frame
- * so they can be toggled at runtime (e.g. from a debug panel).
- */
-export function usePortalScene(
-  state: PortalState,
-  opts: PortalSceneOpts,
-): PortalSceneApi {
-  let renderer: THREE.WebGLRenderer | null = null
-  let composer: EffectComposer | null = null
-  let bloomPass: UnrealBloomPass | null = null
-  let portalGroup: THREE.Group | null = null
+export function createPortalScene(state, opts) {
+  let renderer = null
+  let composer = null
+  let bloomPass = null
+  let portalGroup = null
   let animationId = 0
-  let glowTex: THREE.Texture | null = null
-  let sparks: SparkSystem | null = null
-  let core: CoreSystem | null = null
-  let haze: HazeSystem | null = null
+  let glowTex = null
+  let sparks = null
+  let core = null
+  let haze = null
 
-  function init(el: HTMLDivElement, w: number, h: number) {
+  function init(el, w, h) {
     if (renderer) return
 
-    const dpr = 2
+    const dpr = opts.dpr ?? Math.min(window.devicePixelRatio || 1, 2)
     const scene = new THREE.Scene()
     const fov = 50
     const aspect = w / h
@@ -547,7 +466,6 @@ export function usePortalScene(
     renderer.toneMappingExposure = 1.0
     el.appendChild(renderer.domElement)
 
-    // Always create bloom composer so it can be toggled at runtime
     const renderTarget = new THREE.WebGLRenderTarget(w * dpr, h * dpr, {
       type: THREE.HalfFloatType,
       format: THREE.RGBAFormat,
@@ -579,19 +497,18 @@ export function usePortalScene(
       const dt = Math.min(t - lastTime, 0.05)
       lastTime = t
 
-      core!.update(t)
-      haze!.update()
-      sparks!.update(dt, t)
+      core.update(t)
+      haze.update()
+      sparks.update(dt, t)
 
-      // Update dynamic parameters from opts each frame
-      bloomPass!.strength = opts.bloomStrength
-      bloomPass!.radius = opts.bloomRadius
-      bloomPass!.threshold = opts.bloomThreshold
+      bloomPass.strength = opts.bloomStrength
+      bloomPass.radius = opts.bloomRadius
+      bloomPass.threshold = opts.bloomThreshold
 
       if (opts.bloom) {
-        composer!.render()
+        composer.render()
       } else {
-        renderer!.render(scene, camera)
+        renderer.render(scene, camera)
       }
       animationId = requestAnimationFrame(animate)
     }
@@ -616,24 +533,20 @@ export function usePortalScene(
     haze = null
     glowTex?.dispose()
     glowTex = null
-    // UnrealBloomPass allocates internal render targets
     bloomPass?.dispose()
     bloomPass = null
-    if (composer) {
-      composer.dispose()
-      composer = null
-    }
-    if (renderer) {
-      renderer.dispose()
-      renderer.domElement.remove()
-      renderer = null
-    }
+    if (composer) { composer.dispose(); composer = null }
+    if (renderer) { renderer.dispose(); renderer.domElement.remove(); renderer = null }
     portalGroup = null
   }
 
-  function getPortalGroup(): THREE.Group | null {
-    return portalGroup
-  }
+  function getPortalGroup() { return portalGroup }
+  function getRenderer() { return renderer }
 
-  return { init, resetVisuals, dispose, getPortalGroup }
+  return { init, resetVisuals, dispose, getPortalGroup, getRenderer }
+}
+
+// Vue composable wrapper for Slidev (same API as before)
+export function usePortalScene(state, opts) {
+  return createPortalScene(state, opts)
 }
