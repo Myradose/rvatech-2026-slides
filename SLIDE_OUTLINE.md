@@ -31,8 +31,8 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Animation:** First prompt appears, then the improved version slides in beside it.
 
 ### Slide 5 — Context Engineering
-**Content:** Definition + the limits of prompt engineering as motivation. Context engineering = giving the model the right knowledge, tools, and instructions. Capability engineering is folded in here — tools are a form of context.
-**Visual:** Blockquote for the "what if the model doesn't know?" question, then build-up explanation.
+**Content:** Definition + the limits of prompt engineering as motivation. Context engineering = giving the model the right knowledge, tools, and instructions. Flow diagram appears at click 2 alongside the explanation text.
+**Visual:** Blockquote for the "what if the model doesn't know?" question, then build-up explanation with flow diagram appearing early.
 **Animation:** GSAP timeline — elements reveal step by step.
 
 ### Slide 6 — Context Engineering in Practice
@@ -52,7 +52,7 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 
 ---
 
-## Section 3: Three Pillars + Demo Setup (slides 9-12)
+## Section 3: Three Pillars + Demo Setup (slides 9-11)
 
 ### Slide 9 — Three Pillars
 **Content:** Isolated Environments, Observability Infrastructure, Work Retrieval — the three pillars of environment engineering.
@@ -65,49 +65,46 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Animation:** Word-by-word text reveal.
 
 ### Slide 11 — Meet the App
-**Content:** "A simple fullstack application — Angular Material isn't set up yet."
+**Content:** "A simple fullstack application: users and products."
 **Visual:** Screenshot or embedded view of the plain app.
 **Animation:** Fade in.
+
+---
+
+## Section 4: Portal + Live Demos (slides 12-16)
 
 ### Slide 12 — The Challenge + Portal (Hero Moment)
 **Content:** Angular Material needs to be set up. Three AI models — Claude, Gemini, GPT — each tackle it in their own pocket. "Three models. Same task. Let's see what happens."
 **Visual:** Three model options appear, then the **Three.js Doctor Strange portal** opens — the glowing orange ring draws, camera pushes through it into the demo.
 **Animation:** v-click options, then portal spins up (Three.js), GSAP drives the camera push, lands on the demo view.
-
----
-
-## Section 4: Live Demo 1 — Multi-Model Race (slide 13)
+**Notes:** Full beat-by-beat choreography with timed pauses and dialogue mapped to animation phases.
 
 ### Slide 13 — Live Demo: Multi-Model Race
 **Content:** Three models setting up Angular Material simultaneously. Focus walkthrough on one container, then reveal all three. Audience votes on the winner.
 **Visual:** This is a live demo — the slide is a frame/context around the actual browser demo.
 **Animation:** Minimal — the demo itself is the visual.
 
----
+### Slide 14 — How It Works (condensed architecture)
+**Content:** All three pillars on one slide: isolated environments, observability, work retrieval. Pillar cards + architecture diagram (Your Machine → tsk run → containers → git branches back).
+**Visual:** Three pillar cards stagger in, then the architecture diagram auto-animates below.
+**Animation:** All auto-animated on entry, no v-clicks. Brisk 20-25 second slide.
 
-## Section 5: Concepts + Architecture (slides 14-16)
+### Slide 15 — Demo 2: Design Exploration
+**Content:** Three pockets exploring different UI approaches: tabs, accordions, side navigation. Grid view showing all three working simultaneously.
+**Visual:** Live demo — grid view in the viewer.
+**Animation:** Minimal — the demo itself is the visual.
 
-### Slide 14 — Isolated Environments
-**Content:** Each model (Claude, Gemini, GPT) ran in its own Docker container with the full stack. Containers have restricted network access — isolated from everything.
-**Visual:** Architecture diagram or visual showing containers (Claude/Gemini/GPT), agent, host machine.
-**Animation:** GSAP builds the diagram step by step, or staggered bullet reveals.
-
-### Slide 15 — Observability
-**Content:** Claude Code Viewer dashboard — watch logs, live frontends, and browser actions in real time. This is what makes the workflow practical rather than a black box.
-**Visual:** Screenshot or diagram of the viewer.
-**Animation:** Simple reveal.
-
-### Slide 16 — Safety & Work Retrieval
-**Content:** No risk to your real codebase — sandboxed from start to finish. Pull git branches and artifacts out of each container when done. Review and merge the "reality" you want.
-**Visual:** Minimal, clean bullet reveals.
-**Animation:** Subtle staggered reveals.
+### Slide 16 — Demo 3: Fire and Forget
+**Content:** Kick off three agents building a checkout page. All run through Claude. They work autonomously during closing slides and Q&A.
+**Visual:** Live demo — viewer showing agents starting up.
+**Animation:** Minimal. Quick 15-20 second setup then move on.
 
 ---
 
-## Section 6: What If? (slides 17-20)
+## Section 5: What If? (slides 17-20)
 
 ### Slide 17 — "What If?" (section break)
-**Content:** Transition into the speculative section.
+**Content:** Transition into the speculative section. Notes reference all three demos the audience just watched.
 **Visual:** AnimatedText section break.
 **Animation:** Word-by-word reveal.
 
@@ -128,34 +125,24 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 
 ---
 
-## Section 7: Demo 2 + Demo 3 + Close (slides 21-26)
+## Section 6: Close (slides 21-24)
 
-### Slide 21 — Demo 2: Design Exploration
-**Content:** Fork the winning model's branch into three pockets. Each implements a different UI approach — tabs, accordions, side navigation. Focus on grid view showing all three working simultaneously. Optional second audience vote.
-**Visual:** Live demo — grid view in the viewer.
-**Animation:** Minimal — the demo itself is the visual.
-
-### Slide 22 — Demo 3: Fire and Forget
-**Content:** Kick off three agents building a checkout page. All run through Claude. They work autonomously during closing slides and Q&A. Casual check-in near the end — not framed as a big reveal.
-**Visual:** Live demo — viewer showing agents starting up.
-**Animation:** Minimal.
-
-### Slide 23 — Developer as Architect
-**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand?
-**Visual:** Key quote/statement. Larger typography.
-**Animation:** Text reveal, word-by-word with GSAP.
-
-### Slide 24 — Agent Harness: Looking Ahead
-**Content:** The agent harness is the missing piece — workflow instructions, guardrails, and the system that lets agents tackle complex tasks with minimal but intelligent human intervention. Not demoed today, but a critical concept for the future of this approach. Point to resources.
+### Slide 21 — Looking Ahead
+**Content:** Agent harnesses (workflow instructions, guardrails) and cloud scaling (Kubernetes orchestration). Two cards side by side.
 **Visual:** Minimal, forward-looking. Clean text with accent highlights.
 **Animation:** Simple staggered reveals.
 
-### Slide 25 — Resources + Open Source
+### Slide 22 — Resources + Open Source
 **Content:** Links to source code, recording, resources, shoutouts.
 **Visual:** Clean list of links/QR codes.
 **Animation:** Fade in.
 
-### Slide 26 — Q&A / Thank You
+### Slide 23 — Developer as Architect
+**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand? Emotional peak of the close, positioned right before Q&A.
+**Visual:** Key quote/statement. Larger typography.
+**Animation:** Text reveal, word-by-word with GSAP.
+
+### Slide 24 — Q&A / Thank You
 **Content:** "Thank you" + open floor for questions. Three checkout page agents running in background — casual check-in before wrapping up.
 **Visual:** Clean closing slide. Maybe the portal as a subtle background element again.
 **Animation:** Gentle ambient motion while Q&A happens.
@@ -170,5 +157,5 @@ Rough classification of how much animation effort each slide gets:
 |-------|--------|-------------|
 | **Hero** | 12 (portal) | Three.js 3D portal, major production |
 | **Rich** | 1, 5, 8, 14, 18, 23 | Multi-step GSAP timelines, diagram builds |
-| **Standard** | 3-4, 6-7, 9, 11, 15-16, 19-20 | Simple GSAP fades, staggers, reveals |
-| **Minimal** | 2, 10, 13, 17, 21-22, 24-26 | Basic transitions, static content |
+| **Standard** | 3-4, 6-7, 9, 11, 19-20 | Simple GSAP fades, staggers, reveals |
+| **Minimal** | 2, 10, 13, 15-17, 21-22, 24 | Basic transitions, static content |

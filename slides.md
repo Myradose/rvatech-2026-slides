@@ -28,7 +28,7 @@ presenter: true
 </div>
 
 <!--
-Welcome everyone. My name is Alden Geipel and today I'm going to talk about what I'm calling the Doctor Strange approach to parallel agent orchestration. My goal is to transform the way you think about AI agents — this is particularly relevant to development work, but the concepts apply to any agent that performs tangible work.
+Welcome everyone. My name is Alden Geipel and today I'm going to talk about what I'm calling the Doctor Strange approach to parallel agent orchestration. My goal is to transform the way you think about AI agents. This is particularly relevant to development work, but the concepts apply to any agent that performs tangible work.
 -->
 
 ---
@@ -137,7 +137,7 @@ No amount of prompt engineering can manufacture knowledge past its training cuto
 
 </div>
 
-<div v-if="$clicks >= 3" class="context-flow">
+<div v-if="$clicks >= 2" class="context-flow">
   <div class="context-flow-step" v-motion :initial="{ opacity: 0, x: -20 }" :enter="{ opacity: 1, x: 0, transition: { delay: 0, duration: 400 } }">
     <carbon:text-long-paragraph />
     <span>Engineered Prompt</span>
@@ -155,7 +155,13 @@ No amount of prompt engineering can manufacture knowledge past its training cuto
 </div>
 
 <!--
-Same research paper example. You engineered a great prompt, but what if you need it to cover recent AI breakthroughs from the last six months? No prompt can fix that. This is actually why ChatGPT added web search. Instead of relying on what the model already knows, it can go out and find current information. That's context engineering in a nutshell: giving the model the right knowledge or the means to get it, not just telling it how to behave.
+"Same research paper example. You engineered a great prompt, but what if you need it to cover AI breakthroughs from the last six months?"
+(CLICK 1 - blockquote appears)
+"No amount of prompt engineering can fix that. The model simply doesn't have that knowledge."
+(CLICK 2 - explanation text AND flow diagram appear)
+"This is actually why ChatGPT added web search. Instead of relying on what the model already knows, it goes out and finds current information."
+(CLICK 3 - definition text appears)
+"That's context engineering: giving the model the right knowledge or the means to get it. Not just telling it how to behave."
 -->
 
 ---
@@ -261,7 +267,7 @@ This brings me to what I believe is the next evolution: environment engineering.
 </div>
 
 <!--
-Environment engineering has three pillars. Isolated environments — Docker containers or virtual machines where agents can work safely without risking your system. Observability infrastructure — dashboards where you can watch what they're doing in real time. And work retrieval — the infrastructure that lets you extract results out of each environment so you can review and use the work.
+Environment engineering has three pillars. Isolated environments: Docker containers or virtual machines where agents can work safely without risking your system. Observability infrastructure: dashboards where you can watch what they're doing in real time. And work retrieval: the infrastructure that lets you extract results out of each environment so you can review and use the work.
 -->
 
 ---
@@ -274,7 +280,9 @@ transition: section
 <p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">Instead of explaining further, let me show you.</p>
 
 <!--
-Instead of doing a deep dive explanation, it would be easier to just show you with the Doctor Strange approach demo.
+(Let the AnimatedText animation finish before speaking)
+"Enough theory. Let me show you what this actually looks like."
+(Brief pause, then advance)
 -->
 
 ---
@@ -282,12 +290,12 @@ layout: none
 clicks: 1
 ---
 
-<DemoSlide title="Meet the App" subtitle="A simple fullstack application — users and products." :clicks="$clicks">
+<DemoSlide title="Meet the App" subtitle="A simple fullstack application: users and products." :clicks="$clicks">
   <DemoViewer src="app" />
 </DemoSlide>
 
 <!--
-Here's a simple fullstack application. Users and products — basic CRUD. The UI is pretty bare right now. Let's fix that.
+Here's a simple fullstack application. Users and products, basic CRUD. The UI is pretty bare right now. Let's fix that.
 -->
 
 ---
@@ -303,19 +311,19 @@ Angular Material needs to be set up. Which AI model handles it best?
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Claude** — Anthropic's coding agent
+- **Claude** - Anthropic's coding agent
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Gemini** — Google's coding agent
+- **Gemini** - Google's coding agent
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **GPT** — OpenAI's coding agent
+- **GPT** - OpenAI's coding agent
 
 </div>
 
@@ -326,7 +334,40 @@ Angular Material needs to be set up. Which AI model handles it best?
 <DoctorStrangePortal :ring-size="360" />
 
 <!--
-Angular Material needs to be set up on this app. Instead of picking one model and hoping for the best, let's open up portals and peer into three realities — one where Claude handles it, one where Gemini handles it, and one where GPT handles it. You're going to vote on which one did it best.
+[SETUP - slide appears with title and subtitle visible]
+"Angular Material needs to be set up on this app. So here's the question: which AI model handles it best?"
+
+[CLICK 1 - Claude appears]
+"Claude. Anthropic's coding agent."
+
+[CLICK 2 - Gemini appears]
+"Gemini. Google's coding agent."
+
+[CLICK 3 - GPT appears]
+"GPT. OpenAI's coding agent."
+
+(Pause between each reveal. Let each one land. Don't rush.)
+
+[CLICK 4 - takeaway line appears]
+"Three models. Same task. Instead of picking one and hoping for the best..."
+(Pause 2 seconds)
+"...let's do what Doctor Strange would do."
+(Pause 1 second)
+
+[CLICK 5 - portal creation begins, 2.5s animation]
+(As the arc starts drawing and sparks emerge)
+"Let's open a portal."
+(Watch the arc reach halfway, sparks flying, core glow building)
+"On the other side: three Docker containers, each with their own copy of this application."
+(Arc completes, portal fully formed, demo slide visible through the ring)
+(FULL STOP. Say nothing. Let the audience absorb the spinning portal for 2 seconds.)
+
+[CLICK 6 - zoom through portal, 2.8s expo.in]
+(Zoom starts slow) "One where Claude handles it..."
+(Zoom accelerating) "...one where Gemini handles it..."
+(Zoom at full speed, filling the screen) "...and one where GPT handles it."
+(Lands on Demo 1 slide. Beat of silence.)
+"Let me walk you through what's happening."
 -->
 
 ---
@@ -340,42 +381,19 @@ clicks: 1
 </DemoSlide>
 
 <!--
-Three different AI models, each in their own fully isolated Docker container with the full application stack. Claude, Gemini, and GPT — all setting up Angular Material on the same codebase simultaneously. Let me walk you through what's happening in one of these containers, and then we'll reveal all three results. You're going to vote on which model did it best.
+Three different AI models, each in their own fully isolated Docker container with the full application stack. Claude, Gemini, and GPT, all setting up Angular Material on the same codebase simultaneously. Let me walk you through what's happening in one of these containers, and then we'll reveal all three results. You're going to vote on which model did it best.
 -->
 
 ---
-clicks: 3
 ---
 
-<div :class="{ 'iso-centered': $clicks < 1 }" class="iso-title-wrap">
-
-# Isolated Environments
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', delay: 400, duration: 400 } }">
-
-- Each agent runs in its own **Docker container** with the full application stack
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', duration: 400 } }">
-
-- Containers have **restricted network access** - isolated from your system and each other
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { type: 'tween', duration: 400 } }">
-
-- Agents can run builds, serve the app, execute tests - all without touching your machine
-
-</div>
+# How It Works
 
 <div class="env-visual">
   <GlowReveal><div class="env-host-box" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 400 } }"><carbon:laptop /><span>Your Machine</span></div></GlowReveal>
   <div class="env-arrows" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 500, duration: 300 } }">
     <span class="env-arrow-down">↓</span>
-    <span class="env-arrow-label">tsk run --serve</span>
+    <span class="env-arrow-label">tsk run</span>
     <span class="env-arrow-up">↑</span>
     <span class="env-arrow-label">git branches</span>
   </div>
@@ -387,59 +405,42 @@ clicks: 3
 </div>
 
 <!--
-The first pillar: isolated environments. Each of those three models — Claude, Gemini, GPT — was working in its own Docker container with the full application stack. Frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. When they're done, you pull git branches out. This is what makes it safe to let agents work autonomously.
+"Quick look under the hood. Each of those three models was working inside its own Docker container with the full application stack. Completely isolated from your machine and from each other. The viewer dashboard you just saw lets you watch what they're doing in real time. And when they finish, you pull git branches out and review the results. All three pillars in action."
+(Keep this brisk, 15-20 seconds. The Three Pillars slide already introduced these concepts. The audience just saw them in practice. This is confirmation, not discovery. Move on quickly.)
 -->
 
 ---
+layout: none
+clicks: 1
+---
 
-# Observability
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- **Claude Code Viewer** dashboard lets you watch agents work in real time
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- See agent logs, live frontends, and browser automation from your host machine
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- Without observability, parallel agents are a black box - this makes the workflow practical
-
-</div>
+<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." :clicks="$clicks">
+  <DemoViewer src="viewer" />
+</DemoSlide>
 
 <!--
-The second pillar: observability. The Claude Code Viewer dashboard lets you watch what every agent is doing in real time. You can see their logs, view the live frontend they're building, and even watch browser automation happening. Without this, you'd be launching agents into the void and hoping for the best. Observability is what makes this workflow practical rather than a gamble.
+"Now let's explore different design directions."
+(CLICK - reveal the viewer)
+"Three new pockets, each implementing a different UI approach. Tabs, accordions, and side navigation. Three different design visions, all running at the same time."
+(Walk through the grid view. Point out differences between the three approaches as they work. Spend 2-3 minutes here.)
+"Which design direction would you pick? That's the power of exploring multiple realities at once."
 -->
 
 ---
+layout: none
+clicks: 1
+---
 
-# Safety & Work Retrieval
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- No risk to your real codebase - sandboxed from start to finish
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- When agents finish, pull **git branches** and artifacts out of each container
-
-</div>
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-- Review all implementations, then merge the "reality" you want to keep
-
-</div>
+<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." :clicks="$clicks">
+  <DemoViewer src="viewer" />
+</DemoSlide>
 
 <!--
-The third pillar: safety and work retrieval. Since everything is sandboxed, there's no risk to your real codebase. Agents can't mess up your git history or install unwanted packages. When they finish, you pull git branches and artifacts out of each container. You review all the implementations side by side, then merge the reality you want to keep. The rest just gets discarded.
+"One more quick thing before we move on."
+(CLICK - reveal the viewer)
+"I'm kicking off three more agents, all building a checkout page for this app. All three running through Claude. They'll work in the background while we talk through some bigger-picture ideas."
+(Let the viewer show agents starting up. Spend only 15-20 seconds here.)
+"By Q&A time, let's see if they've finished. That's fire and forget. You launch them and move on with your day."
 -->
 
 ---
@@ -450,7 +451,8 @@ transition: section
 <AnimatedText text='"What If?"' tag="h1" :stagger="0.15" :duration="0.6" />
 
 <!--
-So you've seen what this looks like in practice. Now I want to take it further. What else becomes possible when agents have their own isolated environments?
+(Let the AnimatedText animation play out)
+"You've seen a model race, design exploration, and fire-and-forget. All powered by the same infrastructure. But we're just scratching the surface. What else becomes possible?"
 -->
 
 ---
@@ -492,7 +494,7 @@ clicks: 4
 
 # What If: Race & Compare
 
-- **Multiple pockets, same task** — race them and take the first result
+- **Multiple pockets, same task** - race them and take the first result
 
 <div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
@@ -523,7 +525,7 @@ What if you gave the same task to three separate pockets and took the first one 
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- Powerful AI skills already exist — **presentations, data analysis, document generation**
+- Powerful AI skills already exist: **presentations, data analysis, document generation**
 
 </div>
 
@@ -560,45 +562,7 @@ What if you gave the same task to three separate pockets and took the first one 
 </div>
 
 <!--
-Here's something I think about a lot. These powerful AI skills already exist — things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form — their topic, brand guidelines, source material. Behind the scenes, an SDK-powered agent orchestrates the work. And it all executes inside a pocket where scripts can run freely without any risk. The employee never sees a terminal, never approves a file write, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
--->
-
----
-layout: none
-clicks: 1
----
-
-<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." :clicks="$clicks">
-  <DemoViewer src="viewer" />
-</DemoSlide>
-
-<!--
-Now let's explore different design directions. Three new pockets, each implementing a different UI approach — tabs, accordions, and side navigation. Three different design directions, all running simultaneously. Watch the grid view as they work.
--->
-
----
-layout: none
-clicks: 1
----
-
-<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." :clicks="$clicks">
-  <DemoViewer src="viewer" />
-</DemoSlide>
-
-<!--
-One more thing before we wrap up the demos. I'm kicking off three more agents — all building a checkout page for this app. All three running through Claude. They'll work autonomously in the background while we go through the closing slides and Q&A. Let's see if they finish in time.
--->
-
----
-layout: statement
----
-
-<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
-
-<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
-
-<!--
-The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? Imagine managing multiple large, complex tasks at the same time — designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand. You become the architect, not the bricklayer.
+Here's something I think about a lot. These powerful AI skills already exist: things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form with their topic, brand guidelines, source material. Behind the scenes, an SDK-powered agent orchestrates the work. And it all executes inside a pocket where scripts can run freely without any risk. The employee never sees a terminal, never approves a file write, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
 -->
 
 ---
@@ -622,7 +586,13 @@ The biggest what-if: what if the developer's role shifts from writing every line
 <p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both are active areas of exploration - resources on the next slide</p>
 
 <!--
-Two things I didn't demo but are critical for the future. First, agent harnesses: the system of workflow instructions and guardrails that tell agents not just what to build, but how to build it well. Think of it as the playbook. Not demoed today, but there are existing resources online that explore this in depth. Second, cloud scaling. This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a Kubernetes cluster, spinning up dozens of agents in parallel.
+"Two things I didn't demo but are critical for the future."
+(CLICK 1 - Agent Harnesses card)
+"First, agent harnesses. The system of workflow instructions and guardrails that tell agents not just what to build, but how to build it well. Think of it as the playbook."
+(CLICK 2 - Cloud Scaling card)
+"Second, cloud scaling. This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a Kubernetes cluster. Spinning up dozens of agents in parallel."
+(CLICK 3 - exploration note)
+"Both are active areas of exploration. Resources on the next slide."
 -->
 
 ---
@@ -668,6 +638,18 @@ All source code, the presentation, the recording - everything will be publicly a
 -->
 
 ---
+layout: statement
+---
+
+<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
+
+<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
+
+<!--
+The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? Imagine managing multiple large, complex tasks at the same time, designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand. You become the architect, not the bricklayer.
+-->
+
+---
 layout: center
 ---
 
@@ -683,5 +665,5 @@ Thank you for your time.
 </div>
 
 <!--
-Thank you so much for your time. I'll open the floor for questions. Remember those checkout page agents we kicked off? Let's check in on them before we run out of time — if they're done, great. If they're still working, that's fine too. The point is the system keeps working while you do other things.
+Thank you so much for your time. I'll open the floor for questions. Remember those checkout page agents we kicked off? Let's check in on them before we run out of time. If they're done, great. If they're still working, that's fine too. The point is the system keeps working while you do other things.
 -->
