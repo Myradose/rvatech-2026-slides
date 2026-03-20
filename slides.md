@@ -137,8 +137,7 @@ No amount of prompt engineering can manufacture knowledge past its training cuto
 
 </div>
 
-<span v-click class="hidden" />
-<div v-if="$clicks >= 4" class="context-flow">
+<div v-if="$clicks >= 3" class="context-flow">
   <div class="context-flow-step" v-motion :initial="{ opacity: 0, x: -20 }" :enter="{ opacity: 1, x: 0, transition: { delay: 0, duration: 400 } }">
     <carbon:text-long-paragraph />
     <span>Engineered Prompt</span>
@@ -262,7 +261,7 @@ This brings me to what I believe is the next evolution: environment engineering.
 </div>
 
 <!--
-Environment engineering has three pillars. Isolated environments - Docker containers where agents can't damage your system. Observability infrastructure - dashboards where you can watch what they're doing. And work retrieval - the infrastructure that lets you pull git branches and artifacts out of each container so you can use the work.
+Environment engineering has three pillars. Isolated environments — Docker containers or virtual machines where agents can work safely without risking your system. Observability infrastructure — dashboards where you can watch what they're doing in real time. And work retrieval — the infrastructure that lets you extract results out of each environment so you can review and use the work.
 -->
 
 ---
@@ -283,12 +282,12 @@ layout: none
 clicks: 1
 ---
 
-<DemoSlide title="Meet the App" subtitle="A simple fullstack application — users and products. Angular Material isn't set up yet." :clicks="$clicks">
+<DemoSlide title="Meet the App" subtitle="A simple fullstack application — users and products." :clicks="$clicks">
   <DemoViewer src="app" />
 </DemoSlide>
 
 <!--
-Here's a simple fullstack application. Users and products — basic CRUD. But Angular Material isn't set up yet, so the UI is pretty bare. Let's fix that.
+Here's a simple fullstack application. Users and products — basic CRUD. The UI is pretty bare right now. Let's fix that.
 -->
 
 ---
@@ -493,7 +492,7 @@ clicks: 4
 
 # What If: Race & Compare
 
-- **Multiple agents, same pocket** — race them and take the first result
+- **Multiple pockets, same task** — race them and take the first result
 
 <div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
@@ -512,7 +511,7 @@ clicks: 4
 <RaceDiagram :click="1" :compare-click="3" />
 
 <!--
-What if instead of one agent per pocket, we had two or three and took the first to finish? That's the race approach. But you could also let them all finish and compare the results. Maybe Agent A's implementation is more maintainable even though it was slower. You could race Claude against GPT against Gemini on the same prompt and evaluate which one produced the best result for your use case.
+What if you gave the same task to three separate pockets and took the first one to finish, discarding the rest? That's the race approach. But you could also let them all finish and compare the results. Maybe Agent A's implementation is more maintainable even though it was slower. You could race Claude against GPT against Gemini on the same prompt and evaluate which one produced the best result for your use case.
 -->
 
 ---
@@ -569,12 +568,12 @@ layout: none
 clicks: 1
 ---
 
-<DemoSlide title="Live Demo: Design Exploration" subtitle="Fork the winner. Three pockets. Tabs, accordions, or side navigation." :clicks="$clicks">
+<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." :clicks="$clicks">
   <DemoViewer src="viewer" />
 </DemoSlide>
 
 <!--
-Now we take the winning model's branch and fork it into three new pockets. Each one implements a different UI approach — tabs, accordions, and side navigation. Same codebase with Angular Material already set up, three different design directions, all running simultaneously. Watch the grid view as they work.
+Now let's explore different design directions. Three new pockets, each implementing a different UI approach — tabs, accordions, and side navigation. Three different design directions, all running simultaneously. Watch the grid view as they work.
 -->
 
 ---
@@ -599,7 +598,7 @@ layout: statement
 <p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
 
 <!--
-The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? What if we developed a very robust agent harness where each developer can manage multiple large, complex tasks at the same time — designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand? You become the architect, not the bricklayer.
+The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? Imagine managing multiple large, complex tasks at the same time — designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand. You become the architect, not the bricklayer.
 -->
 
 ---
