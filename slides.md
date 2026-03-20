@@ -64,7 +64,7 @@ layout: center
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 500 } }">
 
-2. **The Doctor Strange demo** - parallel agents exploring infinite outcomes
+2. **The Doctor Strange demos** - parallel agents exploring infinite outcomes
 
 </div>
 
@@ -75,7 +75,7 @@ layout: center
 </div>
 
 <!--
-Three things I want to cover today. First, the evolution of how we work with AI - from prompt engineering through context engineering to what I believe comes next. Second, a live demo of the Doctor Strange approach. And third, the key concepts that make this possible.
+Three things I want to cover today. First, the evolution of how we work with AI - from prompt engineering through context engineering to what I believe comes next. Second, live demos of the Doctor Strange approach. And third, the key concepts that make this possible.
 -->
 
 ---
