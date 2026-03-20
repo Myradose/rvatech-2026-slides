@@ -66,7 +66,31 @@ export function usePortalTimelines(deps: PortalTimelineDeps) {
     portalState.coreNeedsFullCircle = true
   }
 
+  function applyOvershoot() {
+    const content = deps.contentRef.value
+    const stage = deps.stageRef.value
+    if (!content || !stage) return
+    // Read actual slide background from the rendered content so padding matches
+    const slideEl = content.querySelector('.slidev-slide-content')
+    const bg = slideEl ? getComputedStyle(slideEl).backgroundColor : '#121212'
+    const h = stage.offsetHeight
+    const w = stage.offsetWidth
+    const overH = ((1 / CONTENT_SCALE_INITIAL - 1) / 2 * h).toFixed(2)
+    const overW = ((1 / CONTENT_SCALE_INITIAL - 1) / 2 * w).toFixed(2)
+    Object.assign(content.style, {
+      top: `-${overH}px`,
+      right: `-${overW}px`,
+      bottom: `-${overH}px`,
+      left: `-${overW}px`,
+      boxSizing: 'content-box',
+      padding: `${overH}px ${overW}px`,
+      background: bg,
+      overflow: 'hidden',
+    })
+  }
+
   function restoreReadyVisuals() {
+    applyOvershoot()
     const clipRadius = computeClipRadius()
     if (deps.contentRef.value) {
       deps.contentRef.value.style.visibility = 'visible'
@@ -98,6 +122,7 @@ export function usePortalTimelines(deps: PortalTimelineDeps) {
   }
 
   function resetState() {
+    applyOvershoot()
     const clipRadius = computeClipRadius()
     if (deps.contentRef.value) {
       gsap.set(deps.contentRef.value, {
@@ -198,7 +223,7 @@ export function usePortalTimelines(deps: PortalTimelineDeps) {
     setZoom(true, true)
 
     const stage = deps.stageRef.value
-    const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
+    const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / (2 * CONTENT_SCALE_INITIAL)
     const initialClipRadius = computeClipRadius()
     const content = deps.contentRef.value
     const proxy = { progress: 0 }
@@ -227,7 +252,7 @@ export function usePortalTimelines(deps: PortalTimelineDeps) {
     scene.resetVisuals()
 
     const stage = deps.stageRef.value
-    const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / 2
+    const maxRadius = Math.hypot(stage.offsetWidth, stage.offsetHeight) / (2 * CONTENT_SCALE_INITIAL)
     const initialClipRadius = computeClipRadius()
     const content = deps.contentRef.value
 

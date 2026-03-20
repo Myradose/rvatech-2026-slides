@@ -55,7 +55,8 @@ const props = withDefaults(defineProps<{
 
 // --- Slidev internals: render the next slide ---
 
-const { $page } = useSlideContext()
+const { $page, $renderContext } = useSlideContext()
+const isInteractive = computed(() => ['slide', 'presenter'].includes($renderContext.value))
 const targetSlideNo = computed(() => props.nextSlide ?? $page.value + 1)
 const nextRoute = computed(() => getSlide(targetSlideNo.value))
 const nextClicksContext = computed(() =>
@@ -132,6 +133,7 @@ const navControl = usePortalNavigation({
 // --- Lifecycle ---
 
 onSlideEnter(async () => {
+  if (!isInteractive.value) return
   navControl.attach()
   scene.resume()
 
@@ -145,12 +147,15 @@ onSlideEnter(async () => {
 })
 
 onSlideLeave(() => {
+  if (!isInteractive.value) return
   navControl.detach()
   timelines.killAll()
   scene.pause()
 })
 
 onMounted(() => {
+  if (!isInteractive.value) return
+
   const el = canvasRef.value
   const stage = stageRef.value
   if (!el || !stage) return
@@ -173,6 +178,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (!isInteractive.value) return
   timelines.killAll()
   scene.dispose()
   navControl.detach()

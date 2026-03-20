@@ -10,8 +10,8 @@
  * Backward from completed state: plays reverse animation.
  * Slide enter: restores correct state based on current click position.
  */
-import { reactive, watch, onMounted } from 'vue'
-import { useNav, onSlideEnter, onSlideLeave } from '@slidev/client'
+import { reactive, computed, watch, onMounted } from 'vue'
+import { useNav, useSlideContext, onSlideEnter, onSlideLeave } from '@slidev/client'
 import gsap from 'gsap'
 
 const props = withDefaults(defineProps<{
@@ -25,6 +25,8 @@ const props = withDefaults(defineProps<{
 })
 
 const nav = useNav()
+const { $renderContext } = useSlideContext()
+const isInteractive = computed(() => ['slide', 'presenter'].includes($renderContext.value))
 let activeTl: gsap.core.Timeline | null = null
 
 type Phase = 'idle' | 'racing' | 'raceComplete' | 'reversingRace'
@@ -305,7 +307,7 @@ function handleBackward(clicks: number) {
 let active = false
 
 watch(() => nav.clicks.value, (clicks, prev) => {
-  if (!active) return
+  if (!active || !isInteractive.value) return
   const forward = clicks > (prev ?? 0)
   if (forward) handleForward(clicks)
   else handleBackward(clicks)
@@ -313,7 +315,7 @@ watch(() => nav.clicks.value, (clicks, prev) => {
 
 // Restore correct state when entering the slide (handles backward navigation)
 onSlideEnter(() => {
-  if (active) return
+  if (!isInteractive.value || active) return
   active = true
   const clicks = nav.clicks.value
   if (props.compareClick && clicks >= props.compareClick) {
@@ -326,6 +328,7 @@ onSlideEnter(() => {
 })
 
 onSlideLeave(() => {
+  if (!isInteractive.value) return
   active = false
   killActive()
   snapToIdle()
