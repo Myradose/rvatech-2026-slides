@@ -7,6 +7,9 @@ dist/
 # Reference images (not for distribution)
 reference/
 
+# Playwright CLI artifacts
+.playwright-cli/
+
 # OS files
 .DS_Store
 Thumbs.db
