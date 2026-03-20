@@ -65,21 +65,21 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Animation:** Word-by-word text reveal.
 
 ### Slide 11 — Meet the App
-**Content:** "Here's a simple fullstack application..."
+**Content:** "A simple fullstack application — Angular Material isn't set up yet."
 **Visual:** Screenshot or embedded view of the plain app.
 **Animation:** Fade in.
 
-### Slide 12 — The Decision Point + Portal (Hero Moment)
-**Content:** Tabs? Accordions? Side navigation? — the three paths. "What if we could see all of them?"
-**Visual:** Three options appear, then the **Three.js Doctor Strange portal** opens — the glowing orange ring draws, camera pushes through it into the demo.
+### Slide 12 — The Challenge + Portal (Hero Moment)
+**Content:** Angular Material needs to be set up. Three AI models — Claude, Gemini, GPT — each tackle it in their own pocket. "Three models. Same task. Let's see what happens."
+**Visual:** Three model options appear, then the **Three.js Doctor Strange portal** opens — the glowing orange ring draws, camera pushes through it into the demo.
 **Animation:** v-click options, then portal spins up (Three.js), GSAP drives the camera push, lands on the demo view.
 
 ---
 
-## Section 4: Live Demo 1 (slide 13)
+## Section 4: Live Demo 1 — Multi-Model Race (slide 13)
 
-### Slide 13 — Live Demo: Parallel Agents
-**Content:** Switch to the TSK dashboard, show agents running, show results.
+### Slide 13 — Live Demo: Multi-Model Race
+**Content:** Three models setting up Angular Material simultaneously. Focus walkthrough on one container, then reveal all three. Audience votes on the winner.
 **Visual:** This is a live demo — the slide is a frame/context around the actual browser demo.
 **Animation:** Minimal — the demo itself is the visual.
 
@@ -88,8 +88,8 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 ## Section 5: Concepts + Architecture (slides 14-16)
 
 ### Slide 14 — Isolated Environments
-**Content:** Each agent runs in its own Docker container with the full stack. Containers have restricted network access — isolated from everything.
-**Visual:** Architecture diagram or visual showing containers, agent, host machine.
+**Content:** Each model (Claude, Gemini, GPT) ran in its own Docker container with the full stack. Containers have restricted network access — isolated from everything.
+**Visual:** Architecture diagram or visual showing containers (Claude/Gemini/GPT), agent, host machine.
 **Animation:** GSAP builds the diagram step by step, or staggered bullet reveals.
 
 ### Slide 15 — Observability
@@ -112,46 +112,51 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Animation:** Word-by-word reveal.
 
 ### Slide 18 — What If: Architect Agents
-**Content:** What if an agent designed the tasks for other agents? Instead of you specifying paths, an architect agent generates design options and creates task prompts.
+**Content:** What if an agent designed the pockets for other agents? Instead of you specifying paths, an architect agent generates design options and creates pocket prompts.
 **Visual:** Diagram — architect agent at top, spawning worker agents below.
 **Animation:** GSAP builds the hierarchy.
 
 ### Slide 19 — What If: Race & Compare
-**Content:** Multiple agents same task — first one wins. Multiple LLMs same task — compare which is best. Multiple approaches same goal — best implementation wins.
+**Content:** Multiple agents same pocket — first one wins. Multiple LLMs same pocket — compare which is best. Multiple approaches same goal — best implementation wins.
 **Visual:** Racing lanes or parallel arrows converging.
 **Animation:** Staggered bullet reveals.
 
 ### Slide 20 — What If: Beyond Developers
-**Content:** What if anyone in the organization could use these AI workflows, not just developers? Powerful AI skills exist (presentations, data analysis, document generation) but require a terminal and developer knowledge. The pattern: simple frontend → SDK agent → tsk sandbox. The developer builds the workflow once, the entire org benefits.
-**Visual:** Two-column layout — bullet points on the left, vertical flow diagram on the right (Employee → Simple Frontend → SDK Agent (highlighted) → tsk Sandbox).
+**Content:** What if anyone in the organization could use these AI workflows, not just developers? Powerful AI skills exist (presentations, data analysis, document generation) but require a terminal and developer knowledge. The pattern: simple frontend → SDK agent → pocket. The developer builds the workflow once, the entire org benefits.
+**Visual:** Two-column layout — bullet points on the left, vertical flow diagram on the right (Employee → Simple Frontend → SDK Agent (highlighted) → Pocket).
 **Animation:** Bullets v-click on left, diagram slides in from right.
 
 ---
 
-## Section 7: Demo 2 + Close (slides 21-25)
+## Section 7: Demo 2 + Demo 3 + Close (slides 21-26)
 
-### Slide 21 — Demo 2: UI Design Agent
-**Content:** An agent that specializes in UI design generates 5 different themes, then spawns 5 parallel agents to implement them. Brief mention of agent harness concept — the agent harness is what makes this possible, and it's an important area for the future.
-**Visual:** Brief setup slide before switching to live demo.
-**Animation:** Simple v-click reveals.
+### Slide 21 — Demo 2: Design Exploration
+**Content:** Fork the winning model's branch into three pockets. Each implements a different UI approach — tabs, accordions, side navigation. Focus on grid view showing all three working simultaneously. Optional second audience vote.
+**Visual:** Live demo — grid view in the viewer.
+**Animation:** Minimal — the demo itself is the visual.
 
-### Slide 22 — Developer as Architect
+### Slide 22 — Demo 3: Fire and Forget
+**Content:** Kick off three agents building a checkout page. All run through Claude. They work autonomously during closing slides and Q&A. Casual check-in near the end — not framed as a big reveal.
+**Visual:** Live demo — viewer showing agents starting up.
+**Animation:** Minimal.
+
+### Slide 23 — Developer as Architect
 **Content:** The vision — what if developers designed *how* features get built instead of building every one by hand?
 **Visual:** Key quote/statement. Larger typography.
 **Animation:** Text reveal, word-by-word with GSAP.
 
-### Slide 23 — Agent Harness: Looking Ahead
+### Slide 24 — Agent Harness: Looking Ahead
 **Content:** The agent harness is the missing piece — workflow instructions, guardrails, and the system that lets agents tackle complex tasks with minimal but intelligent human intervention. Not demoed today, but a critical concept for the future of this approach. Point to resources.
 **Visual:** Minimal, forward-looking. Clean text with accent highlights.
 **Animation:** Simple staggered reveals.
 
-### Slide 24 — Resources + Open Source
+### Slide 25 — Resources + Open Source
 **Content:** Links to source code, recording, resources, shoutouts.
 **Visual:** Clean list of links/QR codes.
 **Animation:** Fade in.
 
-### Slide 25 — Q&A / Thank You
-**Content:** "Thank you" + open floor for questions. Mention agents running in background — check on them at end if time allows.
+### Slide 26 — Q&A / Thank You
+**Content:** "Thank you" + open floor for questions. Three checkout page agents running in background — casual check-in before wrapping up.
 **Visual:** Clean closing slide. Maybe the portal as a subtle background element again.
 **Animation:** Gentle ambient motion while Q&A happens.
 
@@ -164,6 +169,6 @@ Rough classification of how much animation effort each slide gets:
 | Level | Slides | Description |
 |-------|--------|-------------|
 | **Hero** | 12 (portal) | Three.js 3D portal, major production |
-| **Rich** | 1, 5, 8, 14, 18, 22 | Multi-step GSAP timelines, diagram builds |
+| **Rich** | 1, 5, 8, 14, 18, 23 | Multi-step GSAP timelines, diagram builds |
 | **Standard** | 3-4, 6-7, 9, 11, 15-16, 19-20 | Simple GSAP fades, staggers, reveals |
-| **Minimal** | 2, 10, 13, 17, 21, 23-25 | Basic transitions, static content |
+| **Minimal** | 2, 10, 13, 17, 21-22, 24-26 | Basic transitions, static content |

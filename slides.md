@@ -283,12 +283,12 @@ layout: none
 clicks: 1
 ---
 
-<DemoSlide title="Meet the App" subtitle="A simple fullstack application - users and products. Functional, but not pretty." :clicks="$clicks">
+<DemoSlide title="Meet the App" subtitle="A simple fullstack application — users and products. Angular Material isn't set up yet." :clicks="$clicks">
   <DemoViewer src="app" />
 </DemoSlide>
 
 <!--
-Here's a very simple fullstack application. Basic functionality - adding users and products - but it doesn't look very appealing.
+Here's a simple fullstack application. Users and products — basic CRUD. But Angular Material isn't set up yet, so the UI is pretty bare. Let's fix that.
 -->
 
 ---
@@ -298,36 +298,36 @@ transition: none
 
 <div class="decision-point-content">
 
-# The Decision Point
+# The Challenge
 
-You've got a design decision to make:
+Angular Material needs to be set up. Which AI model handles it best?
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Tabs** - switch between Users and Products
+- **Claude** — Anthropic's coding agent
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Accordions** - expand/collapse each section
+- **Gemini** — Google's coding agent
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Side Navigation** - dedicated pages with a nav panel
+- **GPT** — OpenAI's coding agent
 
 </div>
 
-<p v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="takeaway">Which one is best? What if we could see all of them?</p>
+<p v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="takeaway">Three models. Same task. Let's see what happens.</p>
 
 </div>
 
 <DoctorStrangePortal :ring-size="360" />
 
 <!--
-I want to improve the layout. Maybe tabs, maybe accordions, maybe a side navigation panel. But I'm not sure which is best. What if I could see all of them? I can open up portals and peer into the realities where each one of these exists.
+Angular Material needs to be set up on this app. Instead of picking one model and hoping for the best, let's open up portals and peer into three realities — one where Claude handles it, one where Gemini handles it, and one where GPT handles it. You're going to vote on which one did it best.
 -->
 
 ---
@@ -336,12 +336,12 @@ transition: none
 clicks: 1
 ---
 
-<DemoSlide title="Live Demo: Parallel Agents" subtitle="Three agents. Three sandboxed environments. Three implementations. One choice." :clicks="$clicks">
+<DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." :clicks="$clicks">
   <DemoViewer src="viewer" />
 </DemoSlide>
 
 <!--
-Three developer agents, each in their own fully isolated Docker container with the full application stack. They implement tabs, accordions, and side navigation simultaneously. When they're done, I review all three and pick which reality to merge.
+Three different AI models, each in their own fully isolated Docker container with the full application stack. Claude, Gemini, and GPT — all setting up Angular Material on the same codebase simultaneously. Let me walk you through what's happening in one of these containers, and then we'll reveal all three results. You're going to vote on which model did it best.
 -->
 
 ---
@@ -376,19 +376,19 @@ clicks: 3
   <GlowReveal><div class="env-host-box" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 400 } }"><carbon:laptop /><span>Your Machine</span></div></GlowReveal>
   <div class="env-arrows" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 500, duration: 300 } }">
     <span class="env-arrow-down">↓</span>
-    <span class="env-arrow-label">tsk start</span>
+    <span class="env-arrow-label">tsk run --serve</span>
     <span class="env-arrow-up">↑</span>
     <span class="env-arrow-label">git branches</span>
   </div>
   <div class="env-containers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 400 } }">
-    <div class="env-box"><carbon:container-software /><span>Tabs</span></div>
-    <div class="env-box"><carbon:container-software /><span>Accordions</span></div>
-    <div class="env-box"><carbon:container-software /><span>Side Nav</span></div>
+    <div class="env-box"><carbon:container-software /><span>Claude</span></div>
+    <div class="env-box"><carbon:container-software /><span>Gemini</span></div>
+    <div class="env-box"><carbon:container-software /><span>GPT</span></div>
   </div>
 </div>
 
 <!--
-The first pillar: isolated environments. Each agent works in its own Docker container with the full application stack — frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. When they're done, you pull git branches out. This is what makes it safe to let agents work autonomously.
+The first pillar: isolated environments. Each of those three models — Claude, Gemini, GPT — was working in its own Docker container with the full application stack. Frontend, backend, database, everything. The containers have restricted network access so they're isolated from your system and from each other. Agents can run builds, serve the app, execute tests — all without touching your machine. When they're done, you pull git branches out. This is what makes it safe to let agents work autonomously.
 -->
 
 ---
@@ -460,7 +460,7 @@ So you've seen what this looks like in practice. Now I want to take it further. 
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-> What if an agent **designed the tasks** for other agents?
+> What if an agent **designed the pockets** for other agents?
 
 </div>
 
@@ -476,15 +476,15 @@ So you've seen what this looks like in practice. Now I want to take it further. 
     <span class="env-arrow-label">designs &amp; spawns</span>
   </div>
   <div class="architect-workers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 400 } }">
-    <div class="architect-worker"><carbon:container-software /><span>Task A</span></div>
-    <div class="architect-worker"><carbon:container-software /><span>Task B</span></div>
-    <div class="architect-worker"><carbon:container-software /><span>Task C</span></div>
+    <div class="architect-worker"><carbon:container-software /><span>Pocket A</span></div>
+    <div class="architect-worker"><carbon:container-software /><span>Pocket B</span></div>
+    <div class="architect-worker"><carbon:container-software /><span>Pocket C</span></div>
     <div class="architect-worker architect-worker-extra"><span>...</span></div>
   </div>
 </div>
 
 <!--
-In that demo, I created the task instructions. But what if we designed an agent to architect them? An agent that comes up with different design options and prompts for the worker agents?
+In that demo, I created the pocket instructions. But what if we designed an agent to architect them? An agent that comes up with different design options and prompts for the worker agents?
 -->
 
 ---
@@ -493,7 +493,7 @@ clicks: 4
 
 # What If: Race & Compare
 
-- **Multiple agents, same task** — race them and take the first result
+- **Multiple agents, same pocket** — race them and take the first result
 
 <div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
@@ -512,7 +512,7 @@ clicks: 4
 <RaceDiagram :click="1" :compare-click="3" />
 
 <!--
-What if instead of one agent per task, we had two or three and took the first to finish? That's the race approach. But you could also let them all finish and compare the results. Maybe Agent A's implementation is more maintainable even though it was slower. You could race Claude against GPT against Gemini on the same prompt and evaluate which one produced the best result for your use case.
+What if instead of one agent per pocket, we had two or three and took the first to finish? That's the race approach. But you could also let them all finish and compare the results. Maybe Agent A's implementation is more maintainable even though it was slower. You could race Claude against GPT against Gemini on the same prompt and evaluate which one produced the best result for your use case.
 -->
 
 ---
@@ -536,7 +536,7 @@ What if instead of one agent per task, we had two or three and took the first to
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- A simple frontend + SDK agent + tsk sandbox makes them **accessible to everyone**
+- A simple frontend + SDK agent + pocket makes them **accessible to everyone**
 
 </div>
 
@@ -556,12 +556,12 @@ What if instead of one agent per task, we had two or three and took the first to
   <div class="env-arrows">
     <span class="env-arrow-down">↓</span>
   </div>
-  <div class="beyond-dev-step"><carbon:container-software /><span>tsk Sandbox</span></div>
+  <div class="beyond-dev-step"><carbon:container-software /><span>Pocket</span></div>
 </div>
 </div>
 
 <!--
-Here's something I think about a lot. These powerful AI skills already exist — things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form — their topic, brand guidelines, source material. Behind the scenes, an SDK-powered agent orchestrates the work. And it all executes inside a tsk sandbox where scripts can run freely without any risk. The employee never sees a terminal, never approves a file write, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
+Here's something I think about a lot. These powerful AI skills already exist — things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form — their topic, brand guidelines, source material. Behind the scenes, an SDK-powered agent orchestrates the work. And it all executes inside a pocket where scripts can run freely without any risk. The employee never sees a terminal, never approves a file write, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
 -->
 
 ---
@@ -569,12 +569,25 @@ layout: none
 clicks: 1
 ---
 
-<DemoSlide title="Live Demo: UI Design Agent" subtitle="One architect agent. Five design themes. Five parallel agents implementing them." :clicks="$clicks">
+<DemoSlide title="Live Demo: Design Exploration" subtitle="Fork the winner. Three pockets. Tabs, accordions, or side navigation." :clicks="$clicks">
   <DemoViewer src="viewer" />
 </DemoSlide>
 
 <!--
-I've designed an agent that's particularly good at coming up with UI design themes and prompts. I'm going to ask it to spawn 5 parallel agents that will each implement a different design.
+Now we take the winning model's branch and fork it into three new pockets. Each one implements a different UI approach — tabs, accordions, and side navigation. Same codebase with Angular Material already set up, three different design directions, all running simultaneously. Watch the grid view as they work.
+-->
+
+---
+layout: none
+clicks: 1
+---
+
+<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." :clicks="$clicks">
+  <DemoViewer src="viewer" />
+</DemoSlide>
+
+<!--
+One more thing before we wrap up the demos. I'm kicking off three more agents — all building a checkout page for this app. All three running through Claude. They'll work autonomously in the background while we go through the closing slides and Q&A. Let's see if they finish in time.
 -->
 
 ---
@@ -663,7 +676,7 @@ layout: center
 
 Thank you for your time.
 
-<p class="subtitle">Agents are running in the background. Let's check on them at the end.</p>
+<p class="subtitle">Three agents are building a checkout page in the background. Let's check in before we wrap.</p>
 
 <div class="qa-qr-overlay">
   <img src="/qr-code.png" alt="QR code" />
@@ -671,5 +684,5 @@ Thank you for your time.
 </div>
 
 <!--
-Now I'll open the floor for Q&A while the UI design agents are running. I'm going to leave a small section of time at the end to show their work. Thank you so much for your time, and I hope this reshapes your perspective on how AI agents can operate.
+Thank you so much for your time. I'll open the floor for questions. Remember those checkout page agents we kicked off? Let's check in on them before we run out of time — if they're done, great. If they're still working, that's fine too. The point is the system keeps working while you do other things.
 -->
