@@ -207,7 +207,6 @@ export function usePortalTimelines(deps: PortalTimelineDeps) {
       onComplete: () => {
         deps.setNavIntercept(false)
         deps.navigateNext()
-        resetState()
       },
     })
     zoomTl.to(proxy, {

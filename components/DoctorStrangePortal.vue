@@ -147,7 +147,6 @@ onSlideEnter(async () => {
 onSlideLeave(() => {
   navControl.detach()
   timelines.killAll()
-  timelines.resetState()
   scene.pause()
 })
 
