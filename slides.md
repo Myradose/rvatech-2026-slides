@@ -616,7 +616,7 @@ The biggest what-if: what if the developer's role shifts from writing every line
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
-- Source code - **open source** (link TODO)
+- Source code - **open source**
 
 </div>
 
