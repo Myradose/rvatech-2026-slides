@@ -786,7 +786,7 @@ li::marker {
 
 .qa-qr-overlay {
   position: absolute;
-  bottom: 2.5rem;
+  top: 2.5rem;
   right: 3rem;
   display: flex;
   flex-direction: column;
@@ -795,7 +795,7 @@ li::marker {
 }
 
 .qa-qr-overlay img {
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   border-radius: 6px;
 }
