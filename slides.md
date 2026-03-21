@@ -344,7 +344,7 @@ Angular Material needs to be set up. Which AI model handles it best?
 "Gemini?"
 
 [CLICK 3 - GPT appears]
-"Or GPT?"
+"GPT?"
 
 (Pause between each reveal. Let each one land. Don't rush.)
 
@@ -356,18 +356,14 @@ Angular Material needs to be set up. Which AI model handles it best?
 
 [CLICK 5 - portal creation begins, 2.5s animation]
 (As the arc starts drawing and sparks emerge)
-"Let's open a portal."
-(Watch the arc reach halfway, sparks flying, core glow building)
-"On the other side: three Docker containers, each with their own copy of this application."
+"Let's open a portal to all three."
+(Watch the animation. Say nothing else. Let the visuals do the work.)
 (Arc completes, portal fully formed, demo slide visible through the ring)
-(FULL STOP. Say nothing. Let the audience absorb the spinning portal for 2 seconds.)
+(FULL STOP. Let the audience absorb the spinning portal for 2-3 seconds.)
 
 [CLICK 6 - zoom through portal, 2.8s expo.in]
-(Zoom starts slow) "One where Claude handles it..."
-(Zoom accelerating) "...one where Gemini handles it..."
-(Zoom at full speed, filling the screen) "...and one where GPT handles it."
-(Lands on Demo 1 slide. Beat of silence.)
-"Let me walk you through what's happening."
+(Say nothing during the zoom. Let the animation carry the moment.)
+(Lands on Demo 1 slide.)
 -->
 
 ---
@@ -381,7 +377,34 @@ clicks: 1
 </DemoSlide>
 
 <!--
-Three different AI models, each in their own fully isolated Docker container with the full application stack. Claude, Gemini, and GPT, all setting up Angular Material on the same codebase simultaneously. Let me walk you through what's happening in one of these containers, and then we'll reveal all three results. You're going to vote on which model did it best.
+(CLICK - viewer appears with three pockets in grid view, Claude Code open in each, idle)
+
+[ORIENT THE AUDIENCE]
+"This is a grid layout where each panel represents a pocket, which is a sandboxed full development environment. This one is for Claude, this one is for Gemini, and this one is for GPT. All three are running Claude Code, but each one is powered by its respective model. Claude Code doesn't normally support other models, but there's an open source tool called Claude Code Router that makes this possible."
+(Point to the panel headers showing each pocket's name.)
+"At the top you'll see a toggle where I can switch these panels between different views. I can show the terminal, the live frontend, or even the agent's workspace so we can watch it use the browser."
+
+[TYPE THE PROMPT]
+"Let me type the prompt that each one is going to use."
+(Type the prompt live in the Claude pocket. Read it out as you type so the audience knows the task.)
+"Now I'm going to paste this into the other two pockets."
+(Paste and send in the Gemini and GPT pockets.)
+
+[NARRATE WHILE AGENTS WORK]
+"You can see all three are getting to work. They're exploring the codebase so they can plan out their changes."
+(Let them run for a moment. Then expand one pocket to detail view.)
+"Let me open the detail view so we can get a closer look."
+(Point to the bottom of the terminal.)
+"You can see that bypass permissions is on. That means I don't have to manually approve anything the agent is doing, because it's running in a completely isolated environment."
+(Narrate what the agent is doing as it works. Read edits, file changes, commands. If it's interesting, show the split panel view. Flip to another pocket if one is further along or doing something different.)
+
+[SHOW RESULTS]
+(When the expanded pocket finishes, go back to grid view.)
+"Now that this one has finished, let's check on the other two."
+(Toggle all panels to the frontend service view so the audience sees the three implementations side by side. If one is still running, narrate briefly or call it.)
+"Same starting point. Same prompt. Three different results. Which one do you like best?"
+(Take a quick vote by show of hands.)
+(Stop the two losers. Keep the winner running.)
 -->
 
 ---
@@ -419,11 +442,26 @@ clicks: 1
 </DemoSlide>
 
 <!--
-"Now let's explore different design directions."
-(CLICK - reveal the viewer)
-"Three new pockets, each implementing a different UI approach. Tabs, accordions, and side navigation. Three different design visions, all running at the same time."
-(Walk through the grid view. Point out differences between the three approaches as they work. Spend 2-3 minutes here.)
-"Which design direction would you pick? That's the power of exploring multiple realities at once."
+"Now let's go deeper. We're going to take the winner and fork it."
+(CLICK - reveal the viewer. Fork the winning pocket twice. Rename the three pockets to Tabs, Accordions, and Side Nav.)
+"Each one starts from the same winning implementation. Same codebase, same state. But each gets a different prompt: one builds tabs, one builds accordions, one builds side navigation. And I've added something new: each agent can spin up a browser to visually validate its work and test existing functionality."
+(Paste prompts and send all three.)
+
+[NARRATE WHILE AGENTS WORK]
+(The audience already knows the viewer from Demo 1. No need to re-explain the grid. Focus on what's different.)
+"You can already see they're taking different approaches to the layout."
+(Point out differences as they emerge. Spend a minute watching progress.)
+
+[PLAYWRIGHT MOMENT]
+"Now here's something I want you to watch for. Each agent can open a browser to check its own work. Let me switch to the workspace view."
+(When an agent kicks off the browser, expand that pocket and switch to split view: terminal on the left, VNC on the right.)
+"That's a real browser running inside the container. The agent is visually validating that everything looks right and testing existing functionality. All sandboxed."
+(Let the audience watch the browser automation for a moment. This is the escalation from Demo 1.)
+
+[WRAP UP]
+(Go back to grid view. Toggle to frontend view to show the three different UIs.)
+"Three design directions, all built and validated. You could review each one, pick the best, and merge it. That's design exploration."
+(Keep it brief. Move on to Demo 3.)
 -->
 
 ---
@@ -461,7 +499,7 @@ transition: section
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-> What if an agent **designed the pockets** for other agents?
+> What if instead of writing prompts ourselves, we asked an agent to **design and spawn the pockets** for us?
 
 </div>
 
@@ -485,7 +523,7 @@ transition: section
 </div>
 
 <!--
-In that demo, I created the pocket instructions. But what if we designed an agent to architect them? An agent that comes up with different design options and prompts for the worker agents?
+In those demos, I wrote the prompts and set up each pocket myself. But what if an agent did that for you? You give it a goal, and it figures out which pockets to spin up, what prompts to use, and kicks them all off.
 -->
 
 ---
@@ -513,7 +551,7 @@ clicks: 4
 <RaceDiagram :click="1" :compare-click="3" />
 
 <!--
-What if you gave the same task to three separate pockets and took the first one to finish, discarding the rest? That's the race approach. But you could also let them all finish and compare the results. Maybe Agent A's implementation is more maintainable even though it was slower. You could race Claude against GPT against Gemini on the same prompt and evaluate which one produced the best result for your use case.
+What if you gave the same task to three pockets and took the first one to finish, discarding the rest? That's the race approach. Or you let them all finish and compare the results, which is what you saw in the first demo. Maybe one took longer but produced cleaner, more maintainable code. And this works across different agents, different LLMs, or different approaches. You're exploring multiple paths at once instead of betting on one.
 -->
 
 ---
@@ -537,7 +575,7 @@ What if you gave the same task to three separate pockets and took the first one 
 
 <div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
-- A simple frontend + SDK agent + pocket makes them **accessible to everyone**
+- A simple frontend + agent + pocket makes them **accessible to everyone**
 
 </div>
 
@@ -553,7 +591,7 @@ What if you gave the same task to three separate pockets and took the first one 
   <div class="env-arrows">
     <span class="env-arrow-down">↓</span>
   </div>
-  <GlowReveal><div class="beyond-dev-step highlight"><carbon:machine-learning-model /><span>SDK Agent</span></div></GlowReveal>
+  <GlowReveal><div class="beyond-dev-step highlight"><carbon:machine-learning-model /><span>Agent</span></div></GlowReveal>
   <div class="env-arrows">
     <span class="env-arrow-down">↓</span>
   </div>
@@ -562,7 +600,7 @@ What if you gave the same task to three separate pockets and took the first one 
 </div>
 
 <!--
-Here's something I think about a lot. These powerful AI skills already exist: things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form with their topic, brand guidelines, source material. Behind the scenes, an SDK-powered agent orchestrates the work. And it all executes inside a pocket where scripts can run freely without any risk. The employee never sees a terminal, never approves a file write, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
+Here's something I think about a lot. These powerful AI skills already exist: things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form with their topic, brand guidelines, source material. Behind the scenes, an agent orchestrates the work. And it all executes inside a pocket where scripts can run freely without any risk. The employee never sees a terminal, never has to approve random Python scripts that a skill wants to run, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
 -->
 
 ---
