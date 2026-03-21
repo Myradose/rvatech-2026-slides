@@ -345,7 +345,7 @@ li::marker {
   font-size: 1rem;
   margin: 0 0 0.5rem 0;
   flex: 1;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 .pillar-card p {
