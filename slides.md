@@ -311,19 +311,19 @@ Angular Material needs to be set up. Which AI model handles it best?
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Claude** - Anthropic's coding agent
+- **Claude** - Anthropic
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **Gemini** - Google's coding agent
+- **Gemini** - Google
 
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
 
-- **GPT** - OpenAI's coding agent
+- **GPT** - OpenAI
 
 </div>
 
@@ -338,13 +338,13 @@ Angular Material needs to be set up. Which AI model handles it best?
 "Angular Material needs to be set up on this app. So here's the question: which AI model handles it best?"
 
 [CLICK 1 - Claude appears]
-"Claude. Anthropic's coding agent."
+"Claude?"
 
 [CLICK 2 - Gemini appears]
-"Gemini. Google's coding agent."
+"Gemini?"
 
 [CLICK 3 - GPT appears]
-"GPT. OpenAI's coding agent."
+"Or GPT?"
 
 (Pause between each reveal. Let each one land. Don't rush.)
 
