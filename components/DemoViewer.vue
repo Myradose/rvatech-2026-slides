@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
   /** Or pass a raw URL directly */
   url?: string
 }>(), {
-  src: 'viewer',
+  src: 'pocketManager',
 })
 
 const iframeSrc = props.url || demoUrls[props.src]

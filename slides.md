@@ -373,7 +373,7 @@ clicks: 1
 ---
 
 <DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." :clicks="$clicks">
-  <DemoViewer src="viewer" />
+  <DemoViewer src="pocketManager" />
 </DemoSlide>
 
 <!--
@@ -438,7 +438,7 @@ clicks: 1
 ---
 
 <DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." :clicks="$clicks">
-  <DemoViewer src="viewer" />
+  <DemoViewer src="pocketManager" />
 </DemoSlide>
 
 <!--
@@ -470,7 +470,7 @@ clicks: 1
 ---
 
 <DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." :clicks="$clicks">
-  <DemoViewer src="viewer" />
+  <DemoViewer src="pocketManager" />
 </DemoSlide>
 
 <!--
