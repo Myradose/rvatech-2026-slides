@@ -377,7 +377,7 @@ clicks: 1
 </DemoSlide>
 
 <!--
-(CLICK - viewer appears with three pockets in grid view, Claude Code open in each, idle)
+(CLICK - Pocket Manager appears with three pockets in grid view, Claude Code open in each, idle)
 
 [ORIENT THE AUDIENCE]
 "This is a grid layout where each panel represents a pocket, which is a sandboxed full development environment. This one is for Claude, this one is for Gemini, and this one is for GPT. All three are running Claude Code, but each one is powered by its respective model. Claude Code doesn't normally support other models, but there's an open source tool called Claude Code Router that makes this possible."
@@ -428,7 +428,7 @@ clicks: 1
 </div>
 
 <!--
-"Quick look under the hood. Each of those three models was working inside its own Docker container with the full application stack. Completely isolated from your machine and from each other. The viewer dashboard you just saw lets you watch what they're doing in real time. And when they finish, you pull git branches out and review the results. All three pillars in action."
+"Quick look under the hood. Each of those three models was working inside its own Docker container with the full application stack. Completely isolated from your machine and from each other. The Pocket Manager dashboard you just saw lets you watch what they're doing in real time. And when they finish, you pull git branches out and review the results. All three pillars in action."
 (Keep this brisk, 15-20 seconds. The Three Pillars slide already introduced these concepts. The audience just saw them in practice. This is confirmation, not discovery. Move on quickly.)
 -->
 
@@ -443,12 +443,12 @@ clicks: 1
 
 <!--
 "Now let's go deeper. We're going to take the winner and fork it."
-(CLICK - reveal the viewer. Fork the winning pocket twice. Rename the three pockets to Tabs, Accordions, and Side Nav.)
+(CLICK - reveal Pocket Manager. Fork the winning pocket twice. Rename the three pockets to Tabs, Accordions, and Side Nav.)
 "Each one starts from the same winning implementation. Same codebase, same state. But each gets a different prompt: one builds tabs, one builds accordions, one builds side navigation. And I've added something new: each agent can spin up a browser to visually validate its work and test existing functionality."
 (Paste prompts and send all three.)
 
 [NARRATE WHILE AGENTS WORK]
-(The audience already knows the viewer from Demo 1. No need to re-explain the grid. Focus on what's different.)
+(The audience already knows Pocket Manager from Demo 1. No need to re-explain the grid. Focus on what's different.)
 "You can already see they're taking different approaches to the layout."
 (Point out differences as they emerge. Spend a minute watching progress.)
 
@@ -475,9 +475,9 @@ clicks: 1
 
 <!--
 "One more quick thing before we move on."
-(CLICK - reveal the viewer)
+(CLICK - reveal Pocket Manager)
 "I'm kicking off three more agents, all building a checkout page for this app. All three running through Claude. They'll work in the background while we talk through some bigger-picture ideas."
-(Let the viewer show agents starting up. Spend only 15-20 seconds here.)
+(Let Pocket Manager show agents starting up. Spend only 15-20 seconds here.)
 "By Q&A time, let's see if they've finished. That's fire and forget. You launch them and move on with your day."
 -->
 
@@ -654,27 +654,21 @@ The biggest what-if: what if the developer's role shifts from writing every line
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
-- Source code - **open source**
+- Source code -- **open source**, experimental
+- Presentation slides -- available now
+- Recording -- available after the summit
 
 </div>
 
-<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 500 } }">
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 600, duration: 500 } }">
 
-- This presentation + recording - publicly available
-
-</div>
-
-<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 500 } }">
-
-- Shoutout to the original TSK repo creator
-- Shoutout to the Claude Code Viewer project
-- Shoutout to Cole Medin for his YouTube resources
+- **tsk** -- foundation for pocket orchestration
+- **Claude Code Viewer** -- tech stack behind Pocket Manager
+- **Cole Medin** -- Claude Code & agentic engineering
 
 </div>
 
-<p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1100, duration: 500 } }">This is experimental - not production-ready.</p>
-
-<p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1400, duration: 500 } }">None of this information should be gatekept.</p>
+<p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 500 } }">None of this information should be gatekept.</p>
 
 </div>
 <div class="resources-qr" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 400, duration: 600 } }">
@@ -684,18 +678,26 @@ The biggest what-if: what if the developer's role shifts from writing every line
 </div>
 
 <!--
-All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator, the Claude Code Viewer project, and Cole Medin. Important caveat: this was built in about a week with heavy AI assistance and is not production-ready.
+Everything is open source and linked through that QR code. Fair warning - this is very much experimental, a proof of concept, not production-ready. The presentation slides are available now, and the recording will go up after the summit.
+
+A few shoutouts. tsk provided the baseline that made this proof of concept a reality. The Pocket Manager web app you saw during the demos is built on the Claude Code Viewer project's tech stack. And Cole Medin - if you don't follow him, you should. He's one of the primary reasons I invested so heavily in Claude Code well before the recent hype. His content on Claude Code and agentic engineering has been invaluable.
+
+None of this information should be gatekept.
 -->
 
 ---
 layout: center
 ---
 
-# Q&A
+# Thank You
 
-Thank you for your time.
+<div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
-<p class="subtitle">Three agents are building a checkout page in the background. Let's check in before we wrap.</p>
+<p class="acknowledgment-names">Mike Cleary · Dana McMurray · Radha Manohar</p>
+
+</div>
+
+<p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 700, duration: 500 } }">Three agents are building a checkout page in the background. Let's check in before we wrap.</p>
 
 <div class="qa-qr-overlay">
   <img src="/qr-code.png" alt="QR code" />
@@ -703,5 +705,7 @@ Thank you for your time.
 </div>
 
 <!--
-Thank you so much for your time. I'll open the floor for questions. Remember those checkout page agents we kicked off? Let's check in on them before we run out of time. If they're done, great. If they're still working, that's fine too. The point is the system keeps working while you do other things.
+Before we open for questions, I want to thank three people. Mike Cleary, Dana McMurray, and Radha Manohar at Allianz Partners. This project wouldn't exist and I wouldn't be here presenting today without their trust, support, and autonomy. I started almost three years ago as an intern who was supposed to be doing documentation work, and almost immediately they gave me the opportunity to transition into the development work I wanted to do. Every step of the way, they've given me the time, support, and resources to explore not just agentic development, but truly everything I've been interested in. Dana is actually the one who recommended I become a speaker here today. So thank you - genuinely.
+
+Alright, let's open the floor for questions. Remember those checkout page agents we kicked off? Let's check in on them before we wrap up.
 -->

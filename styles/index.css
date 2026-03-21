@@ -785,6 +785,17 @@ li::marker {
 }
 
 /* ========================================
+   Thank You / Acknowledgments
+   ======================================== */
+
+.acknowledgment-names {
+  font-size: 1.35rem;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+  margin-top: 0.5rem;
+}
+
+/* ========================================
    Q&A slide QR overlay
    ======================================== */
 

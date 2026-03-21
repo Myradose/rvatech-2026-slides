@@ -91,12 +91,12 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 
 ### Slide 15 — Demo 2: Design Exploration
 **Content:** Three pockets exploring different UI approaches: tabs, accordions, side navigation. Grid view showing all three working simultaneously.
-**Visual:** Live demo — grid view in the viewer.
+**Visual:** Live demo — grid view in Pocket Manager.
 **Animation:** Minimal — the demo itself is the visual.
 
 ### Slide 16 — Demo 3: Fire and Forget
 **Content:** Kick off three agents building a checkout page. All run through Claude. They work autonomously during closing slides and Q&A.
-**Visual:** Live demo — viewer showing agents starting up.
+**Visual:** Live demo — Pocket Manager showing agents starting up.
 **Animation:** Minimal. Quick 15-20 second setup then move on.
 
 ---
@@ -137,15 +137,15 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Visual:** Key quote/statement. Larger typography.
 **Animation:** Text reveal, word-by-word with GSAP.
 
-### Slide 23 — Resources + Open Source
-**Content:** Links to source code, recording, resources, shoutouts. Natural pause for QR code scanning.
-**Visual:** Clean list of links/QR codes.
-**Animation:** Fade in.
+### Slide 23 — Resources
+**Content:** Open source (experimental), presentation + recording availability, QR code. Tech community shoutouts: tsk, Claude Code Viewer (Pocket Manager), Cole Medin.
+**Visual:** Clean list with QR code on the right.
+**Animation:** Staggered fade in.
 
-### Slide 24 — Q&A / Thank You
-**Content:** "Thank you" + open floor for questions. Three checkout page agents running in background — casual check-in before wrapping up.
-**Visual:** Clean closing slide. Maybe the portal as a subtle background element again.
-**Animation:** Gentle ambient motion while Q&A happens.
+### Slide 24 — Thank You
+**Content:** Personal acknowledgments (Mike Cleary, Dana McMurray, Radha Manohar). Spoken story about Allianz Partners support. Transition to Q&A with checkout page agent check-in.
+**Visual:** Names centered, QR code in corner.
+**Animation:** Simple fade in.
 
 ---
 
