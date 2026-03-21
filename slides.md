@@ -583,7 +583,7 @@ Here's something I think about a lot. These powerful AI skills already exist: th
   </div>
 </div>
 
-<p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both are active areas of exploration - resources on the next slide</p>
+<p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both are active areas of exploration</p>
 
 <!--
 "Two things I didn't demo but are critical for the future."
@@ -592,7 +592,19 @@ Here's something I think about a lot. These powerful AI skills already exist: th
 (CLICK 2 - Cloud Scaling card)
 "Second, cloud scaling. This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a Kubernetes cluster. Spinning up dozens of agents in parallel."
 (CLICK 3 - exploration note)
-"Both are active areas of exploration. Resources on the next slide."
+"Both are active areas of exploration."
+-->
+
+---
+layout: statement
+---
+
+<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
+
+<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
+
+<!--
+The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? Imagine managing multiple large, complex tasks at the same time, designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand. You become the architect, not the bricklayer.
 -->
 
 ---
@@ -635,18 +647,6 @@ Here's something I think about a lot. These powerful AI skills already exist: th
 
 <!--
 All source code, the presentation, the recording - everything will be publicly available. Huge shoutout to the original TSK repo creator, the Claude Code Viewer project, and Cole Medin. Important caveat: this was built in about a week with heavy AI assistance and is not production-ready.
--->
-
----
-layout: statement
----
-
-<AnimatedText text="Developer as Architect" tag="h1" :stagger="0.1" :duration="0.6" />
-
-<p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
-
-<!--
-The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? Imagine managing multiple large, complex tasks at the same time, designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand. You become the architect, not the bricklayer.
 -->
 
 ---

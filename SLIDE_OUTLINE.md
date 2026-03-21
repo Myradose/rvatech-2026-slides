@@ -132,15 +132,15 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 **Visual:** Minimal, forward-looking. Clean text with accent highlights.
 **Animation:** Simple staggered reveals.
 
-### Slide 22 — Resources + Open Source
-**Content:** Links to source code, recording, resources, shoutouts.
-**Visual:** Clean list of links/QR codes.
-**Animation:** Fade in.
-
-### Slide 23 — Developer as Architect
-**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand? Emotional peak of the close, positioned right before Q&A.
+### Slide 22 — Developer as Architect
+**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand? Emotional peak of the close, lands while energy is high.
 **Visual:** Key quote/statement. Larger typography.
 **Animation:** Text reveal, word-by-word with GSAP.
+
+### Slide 23 — Resources + Open Source
+**Content:** Links to source code, recording, resources, shoutouts. Natural pause for QR code scanning.
+**Visual:** Clean list of links/QR codes.
+**Animation:** Fade in.
 
 ### Slide 24 — Q&A / Thank You
 **Content:** "Thank you" + open floor for questions. Three checkout page agents running in background — casual check-in before wrapping up.
@@ -156,6 +156,6 @@ Rough classification of how much animation effort each slide gets:
 | Level | Slides | Description |
 |-------|--------|-------------|
 | **Hero** | 12 (portal) | Three.js 3D portal, major production |
-| **Rich** | 1, 5, 8, 14, 18, 23 | Multi-step GSAP timelines, diagram builds |
+| **Rich** | 1, 5, 8, 14, 18, 22 | Multi-step GSAP timelines, diagram builds |
 | **Standard** | 3-4, 6-7, 9, 11, 19-20 | Simple GSAP fades, staggers, reveals |
-| **Minimal** | 2, 10, 13, 15-17, 21-22, 24 | Basic transitions, static content |
+| **Minimal** | 2, 10, 13, 15-17, 21, 23-24 | Basic transitions, static content |
