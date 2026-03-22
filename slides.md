@@ -609,28 +609,28 @@ Here's something I think about a lot. These powerful AI skills already exist: th
 
 <div class="comparison-grid">
   <div class="prompt-card" v-click v-motion :initial="{ opacity: 0, x: -40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
-    <p class="prompt-label">Agent Harnesses</p>
-    <p class="prompt-card-body">The missing piece: workflow instructions, guardrails, and feedback loops that let agents tackle <strong>complex, long-running tasks</strong> with minimal but intelligent human intervention.</p>
-    <p class="prompt-card-note">Think of it as the playbook you give agents so they know not just <em>what</em> to build, but <em>how</em> to build it well.</p>
+    <p class="prompt-label">Rewind Timeline</p>
+    <p class="prompt-card-body">A snapshot before every tool call, building a <strong>branching timeline</strong> of the entire session. Agent goes sideways forty steps in? Roll back to that exact point, or branch off and try something different.</p>
+    <p class="prompt-card-note">The Time Stone for your development environment.</p>
   </div>
 
   <div class="prompt-card" v-click v-motion :initial="{ opacity: 0, x: 40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
-    <p class="prompt-label">Cloud Scaling</p>
-    <p class="prompt-card-body">This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a <strong>Kubernetes cluster</strong>.</p>
-    <p class="prompt-card-note">Imagine spinning up dozens of agents in parallel, scaling horizontally as the work demands.</p>
+    <p class="prompt-label">Agent Teams</p>
+    <p class="prompt-card-body">Today's demo had three agents on the same task. Next step: agents with <strong>different roles</strong> on the same project. An orchestrator, developers, and an integrator, all exchanging work through git.</p>
+    <p class="prompt-card-note">Coordinated teamwork across isolated environments, not just parallel races.</p>
   </div>
 </div>
 
-<p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both are active areas of exploration</p>
+<p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both on the roadmap, alongside cloud scaling for horizontal growth</p>
 
 <!--
-"Two things I didn't demo but are critical for the future."
-(CLICK 1 - Agent Harnesses card)
-"First, agent harnesses. The system of workflow instructions and guardrails that tell agents not just what to build, but how to build it well. Think of it as the playbook."
-(CLICK 2 - Cloud Scaling card)
-"Second, cloud scaling. This demo runs on one machine, but these are just Docker containers. There's nothing stopping you from orchestrating them across a Kubernetes cluster. Spinning up dozens of agents in parallel."
-(CLICK 3 - exploration note)
-"Both are active areas of exploration."
+"I want to share two things on the roadmap. One closer to reality, one further out but something I think about a lot."
+(CLICK 1 - Rewind Timeline card)
+"Remember the Time Stone? The ability to go back in time when things went wrong? That's the idea here. If you've used Claude Code, you might know the /rewind command. It can undo file changes. But that's it. If the agent ran a bash command that broke something, deleted files, messed up a database, changed system configuration, /rewind can't help you. This goes further. A snapshot of the entire environment before every single tool call. Something goes wrong forty steps in? Roll back to that exact point. The whole environment. Not just source code. Every package install, every config change, every database write. And you can branch those snapshots, meaning save your current spot, try a completely different approach from an earlier point, and keep both timelines around. And it's not just for humans watching over the agent. The agent could rewind itself. It detects that something broke, rolls back, and picks up right where it left off knowing what went wrong and why."
+(CLICK 2 - Agent Teams card)
+"This one is further out. There are a lot of hard problems to solve first. But it's one of the ultimate goals of the system. You saw three agents doing the same task. What if they had different roles? An orchestrator designs the approach, developers build in isolation, an integrator merges and verifies. They coordinate through git. Same isolated environments, but working together on one project instead of racing on the same thing. Claude Code already ships an experimental agent teams feature. The goal is to build the infrastructure that makes that work across isolated pockets."
+(CLICK 3 - footer note)
+"Both are on the roadmap, alongside cloud scaling. Everything you've seen today runs on one machine, but scaling horizontally is a big part of the vision for this project."
 -->
 
 ---

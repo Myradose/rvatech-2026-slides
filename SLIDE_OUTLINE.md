@@ -128,7 +128,7 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 ## Section 6: Close (slides 21-24)
 
 ### Slide 21 — Looking Ahead
-**Content:** Agent harnesses (workflow instructions, guardrails) and cloud scaling (Kubernetes orchestration). Two cards side by side.
+**Content:** Agent teams (orchestrator/developer/integrator roles coordinating through git) and rewind timeline (instant Btrfs snapshots before every tool call, branching DAG). Two cards side by side. Footer mentions cloud scaling.
 **Visual:** Minimal, forward-looking. Clean text with accent highlights.
 **Animation:** Simple staggered reveals.
 
