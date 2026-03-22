@@ -304,6 +304,62 @@ function handleBackward(clicks: number) {
   }
 }
 
+// --- Event interception during animations ---
+// Block Slidev from seeing navigation events during animations so that
+// skipping an animation doesn't also advance/retreat the click counter.
+
+const FORWARD_KEYS = ['ArrowRight', 'ArrowDown', ' ', 'Enter', 'PageDown']
+const BACKWARD_KEYS = ['ArrowLeft', 'ArrowUp', 'PageUp']
+
+function isAnimating(): boolean {
+  return phase === 'racing' || phase === 'comparing'
+    || phase === 'reversingRace' || phase === 'reversingCompare'
+}
+
+function blockEvent(e: Event) {
+  e.preventDefault()
+  e.stopPropagation()
+  e.stopImmediatePropagation()
+}
+
+function skipAnim(forward: boolean) {
+  switch (phase) {
+    case 'racing':
+      if (forward) snapToRaceComplete()
+      else snapToIdle()
+      break
+    case 'comparing':
+      if (forward) snapToCompareComplete()
+      else snapToRaceComplete()
+      break
+    case 'reversingRace':
+      if (forward) snapToRaceComplete()
+      else snapToIdle()
+      break
+    case 'reversingCompare':
+      if (forward) snapToCompareComplete()
+      else snapToRaceComplete()
+      break
+  }
+}
+
+function onKeydownCapture(e: KeyboardEvent) {
+  if (!active || !isAnimating()) return
+  const isForward = FORWARD_KEYS.includes(e.key)
+  const isBackward = BACKWARD_KEYS.includes(e.key)
+  if (!isForward && !isBackward) return
+  blockEvent(e)
+  skipAnim(isForward)
+}
+
+function onClickCapture(e: MouseEvent) {
+  if (!active || !isAnimating()) return
+  const target = e.target as HTMLElement
+  if (target.closest('.slidev-nav, nav, button, a')) return
+  blockEvent(e)
+  skipAnim(true)
+}
+
 let active = false
 
 watch(() => nav.clicks.value, (clicks, prev) => {
@@ -317,6 +373,8 @@ watch(() => nav.clicks.value, (clicks, prev) => {
 onSlideEnter(() => {
   if (!isInteractive.value || active) return
   active = true
+  window.addEventListener('keydown', onKeydownCapture, { capture: true })
+  window.addEventListener('click', onClickCapture, { capture: true })
   const clicks = nav.clicks.value
   if (props.compareClick && clicks >= props.compareClick) {
     snapToCompareComplete()
@@ -330,6 +388,8 @@ onSlideEnter(() => {
 onSlideLeave(() => {
   if (!isInteractive.value) return
   active = false
+  window.removeEventListener('keydown', onKeydownCapture, { capture: true })
+  window.removeEventListener('click', onClickCapture, { capture: true })
   killActive()
   snapToIdle()
 })
