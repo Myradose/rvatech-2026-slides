@@ -679,15 +679,20 @@ None of this information should be gatekept.
 layout: center
 ---
 
+<div style="text-align: center">
+
 # Thank You
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
+<p class="acknowledgment-label">Special thanks to</p>
 <p class="acknowledgment-names">Mike Cleary · Dana McMurray · Radha Manohar</p>
 
 </div>
 
 <p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 700, duration: 500 } }">Three agents are building a checkout page in the background. Let's check in before we wrap.</p>
+
+</div>
 
 <div class="qa-qr-overlay">
   <img src="/qr-code.png" alt="QR code" />
