@@ -546,9 +546,9 @@ li::marker {
 }
 
 .agent-teams-vline {
-  width: 1px;
+  width: var(--line-w, 1px);
   height: 28px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgb(47, 47, 52);
   align-self: center;
 }
 
@@ -653,8 +653,8 @@ li::marker {
 .agent-teams-branch-bar {
   position: absolute;
   top: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.15);
+  height: var(--line-w, 1px);
+  background: rgb(47, 47, 52);
 }
 
 .agent-teams-branch-bar-left {
@@ -670,9 +670,9 @@ li::marker {
 .agent-teams-branch-drop {
   position: absolute;
   top: 0;
-  width: 1px;
+  width: var(--line-w, 1px);
   height: 28px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgb(47, 47, 52);
 }
 
 .agent-teams-branch-left {
@@ -690,9 +690,9 @@ li::marker {
 }
 
 .agent-teams-tree-stem {
-  width: 1px;
+  width: var(--line-w, 1px);
   height: 28px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgb(47, 47, 52);
 }
 
 .agent-teams-tree-children {
@@ -708,8 +708,8 @@ li::marker {
   top: 0;
   left: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
   right: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
-  height: 1px;
-  background: rgba(255, 255, 255, 0.15);
+  height: var(--line-w, 1px);
+  background: rgb(47, 47, 52);
 }
 
 /* Escalation fill: only the right half (stem → Integrator) lights up */
@@ -719,7 +719,7 @@ li::marker {
   top: 0;
   left: 50%;
   right: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
-  height: 1px;
+  height: var(--line-w, 1px);
   background: var(--bar-fill, transparent);
 }
 
@@ -727,7 +727,7 @@ li::marker {
 .agent-teams-bar-green-left {
   position: absolute;
   top: 0;
-  height: 1px;
+  height: var(--line-w, 1px);
   z-index: 1;
   left: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
   right: 50%;
@@ -740,9 +740,9 @@ li::marker {
 }
 
 .agent-teams-tree-drop {
-  width: 1px;
+  width: var(--line-w, 1px);
   height: 28px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgb(47, 47, 52);
 }
 
 .agent-teams-legend {

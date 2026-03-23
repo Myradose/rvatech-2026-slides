@@ -15,7 +15,7 @@
  *   - Step 3 (2.1-2.7s): Left copy slides in
  *   - Step 4 (2.4-3.0s): Right copy slides in
  */
-import { reactive, computed, watch, onMounted } from 'vue'
+import { reactive, computed, watch, ref, onMounted, onUnmounted } from 'vue'
 import { useNav, useSlideContext, onSlideEnter, onSlideLeave } from '@slidev/client'
 import gsap from 'gsap'
 
@@ -160,6 +160,15 @@ const RED: [number, number, number] = [239, 68, 68]
 const GREEN: [number, number, number] = [16, 185, 129]
 const TEXT_BRIGHT: [number, number, number] = [232, 232, 237]
 
+// Pre-composited line colors (on #0a0a0f background)
+const LINE_GRAY: [number, number, number] = [47, 47, 52]
+const LINE_RED: [number, number, number] = [147, 45, 47]
+const LINE_GREEN: [number, number, number] = [14, 115, 83]
+
+const LINE_GRAY_CSS = `rgb(${LINE_GRAY.join(', ')})`
+const LINE_RED_CSS = `rgb(${LINE_RED.join(', ')})`
+const LINE_GREEN_CSS = `rgb(${LINE_GREEN.join(', ')})`
+
 function lerpRgb(from: readonly number[], to: readonly number[], t: number): string {
   return `rgb(${Math.round(from[0] + (to[0] - from[0]) * t)}, ${Math.round(from[1] + (to[1] - from[1]) * t)}, ${Math.round(from[2] + (to[2] - from[2]) * t)})`
 }
@@ -240,67 +249,56 @@ function workerGlowStyle(): Record<string, string> {
 
 /** Vertical line fill: red rises from bottom to top */
 function vlineFill(fill: number): string {
-  if (fill <= 0) return 'rgba(255, 255, 255, 0.15)'
-  if (fill >= 1) return 'rgba(239, 68, 68, 0.6)'
+  if (fill <= 0) return LINE_GRAY_CSS
+  if (fill >= 1) return LINE_RED_CSS
   const pct = (1 - fill) * 100
-  return `linear-gradient(rgba(255, 255, 255, 0.15) ${pct}%, rgba(239, 68, 68, 0.6) ${pct}%)`
+  return `linear-gradient(${LINE_GRAY_CSS} ${pct}%, ${LINE_RED_CSS} ${pct}%)`
 }
 
 /** Horizontal bar fill: red sweeps right-to-left (Integrator → stem) */
 function hbarFill(fill: number): string {
   if (fill <= 0) return 'transparent'
-  if (fill >= 1) return 'rgba(239, 68, 68, 0.6)'
+  if (fill >= 1) return LINE_RED_CSS
   const pct = (1 - fill) * 100
-  return `linear-gradient(to left, rgba(239, 68, 68, 0.6) ${100 - pct}%, transparent ${100 - pct}%)`
+  return `linear-gradient(to left, ${LINE_RED_CSS} ${100 - pct}%, transparent ${100 - pct}%)`
 }
 
 /** Vertical line fill: green descends from top to bottom */
 function greenVlineFill(fill: number): string {
-  if (fill <= 0) return 'rgba(255, 255, 255, 0.15)'
-  if (fill >= 1) return 'rgba(16, 185, 129, 0.6)'
+  if (fill <= 0) return LINE_GRAY_CSS
+  if (fill >= 1) return LINE_GREEN_CSS
   const pct = fill * 100
-  return `linear-gradient(rgba(16, 185, 129, 0.6) ${pct}%, rgba(255, 255, 255, 0.15) ${pct}%)`
+  return `linear-gradient(${LINE_GREEN_CSS} ${pct}%, ${LINE_GRAY_CSS} ${pct}%)`
 }
 
 /** Blend any line color toward base gray based on colorFadeout */
 function fadeToGray(color: string): string {
   const f = state.colorFadeout
   if (f <= 0) return color
-  if (f >= 1) return 'rgba(255, 255, 255, 0.15)'
-  // Parse rgba values and lerp toward gray (255, 255, 255, 0.15)
+  if (f >= 1) return LINE_GRAY_CSS
   const m = color.match(/[\d.]+/g)
-  if (!m || m.length < 4) return color
-  const [r, g, b, a] = m.map(Number)
-  return `rgba(${Math.round(r + (255 - r) * f)}, ${Math.round(g + (255 - g) * f)}, ${Math.round(b + (255 - b) * f)}, ${+(a + (0.15 - a) * f).toFixed(3)})`
+  if (!m || m.length < 3) return color
+  const [r, g, b] = m.map(Number)
+  return lerpRgb([r, g, b], LINE_GRAY, f)
 }
 
 /** Interpolate red toward gray based on redLineFade */
 function fadedRed(): string {
-  const f = state.redLineFade
-  if (f <= 0) return 'rgba(239, 68, 68, 0.6)'
-  if (f >= 1) return 'rgba(255, 255, 255, 0.15)'
-  const r = Math.round(239 + (255 - 239) * f)
-  const g = Math.round(68 + (255 - 68) * f)
-  const b = Math.round(68 + (255 - 68) * f)
-  const a = +(0.6 - 0.45 * f).toFixed(3)
-  return `rgba(${r}, ${g}, ${b}, ${a})`
+  return lerpRgb(LINE_RED, LINE_GRAY, state.redLineFade)
 }
 
 /** Combined vline: green traces top-down over existing red */
 function combinedVline(redFill: number, greenFill: number): string {
-  let result: string
   if (greenFill > 0 && redFill > 0) {
     const greenPct = greenFill * 100
-    const green = 'rgba(16, 185, 129, 0.6)'
-    result = `linear-gradient(${fadeToGray(green)} ${greenPct}%, ${fadeToGray(fadedRed())} ${greenPct}%)`
-    return result
+    return `linear-gradient(${fadeToGray(LINE_GREEN_CSS)} ${greenPct}%, ${fadeToGray(fadedRed())} ${greenPct}%)`
   }
   if (greenFill > 0) {
-    if (state.colorFadeout > 0 && greenFill >= 1) return fadeToGray('rgba(16, 185, 129, 0.6)')
+    if (state.colorFadeout > 0 && greenFill >= 1) return fadeToGray(LINE_GREEN_CSS)
     return greenVlineFill(greenFill)
   }
   if (redFill > 0 && state.redLineFade > 0) return fadeToGray(fadedRed())
-  if (redFill > 0 && state.colorFadeout > 0 && redFill >= 1) return fadeToGray('rgba(239, 68, 68, 0.6)')
+  if (redFill > 0 && state.colorFadeout > 0 && redFill >= 1) return fadeToGray(LINE_RED_CSS)
   return vlineFill(redFill)
 }
 
@@ -308,7 +306,7 @@ function combinedVline(redFill: number, greenFill: number): string {
 function greenBarLeftFill(): string {
   const fill = state.greenBarLeft
   if (fill <= 0) return 'transparent'
-  const green = fadeToGray('rgba(16, 185, 129, 0.6)')
+  const green = fadeToGray(LINE_GREEN_CSS)
   if (fill >= 1) return green
   const pct = (1 - fill) * 100
   return `linear-gradient(to left, ${green} ${100 - pct}%, transparent ${100 - pct}%)`
@@ -318,14 +316,13 @@ function greenBarLeftFill(): string {
 function rightBarFill(): string {
   const redFill = state.barFill
   const greenRight = state.greenBarRight
-  const rf = state.redLineFade
   if (greenRight > 0) {
     const greenPct = Math.min(greenRight * 33.3, 33.3)
-    const green = fadeToGray('rgba(16, 185, 129, 0.6)')
+    const green = fadeToGray(LINE_GREEN_CSS)
     const remaining = fadeToGray(fadedRed())
     return `linear-gradient(to right, ${green} ${greenPct}%, ${remaining} ${greenPct}%)`
   }
-  if (redFill > 0 && state.colorFadeout > 0 && redFill >= 1) return fadeToGray('rgba(239, 68, 68, 0.6)')
+  if (redFill > 0 && state.colorFadeout > 0 && redFill >= 1) return fadeToGray(LINE_RED_CSS)
   return hbarFill(redFill)
 }
 
@@ -792,14 +789,29 @@ onSlideLeave(() => {
   killActive(); snapToIdle()
 })
 
+const diagramRef = ref<HTMLElement | null>(null)
+let resizeObs: ResizeObserver | null = null
+
+function updateLineWidth() {
+  const el = diagramRef.value
+  if (!el) return
+  const scale = el.getBoundingClientRect().width / el.offsetWidth
+  if (scale > 0) el.style.setProperty('--line-w', `${Math.round(scale) / scale}px`)
+}
+
 onMounted(() => {
   if (isInteractive.value) initSlide()
   else snapToIdle()
+  updateLineWidth()
+  resizeObs = new ResizeObserver(updateLineWidth)
+  if (diagramRef.value) resizeObs.observe(diagramRef.value)
 })
+
+onUnmounted(() => { resizeObs?.disconnect() })
 </script>
 
 <template>
-  <div class="agent-teams-diagram" :style="{ opacity: state.diagramOpacity }">
+  <div ref="diagramRef" class="agent-teams-diagram" :style="{ opacity: state.diagramOpacity }">
     <div class="agent-teams-layout">
       <!-- Human -->
       <div class="agent-teams-level">
