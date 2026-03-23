@@ -629,8 +629,7 @@ layout: statement
 
 # Resources
 
-<div class="resources-layout">
-<div class="resources-list">
+<p class="section-lead" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 100, duration: 400 } }">QR code at the end</p>
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
@@ -642,25 +641,20 @@ layout: statement
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 600, duration: 500 } }">
 
-- **tsk** -- foundation for pocket orchestration
-- **Claude Code Viewer** -- tech stack behind Pocket Manager
-- **Cole Medin** -- Claude Code & agentic engineering
+- **[dtormoen/tsk](https://github.com/dtormoen/tsk-tsk)** -- foundation for pocket orchestration
+- **[Claude Code Router](https://github.com/musistudio/claude-code-router)** -- multi-model routing used in the demo
+- **[Cole Medin](https://www.youtube.com/@ColeMedin)** -- Claude Code & agentic engineering
 
 </div>
 
 <p class="takeaway" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 500 } }">None of this information should be gatekept.</p>
 
-</div>
-<div class="resources-qr" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 400, duration: 600 } }">
-  <img src="/qr-code.png" class="qr-image" alt="QR code" />
-  <span class="qr-label">Scan for all links</span>
-</div>
-</div>
-
 <!--
-- Open source, experimental/POC, not production-ready
+- Everything is open source, experimental/POC, not production-ready
 - Slides available now, recording after summit
-- Shoutouts: tsk, Claude Code Viewer, Cole Medin
+- dtormoen/tsk is the original repo I forked
+- Claude Code Router enabled the multi-model race demo
+- Cole Medin's channel was a key inspiration
 -->
 
 ---
@@ -669,7 +663,7 @@ layout: center
 
 <div style="text-align: center">
 
-# Thank You
+# Acknowledgments
 
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 500 } }">
 
@@ -678,18 +672,30 @@ layout: center
 
 </div>
 
-<p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 700, duration: 500 } }">Three agents are building a checkout page in the background. Let's check in before we wrap.</p>
-
-</div>
-
-<div class="qa-qr-overlay">
-  <img src="/qr-code.png" alt="QR code" />
-  <span class="qr-label">Resources</span>
 </div>
 
 <!--
 - Thank Mike, Dana, Radha at Allianz -- trust, support, autonomy
 - Dana recommended I speak here
-- Open floor for questions
+-->
+
+---
+clicks: 1
+---
+
+<div class="thankyou-slide">
+  <div :class="['thankyou-text', { 'thankyou-text-up': $clicks >= 1 }]">
+    <h1>Thank You</h1>
+    <p class="subtitle" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 400, duration: 500 } }">Three agents are building a checkout page in the background. Let's check in before we wrap.</p>
+  </div>
+  <div :class="['qr-reveal', { 'qr-reveal-shown': $clicks >= 1 }]">
+    <img src="/qr-code.png" alt="QR code" />
+    <span class="qr-label">Scan for all links</span>
+  </div>
+</div>
+
+<!--
+- Thank the audience
 - Check on checkout page agents before wrapping
+- Click to reveal QR code when ready
 -->

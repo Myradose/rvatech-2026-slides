@@ -277,16 +277,26 @@ I hope that by this point I've accomplished my goal of transforming how you all 
 
 ## Slide 23 -- Resources
 
-Everything is open source and linked through that QR code. Fair warning - this is very much experimental, a proof of concept, not production-ready. The presentation slides are available now, and the recording will go up after the summit.
+Everything is open source and linked from the QR code at the end. Fair warning - this is very much experimental, a proof of concept, not production-ready. The presentation slides are available now, and the recording will go up after the summit.
 
-A few shoutouts. tsk provided the baseline that made this proof of concept a reality. The Pocket Manager web app you saw during the demos is built on the Claude Code Viewer project's tech stack. And Cole Medin - if you don't follow him, you should. He's one of the primary reasons I invested so heavily in Claude Code well before the recent hype. His content on Claude Code and agentic engineering has been invaluable.
+A few callouts. tsk provided the baseline that made this proof of concept a reality. Claude Code Router is what made the multi-model race demo possible - it lets you route Claude Code requests to different model providers. And Cole Medin - if you don't follow him, you should. He's one of the primary reasons I invested so heavily in Claude Code well before the recent hype. His content on Claude Code and agentic engineering has been invaluable.
 
 None of this information should be gatekept.
 
 ---
 
-## Slide 24 -- Thank You
+## Slide 24 -- Acknowledgments
 
-Before we open for questions, I want to thank three people. Mike Cleary, Dana McMurray, and Radha Manohar at Allianz Partners. This project wouldn't exist and I wouldn't be here presenting today without their trust, support, and autonomy. I started almost three years ago as an intern who was supposed to be doing documentation work, and almost immediately they gave me the opportunity to transition into the development work I wanted to do. Every step of the way, they've given me the time, support, and resources to explore not just agentic development, but truly everything I've been interested in. Dana is actually the one who recommended I become a speaker here today. So thank you - genuinely.
+I want to thank three people. Mike Cleary, Dana McMurray, and Radha Manohar at Allianz Partners. This project wouldn't exist and I wouldn't be here presenting today without their trust, support, and autonomy. I started almost three years ago as an intern who was supposed to be doing documentation work, and almost immediately they gave me the opportunity to transition into the development work I wanted to do. Every step of the way, they've given me the time, support, and resources to explore not just agentic development, but truly everything I've been interested in. Dana is actually the one who recommended I become a speaker here today. So thank you - genuinely.
 
-Alright, let's open the floor for questions. Remember those checkout page agents we kicked off? Let's check in on them before we wrap up.
+---
+
+## Slide 25 -- Thank You
+
+Thank you all. Remember those checkout page agents we kicked off? Let's check in on them before we wrap up.
+
+(Check on background agents. Take questions.)
+
+(CLICK - QR code reveals)
+
+Everything I showed today, all the source code and resources, is behind this QR code.

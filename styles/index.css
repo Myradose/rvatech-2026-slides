@@ -804,6 +804,17 @@ li::marker {
 }
 
 /* ========================================
+   Resources
+   ======================================== */
+
+.section-lead {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+/* ========================================
    Resources layout
    ======================================== */
 
@@ -1016,7 +1027,7 @@ li::marker {
 }
 
 /* ========================================
-   Q&A slide QR overlay
+   Q&A slide QR overlay (legacy, kept for reference)
    ======================================== */
 
 .qa-qr-overlay {
@@ -1033,4 +1044,56 @@ li::marker {
   width: 160px;
   height: 160px;
   border-radius: 6px;
+}
+
+/* ========================================
+   Thank You slide
+   ======================================== */
+
+.thankyou-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 40px;
+}
+
+.thankyou-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  transition: top 0.6s ease-in-out;
+}
+
+.thankyou-text-up {
+  top: 22%;
+}
+
+.qr-reveal {
+  position: absolute;
+  top: 36%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.5s ease 0.3s;
+}
+
+.qr-reveal-shown {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.qr-reveal img {
+  width: 260px;
+  height: 260px;
+  border-radius: 8px;
 }
