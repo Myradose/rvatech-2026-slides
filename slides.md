@@ -320,27 +320,23 @@ transition: none
 
 # The Challenge
 
-Angular Material needs to be set up. Which AI model handles it best?
+<p class="subtitle">This app needs styling. Which model should I use?</p>
 
-<div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
+<div class="model-options">
 
-- **Claude** - Anthropic
-
+<div v-click v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<p class="model-name">Claude?</p>
 </div>
 
-<div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
-
-- **Gemini** - Google
-
+<div v-click v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<p class="model-name">Gemini?</p>
 </div>
 
-<div v-click v-motion :initial="{ opacity: 0, x: -30 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
-
-- **GPT** - OpenAI
-
+<div v-click v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<p class="model-name">GPT?</p>
 </div>
 
-<p v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="takeaway">Three models. Same task. Let's see what happens.</p>
+</div>
 
 </div>
 
