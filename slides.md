@@ -581,12 +581,12 @@ CLICK 3: Both on roadmap + cloud scaling for horizontal growth
 -->
 
 ---
-clicks: 8
+clicks: 10
 ---
 
 # Agent Teams
 
-<AgentTeamsDiagram :click="1" :roles-reveal-click="2" :roles-click="3" :escalation-click="4" :escalation2-click="5" :escalation3-click="6" :delegation-click="7" :teams-click="8" />
+<AgentTeamsDiagram :click="1" :roles-reveal-click="2" :roles-click="3" :escalation-click="4" :escalation2-click="5" :escalation3-click="6" :delegation-click="7" :delegation2-click="8" :delegation3-click="9" :teams-click="10" />
 
 <!--
 Context: Claude Code agent teams -- what it does, where it falls short
@@ -610,11 +610,17 @@ CLICK 5 - Escalation Step 2: Red flows up to Team Lead
 CLICK 6 - Escalation Step 3: Red reaches Human
 - Perfect moment for human-in-the-loop
 
-CLICK 7 - Delegation: Human decides, flows back down
+CLICK 7 - Delegation Step 1: Human glows green
+- Human has made a decision, ready to send it back down
+
+CLICK 8 - Delegation Step 2: Green flows down to Team Lead
+- Team lead receives the updated plan
+
+CLICK 9 - Delegation Step 3: Green flows down to Workers
 - Not approving commands -- making architectural decisions
 - "That's the kind of HITL that scales."
 
-CLICK 8 - Team of teams: Orchestrator -> multiple Team Leads
+CLICK 10 - Team of teams: Orchestrator -> multiple Team Leads
 - Each team lead owns a feature, orchestrator divides work
 - AGI prediction: orchestrated teams, not one super-model
 - "We're using these models at a fraction of their potential."

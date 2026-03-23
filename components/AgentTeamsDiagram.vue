@@ -10,7 +10,9 @@
  * Phase 3a: Escalation step 1 (Integrator amber → red glow)
  * Phase 3b: Escalation step 2 (Red lines: Integrator → Team Lead)
  * Phase 3c: Escalation step 3 (Red lines: Team Lead → Human)
- * Phase 3d: Delegation flow (Human → Team Lead → Frontend/Backend/Database, green)
+ * Phase 3d: Delegation step 1 (Human glows green)
+ * Phase 3e: Delegation step 2 (Green lines: Human → Team Lead)
+ * Phase 3f: Delegation step 3 (Green lines: Team Lead → Workers)
  * Phase 4: Morph + duplicate (~4s total)
  *   - Step 1 (0-1.2s): Boxes physically morph to mini-box size
  *   - Step 2 (1.3-2.0s): New Orchestrator pushes group down
@@ -29,6 +31,8 @@ const props = withDefaults(defineProps<{
   escalation2Click?: number
   escalation3Click?: number
   delegationClick?: number
+  delegation2Click?: number
+  delegation3Click?: number
   teamsClick?: number
 }>(), {
   click: 1,
@@ -38,7 +42,9 @@ const props = withDefaults(defineProps<{
   escalation2Click: 5,
   escalation3Click: 6,
   delegationClick: 7,
-  teamsClick: 8,
+  delegation2Click: 8,
+  delegation3Click: 9,
+  teamsClick: 10,
 })
 
 const nav = useNav()
@@ -53,7 +59,9 @@ type Phase = 'idle'
   | 'animatingEscalation1' | 'escalation1' | 'reversingEscalation1'
   | 'animatingEscalation2' | 'escalation2' | 'reversingEscalation2'
   | 'animatingEscalation3' | 'escalationComplete' | 'reversingEscalation3'
-  | 'animatingDelegation' | 'delegationComplete' | 'reversingDelegation'
+  | 'animatingDelegation1' | 'delegation1' | 'reversingDelegation1'
+  | 'animatingDelegation2' | 'delegation2' | 'reversingDelegation2'
+  | 'animatingDelegation3' | 'delegationComplete' | 'reversingDelegation3'
   | 'animatingTeams' | 'teams' | 'reversingTeams'
 let phase: Phase = 'idle'
 
@@ -454,6 +462,45 @@ function snapToEscalationComplete() {
   resetDelegationState(); resetMorphState()
 }
 
+function snapToDelegation1() {
+  killActive(); phase = 'delegation1'
+  state.diagramOpacity = 1
+  state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
+  state.integratorAccent = 0; state.orchestratorGlow = 0
+  // Red escalation still fully lit
+  state.pulseHuman = 0; state.pulseOrchestrator = 0.4; state.pulseIntegrator = 0.4
+  state.integratorDropFill = 1; state.barFill = 1; state.stemFill = 1; state.topConnectorFill = 1
+  state.redLineFade = 0
+  // Human glows green bright
+  state.greenHuman = 1
+  state.greenTopFill = 0; state.greenOrchestrator = 0
+  state.greenStemFill = 0; state.greenBarLeft = 0; state.greenBarRight = 0
+  state.greenWorkerDropFill = 0; state.greenWorkers = 0
+  state.colorFadeout = 0
+  resetMorphState()
+}
+
+function snapToDelegation2() {
+  killActive(); phase = 'delegation2'
+  state.diagramOpacity = 1
+  state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
+  state.integratorAccent = 0; state.orchestratorGlow = 0
+  // Red escalation still lit
+  state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0.4
+  state.integratorDropFill = 1; state.barFill = 1; state.stemFill = 1; state.topConnectorFill = 1
+  state.redLineFade = 0
+  // Green: human dimmed, top connector filled, team lead bright
+  state.greenHuman = 0.4
+  state.greenTopFill = 1
+  state.greenOrchestrator = 1
+  state.greenStemFill = 0; state.greenBarLeft = 0; state.greenBarRight = 0
+  state.greenWorkerDropFill = 0; state.greenWorkers = 0
+  state.colorFadeout = 0
+  resetMorphState()
+}
+
 function snapToDelegationComplete() {
   killActive(); phase = 'delegationComplete'
   state.diagramOpacity = 1
@@ -553,32 +600,45 @@ function playEscalation3() {
   // Holds here — everything stays lit until the next click
 }
 
-function playDelegation() {
-  killActive(); phase = 'animatingDelegation'
-  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'delegationComplete' } })
+function playDelegation1() {
+  killActive(); phase = 'animatingDelegation1'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'delegation1' } })
   activeTl = tl
   // Clear red human pulse as green takes over
-  tl.to(state, { pulseHuman: 0, duration: 0.3, ease: 'power2.in' }, 0.3)
-  // Human glows green bright, then dims
-  tl.to(state, { greenHuman: 1, duration: 0.4, ease: 'power2.out' }, 0.3)
-  tl.to(state, { greenHuman: 0.4, duration: 0.4, ease: 'power2.in' }, 0.9)
-  // Top connector fills green (downward, retracing red)
-  tl.to(state, { greenTopFill: 1, duration: 0.4, ease: 'none' }, 1.0)
-  // Team Lead: clear red pulse, glow dim green
-  tl.to(state, { pulseOrchestrator: 0, duration: 0.3, ease: 'power2.in' }, 1.4)
-  tl.to(state, { greenOrchestrator: 0.4, duration: 0.3, ease: 'power2.out' }, 1.4)
-  // Stem fills green (downward, retracing red)
-  tl.to(state, { greenStemFill: 1, duration: 0.4, ease: 'none' }, 1.7)
+  tl.to(state, { pulseHuman: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  // Human glows green bright
+  tl.to(state, { greenHuman: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
+}
+
+function playDelegation2() {
+  killActive(); phase = 'animatingDelegation2'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'delegation2' } })
+  activeTl = tl
+  // Dim human green, flow down to Team Lead
+  tl.to(state, { greenHuman: 0.4, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { greenTopFill: 1, duration: 0.4, ease: 'none' }, 0.3)
+  // Team Lead: clear red pulse, glow green bright
+  tl.to(state, { pulseOrchestrator: 0, duration: 0.3, ease: 'power2.in' }, 0.7)
+  tl.to(state, { greenOrchestrator: 1, duration: 0.3, ease: 'power2.out' }, 0.7)
+}
+
+function playDelegation3() {
+  killActive(); phase = 'animatingDelegation3'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'delegationComplete' } })
+  activeTl = tl
+  // Dim team lead green, flow down to workers
+  tl.to(state, { greenOrchestrator: 0.4, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { greenStemFill: 1, duration: 0.4, ease: 'none' }, 0.3)
   // Bar fills green: left (stem→F) and right (stem→D only, not I)
-  tl.to(state, { greenBarLeft: 1, duration: 0.3, ease: 'none' }, 2.1)
-  tl.to(state, { greenBarRight: 1, duration: 0.3, ease: 'none' }, 2.1)
+  tl.to(state, { greenBarLeft: 1, duration: 0.3, ease: 'none' }, 0.7)
+  tl.to(state, { greenBarRight: 1, duration: 0.3, ease: 'none' }, 0.7)
   // Worker drops fill green (F, B, D simultaneously)
-  tl.to(state, { greenWorkerDropFill: 1, duration: 0.4, ease: 'none' }, 2.4)
+  tl.to(state, { greenWorkerDropFill: 1, duration: 0.4, ease: 'none' }, 1.0)
   // F, B, D glow green bright
-  tl.to(state, { greenWorkers: 1, duration: 0.4, ease: 'power2.out' }, 2.8)
+  tl.to(state, { greenWorkers: 1, duration: 0.4, ease: 'power2.out' }, 1.4)
   // Remaining red (integrator drop, bar D→I, integrator pulse) fades to gray
-  tl.to(state, { pulseIntegrator: 0, duration: 0.4, ease: 'power2.in' }, 3.0)
-  tl.to(state, { redLineFade: 1, duration: 0.6, ease: 'power2.inOut' }, 3.0)
+  tl.to(state, { pulseIntegrator: 0, duration: 0.4, ease: 'power2.in' }, 1.6)
+  tl.to(state, { redLineFade: 1, duration: 0.6, ease: 'power2.inOut' }, 1.6)
 }
 
 function playTeams() {
@@ -674,19 +734,39 @@ function reverseEscalation3() {
   tl.to(state, { topConnectorFill: 0, duration: 0.3, ease: 'none' }, 0.1)
 }
 
-function reverseDelegation() {
-  killActive(); phase = 'reversingDelegation'
+function reverseDelegation1() {
+  killActive(); phase = 'reversingDelegation1'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToEscalationComplete() } })
+  activeTl = tl
+  // Fade green human out, restore red human pulse
+  tl.to(state, { greenHuman: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { pulseHuman: 1, duration: 0.3, ease: 'power2.out' }, 0.2)
+}
+
+function reverseDelegation2() {
+  killActive(); phase = 'reversingDelegation2'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToDelegation1() } })
+  activeTl = tl
+  // Fade team lead green out, unfill top connector, restore red pulse on team lead
+  tl.to(state, { greenOrchestrator: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { greenTopFill: 0, duration: 0.3, ease: 'none' }, 0.1)
+  tl.to(state, { pulseOrchestrator: 0.4, duration: 0.3, ease: 'power2.out' }, 0.3)
+  tl.to(state, { greenHuman: 1, duration: 0.3, ease: 'power2.out' }, 0.3)
+}
+
+function reverseDelegation3() {
+  killActive(); phase = 'reversingDelegation3'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToDelegation2() } })
   activeTl = tl
   // Restore red lines from gray
   tl.to(state, { redLineFade: 0, duration: 0.3, ease: 'power2.in' }, 0)
-  // Fade out green glows and fills
+  tl.to(state, { pulseIntegrator: 0.4, duration: 0.3, ease: 'power2.out' }, 0)
+  // Fade out worker greens and line fills
   tl.to(state, { greenWorkers: 0, duration: 0.3, ease: 'power2.in' }, 0)
   tl.to(state, { greenWorkerDropFill: 0, greenBarLeft: 0, greenBarRight: 0, duration: 0.3, ease: 'power2.in' }, 0)
-  tl.to(state, { greenStemFill: 0, greenOrchestrator: 0, duration: 0.3, ease: 'power2.in' }, 0.1)
-  tl.to(state, { greenTopFill: 0, greenHuman: 0, duration: 0.3, ease: 'power2.in' }, 0.2)
-  // Restore red pulses
-  tl.to(state, { pulseHuman: 1, pulseOrchestrator: 0.4, pulseIntegrator: 0.4, duration: 0.3, ease: 'power2.out' }, 0.4)
+  tl.to(state, { greenStemFill: 0, duration: 0.3, ease: 'power2.in' }, 0.1)
+  // Restore team lead to bright green
+  tl.to(state, { greenOrchestrator: 1, duration: 0.3, ease: 'power2.out' }, 0.3)
 }
 
 function reverseTeams() {
@@ -745,8 +825,16 @@ function handleForward(clicks: number) {
     case 'animatingEscalation3': case 'reversingEscalation3':
       snapToEscalationComplete(); break
     case 'escalationComplete':
-      if (clicks >= props.delegationClick) playDelegation(); break
-    case 'animatingDelegation': case 'reversingDelegation':
+      if (clicks >= props.delegationClick) playDelegation1(); break
+    case 'animatingDelegation1': case 'reversingDelegation1':
+      snapToDelegation1(); break
+    case 'delegation1':
+      if (clicks >= props.delegation2Click) playDelegation2(); break
+    case 'animatingDelegation2': case 'reversingDelegation2':
+      snapToDelegation2(); break
+    case 'delegation2':
+      if (clicks >= props.delegation3Click) playDelegation3(); break
+    case 'animatingDelegation3': case 'reversingDelegation3':
       snapToDelegationComplete(); break
     case 'delegationComplete':
       if (clicks >= props.teamsClick) playTeams(); break
@@ -762,8 +850,16 @@ function handleBackward(clicks: number) {
     case 'animatingTeams': case 'reversingTeams':
       snapToDelegationComplete(); break
     case 'delegationComplete':
-      if (clicks < props.delegationClick) reverseDelegation(); break
-    case 'animatingDelegation': case 'reversingDelegation':
+      if (clicks < props.delegation3Click) reverseDelegation3(); break
+    case 'animatingDelegation3': case 'reversingDelegation3':
+      snapToDelegation2(); break
+    case 'delegation2':
+      if (clicks < props.delegation2Click) reverseDelegation2(); break
+    case 'animatingDelegation2': case 'reversingDelegation2':
+      snapToDelegation1(); break
+    case 'delegation1':
+      if (clicks < props.delegationClick) reverseDelegation1(); break
+    case 'animatingDelegation1': case 'reversingDelegation1':
       snapToEscalationComplete(); break
     case 'escalationComplete':
       if (clicks < props.escalation3Click) reverseEscalation3(); break
@@ -814,7 +910,9 @@ function skipAnimForward() {
     case 'animatingEscalation1': snapToEscalation1(); break
     case 'animatingEscalation2': snapToEscalation2(); break
     case 'animatingEscalation3': snapToEscalationComplete(); break
-    case 'animatingDelegation': snapToDelegationComplete(); break
+    case 'animatingDelegation1': snapToDelegation1(); break
+    case 'animatingDelegation2': snapToDelegation2(); break
+    case 'animatingDelegation3': snapToDelegationComplete(); break
     case 'animatingTeams': snapToTeams(); break
   }
 }
@@ -850,7 +948,9 @@ function initSlide() {
   window.addEventListener('click', onClickCapture, { capture: true })
   const clicks = nav.clicks.value
   if (clicks >= props.teamsClick) snapToTeams()
-  else if (clicks >= props.delegationClick) snapToDelegationComplete()
+  else if (clicks >= props.delegation3Click) snapToDelegationComplete()
+  else if (clicks >= props.delegation2Click) snapToDelegation2()
+  else if (clicks >= props.delegationClick) snapToDelegation1()
   else if (clicks >= props.escalation3Click) snapToEscalationComplete()
   else if (clicks >= props.escalation2Click) snapToEscalation2()
   else if (clicks >= props.escalationClick) snapToEscalation1()
