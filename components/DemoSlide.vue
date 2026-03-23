@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * DemoSlide — CSS-transitioned title with Pocket Manager reveal.
+ * DemoSlide -- CSS-transitioned title with Pocket Manager reveal.
  *
  * Accepts `clicks` as a prop (from $clicks) so the portal preview
  * renders the correct state (slide-scoped, not global nav).

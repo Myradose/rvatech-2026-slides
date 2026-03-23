@@ -921,6 +921,51 @@ li::marker {
   border: none;
 }
 
+.demo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text-muted);
+  gap: 0.75rem;
+}
+
+.demo-placeholder-icon {
+  opacity: 0.4;
+}
+
+.demo-placeholder-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.demo-placeholder-hint {
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+.demo-toggle-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.demo-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-text);
+}
+
 /* ========================================
    Isolated environments title
    ======================================== */
