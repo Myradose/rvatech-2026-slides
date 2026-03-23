@@ -14,7 +14,7 @@ defaults:
   transition: slide-fade
 drawings:
   enabled: false
-download: true
+download: false
 presenter: true
 ---
 
