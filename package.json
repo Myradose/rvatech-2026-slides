@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "slidev",
-    "build": "slidev build",
+    "build": "slidev build --base /rvatech-2026-slides/",
     "export": "slidev export"
   },
   "dependencies": {

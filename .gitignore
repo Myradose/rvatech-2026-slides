@@ -10,6 +10,14 @@ reference/
 # Playwright CLI artifacts
 .playwright-cli/
 
+# AI agent tooling
+CLAUDE.md
+.claude/
+DESIGN.md
+ANIMATION_PATTERNS.md
+SLIDE_OUTLINE.md
+STACK.md
+
 # OS files
 .DS_Store
 Thumbs.db
