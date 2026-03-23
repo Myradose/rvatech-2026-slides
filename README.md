@@ -7,9 +7,9 @@ Slidev presentation for **"The Doctor Strange Approach to Parallel Agent Orchest
 ## Commands
 
 ```bash
-npm run dev      # Preview at localhost:3017
-npm run build    # Build static site
-npm run export   # Export to PDF
+bun run dev      # Preview at localhost:3017
+bun run build    # Build static site
+bun run export   # Export to PDF
 ```
 
 ## Key Locations
