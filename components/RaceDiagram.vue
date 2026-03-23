@@ -47,56 +47,26 @@ const barState = reactive(
   }))
 )
 
-// Each lane has segments: [targetPercent, duration, ease]
+// Each lane: continuous tween with custom speed curve
+// curve(t) maps normalized time (0→1) to normalized progress (0→1)
+// Different exponents create lead changes:
+//   < 1 = fast start, slow finish (early leader)
+//   > 1 = slow start, fast finish (comes from behind)
+const RACE_DURATION = 3.5
 const lanes = [
-  {
-    label: 'Agent A',
-    winner: false,
-    segments: [
-      [35, 0.7, 'power3.in'],
-      [42, 0.9, 'power1.out'],
-      [45, 1.0, 'power1.inOut'],
-      [48, 1.2, 'power1.out'],
-      [55, 0.8, 'power2.in'],
-      [58, 1.0, 'power1.out'],
-      [62, 0.8, 'power1.inOut'],
-      [65, 0.8, 'power2.out'],
-    ] as [number, number, string][],
-  },
-  {
-    label: 'Agent B',
-    winner: true,
-    segments: [
-      [15, 1.0, 'power2.in'],
-      [25, 0.8, 'power1.out'],
-      [30, 1.2, 'power1.inOut'],
-      [55, 1.0, 'power2.in'],
-      [60, 0.8, 'power1.out'],
-      [75, 0.6, 'power2.in'],
-      [90, 0.7, 'power2.inOut'],
-      [100, 0.6, 'power3.out'],
-    ] as [number, number, string][],
-  },
-  {
-    label: 'Agent C',
-    winner: false,
-    segments: [
-      [25, 0.8, 'power2.in'],
-      [45, 0.9, 'power1.out'],
-      [60, 1.0, 'power2.inOut'],
-      [65, 1.0, 'power1.out'],
-      [70, 1.2, 'power1.inOut'],
-      [75, 0.8, 'power1.out'],
-      [80, 0.7, 'power2.out'],
-      [85, 0.8, 'power1.out'],
-    ] as [number, number, string][],
-  },
+  { label: 'Agent A', winner: false, finalPercent: 55,
+    curve: (t: number) => Math.pow(t, 0.35) },   // rockets out early, stalls fast
+  { label: 'Agent B', winner: true, finalPercent: 100,
+    curve: (t: number) => Math.pow(t, 1.8) },    // slow start, late surge
+  { label: 'Agent C', winner: false, finalPercent: 85,
+    curve: (t: number) => Math.pow(t, 1.0) },    // linear and steady, overtaken late
 ]
 
-// Pre-compute the race-end width for each loser
+// Proxy objects for GSAP to tween — drives barState width via onUpdate
+const laneProgress = lanes.map(() => ({ value: 0 }))
+
 function loserFinalWidth(i: number): string {
-  const segs = lanes[i].segments
-  return `${segs[segs.length - 1][0]}%`
+  return `${lanes[i].finalPercent}%`
 }
 
 function killActive() {
@@ -114,6 +84,7 @@ function snapToIdle() {
     barState[i].laneOpacity = '1'
     barState[i].checkOpacity = '0'
     barState[i].checkScale = 'scale(0.5)'
+    laneProgress[i].value = 0
   }
 }
 
@@ -122,6 +93,7 @@ function snapToRaceComplete() {
   phase = 'raceComplete'
   lanes.forEach((lane, i) => {
     const state = barState[i]
+    laneProgress[i].value = lane.finalPercent
     if (lane.winner) {
       state.width = '100%'
       state.background = GREEN
@@ -143,6 +115,7 @@ function snapToCompareComplete() {
   phase = 'compareComplete'
   lanes.forEach((_lane, i) => {
     const state = barState[i]
+    laneProgress[i].value = 100
     state.width = '100%'
     state.background = GREEN
     state.laneOpacity = '1'
@@ -160,36 +133,33 @@ function playRace() {
     onComplete: () => { activeTl = null; phase = 'raceComplete' },
   })
   activeTl = tl
-  let winnerFinishTime = 0
 
   lanes.forEach((lane, i) => {
     const state = barState[i]
-    let prevTarget = 0
-    let offset = 0
+    const prog = laneProgress[i]
+    prog.value = 0
 
-    for (const [target, duration, ease] of lane.segments) {
-      const from = prevTarget
-      tl.to(state, {
-        width: `${target}%`,
-        duration,
-        ease,
-        onStart() { state.width = `${from}%` },
-      }, offset)
-      prevTarget = target
-      offset += duration
-    }
-
-    if (lane.winner) {
-      winnerFinishTime = offset
-      tl.to(state, { background: GREEN, duration: 0.3, ease: 'power2.out' }, offset - 0.1)
-      tl.to(state, { checkOpacity: '1', checkScale: 'scale(1)', duration: 0.3, ease: 'back.out(2)' }, offset - 0.1)
-    }
+    // Single continuous tween: t goes 0→1 linearly, curve shapes the speed
+    tl.to(prog, {
+      value: 1,
+      duration: RACE_DURATION,
+      ease: 'none',
+      onUpdate() {
+        state.width = `${lane.finalPercent * lane.curve(prog.value)}%`
+      },
+    }, 0)
   })
 
+  // Winner celebration at race end
+  const winnerIdx = lanes.findIndex(l => l.winner)
+  tl.to(barState[winnerIdx], { background: GREEN, duration: 0.3, ease: 'power2.out' }, RACE_DURATION - 0.1)
+  tl.to(barState[winnerIdx], { checkOpacity: '1', checkScale: 'scale(1)', duration: 0.3, ease: 'back.out(2)' }, RACE_DURATION - 0.1)
+
+  // Losers turn red at the same moment winner turns green, hold, then dim
   lanes.forEach((lane, i) => {
     if (lane.winner) return
-    tl.to(barState[i], { background: RED, duration: 0.4, ease: 'power2.out' }, winnerFinishTime + 0.1)
-    tl.to(barState[i], { laneOpacity: '0.3', duration: 0.6, ease: 'power2.inOut' }, winnerFinishTime + 1.2)
+    tl.to(barState[i], { background: RED, duration: 0.2, ease: 'power2.out' }, RACE_DURATION - 0.1)
+    tl.to(barState[i], { laneOpacity: '0.3', duration: 0.5, ease: 'power2.inOut' }, RACE_DURATION + 0.8)
   })
 }
 
@@ -304,62 +274,6 @@ function handleBackward(clicks: number) {
   }
 }
 
-// --- Event interception during animations ---
-// Block Slidev from seeing navigation events during animations so that
-// skipping an animation doesn't also advance/retreat the click counter.
-
-const FORWARD_KEYS = ['ArrowRight', 'ArrowDown', ' ', 'Enter', 'PageDown']
-const BACKWARD_KEYS = ['ArrowLeft', 'ArrowUp', 'PageUp']
-
-function isAnimating(): boolean {
-  return phase === 'racing' || phase === 'comparing'
-    || phase === 'reversingRace' || phase === 'reversingCompare'
-}
-
-function blockEvent(e: Event) {
-  e.preventDefault()
-  e.stopPropagation()
-  e.stopImmediatePropagation()
-}
-
-function skipAnim(forward: boolean) {
-  switch (phase) {
-    case 'racing':
-      if (forward) snapToRaceComplete()
-      else snapToIdle()
-      break
-    case 'comparing':
-      if (forward) snapToCompareComplete()
-      else snapToRaceComplete()
-      break
-    case 'reversingRace':
-      if (forward) snapToRaceComplete()
-      else snapToIdle()
-      break
-    case 'reversingCompare':
-      if (forward) snapToCompareComplete()
-      else snapToRaceComplete()
-      break
-  }
-}
-
-function onKeydownCapture(e: KeyboardEvent) {
-  if (!active || !isAnimating()) return
-  const isForward = FORWARD_KEYS.includes(e.key)
-  const isBackward = BACKWARD_KEYS.includes(e.key)
-  if (!isForward && !isBackward) return
-  blockEvent(e)
-  skipAnim(isForward)
-}
-
-function onClickCapture(e: MouseEvent) {
-  if (!active || !isAnimating()) return
-  const target = e.target as HTMLElement
-  if (target.closest('.slidev-nav, nav, button, a')) return
-  blockEvent(e)
-  skipAnim(true)
-}
-
 let active = false
 
 watch(() => nav.clicks.value, (clicks, prev) => {
@@ -373,8 +287,6 @@ watch(() => nav.clicks.value, (clicks, prev) => {
 onSlideEnter(() => {
   if (!isInteractive.value || active) return
   active = true
-  window.addEventListener('keydown', onKeydownCapture, { capture: true })
-  window.addEventListener('click', onClickCapture, { capture: true })
   const clicks = nav.clicks.value
   if (props.compareClick && clicks >= props.compareClick) {
     snapToCompareComplete()
@@ -388,8 +300,6 @@ onSlideEnter(() => {
 onSlideLeave(() => {
   if (!isInteractive.value) return
   active = false
-  window.removeEventListener('keydown', onKeydownCapture, { capture: true })
-  window.removeEventListener('click', onClickCapture, { capture: true })
   killActive()
   snapToIdle()
 })
