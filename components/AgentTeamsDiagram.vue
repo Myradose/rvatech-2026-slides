@@ -365,7 +365,6 @@ function resetMorphState() {
 }
 
 function resetEscalationState() {
-  state.orchestratorGlow = 1
   state.integratorDropFill = 0
   state.barFill = 0
   state.stemFill = 0
@@ -392,7 +391,7 @@ function snapToIdle() {
   state.diagramOpacity = 0
   state.genericLabelOpacity = 1; state.roleLabelOpacity = 0
   state.workerTextEmphasis = 0
-  state.integratorAccent = 0
+  state.integratorAccent = 0; state.orchestratorGlow = 0
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState(); resetMorphState()
 }
@@ -402,7 +401,7 @@ function snapToPhase1() {
   state.diagramOpacity = 1
   state.genericLabelOpacity = 1; state.roleLabelOpacity = 0
   state.workerTextEmphasis = 0
-  state.integratorAccent = 0
+  state.integratorAccent = 0; state.orchestratorGlow = 1
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState(); resetMorphState()
 }
@@ -422,10 +421,9 @@ function snapToPhase2() {
   state.diagramOpacity = 1
   state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
   state.workerTextEmphasis = 0
-  state.integratorAccent = 1
+  state.integratorAccent = 1; state.orchestratorGlow = 0
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState(); resetMorphState()
-  state.orchestratorGlow = 0
 }
 
 function snapToEscalation1() {
@@ -546,7 +544,8 @@ function playPhase1() {
   killActive(); phase = 'animatingPhase1'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'phase1' } })
   activeTl = tl
-  tl.to(state, { diagramOpacity: 1, duration: 0.5, ease: 'power2.out' })
+  tl.to(state, { diagramOpacity: 1, duration: 0.5, ease: 'power2.out' }, 0)
+  tl.to(state, { orchestratorGlow: 1, duration: 0.4, ease: 'power2.out' }, 0.3)
 }
 
 function playRolesReveal() {
@@ -687,7 +686,8 @@ function reversePhase1() {
   killActive(); phase = 'reversingPhase1'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToIdle() } })
   activeTl = tl
-  tl.to(state, { diagramOpacity: 0, duration: 0.4, ease: 'power2.in' })
+  tl.to(state, { orchestratorGlow: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { diagramOpacity: 0, duration: 0.4, ease: 'power2.in' }, 0.1)
 }
 
 function reverseRolesReveal() {
