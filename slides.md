@@ -381,30 +381,45 @@ RESULTS:
 -->
 
 ---
+clicks: 4
 ---
 
 # How It Works
 
-<div class="env-visual">
-  <GlowReveal><div class="env-host-box" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 400 } }"><carbon:laptop /><span>Your Machine</span></div></GlowReveal>
-  <div class="env-arrows" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 500, duration: 300 } }">
-    <span class="env-arrow-down">↓</span>
-    <span class="env-arrow-label">tsk run</span>
-    <span class="env-arrow-up">↑</span>
-    <span class="env-arrow-label">git branches</span>
+<div class="arch-visual">
+  <div class="arch-row">
+    <GlowReveal><div class="env-host-box"><carbon:application-web /><span>Pocket Manager</span></div></GlowReveal>
   </div>
-  <div class="env-containers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 800, duration: 400 } }">
+  <div v-click="1" class="arch-connector" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { duration: 300 } }">
+    <span class="arch-arrow">↓</span>
+    <span class="arch-label">HTTP</span>
+  </div>
+  <div v-click="1" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+    <div class="arch-box"><carbon:terminal /><span>tsk</span></div>
+  </div>
+  <div v-click="2" class="arch-connector" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { duration: 300 } }">
+    <span class="arch-arrow">↓</span>
+    <span class="arch-label">Docker</span>
+  </div>
+  <div v-click="2" class="env-containers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
     <div class="env-box"><carbon:container-software /><span>Claude</span></div>
     <div class="env-box"><carbon:container-software /><span>Gemini</span></div>
     <div class="env-box"><carbon:container-software /><span>GPT</span></div>
   </div>
+  <div v-click="3" class="arch-pocket-detail" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { duration: 400 } }">
+    Claude Code config, application stack, init script
+  </div>
+  <div v-click="4" class="arch-cli-note" v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
+    <carbon:branch /><span>Pull changes back with <strong>tsk</strong> CLI git commands</span>
+  </div>
 </div>
 
 <!--
-- Each model in its own Docker container, fully isolated
-- Pocket Manager = real-time observability
-- Pull git branches out to review results
-- Keep brisk (15-20 sec) -- confirmation, not discovery
+- CLICK 0: Pocket Manager appears -- "This is the UI you just saw"
+- CLICK 1: tsk server -- "Behind the scenes, Pocket Manager talks to tsk over HTTP"
+- CLICK 2: Containers -- "tsk spins up Docker containers, each a full dev environment"
+- CLICK 3: Pocket detail -- "Each pocket has your Claude Code config, packages, init script"
+- CLICK 4: CLI note -- "To pull changes back, you use tsk's git commands"
 -->
 
 ---

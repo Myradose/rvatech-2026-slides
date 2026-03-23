@@ -380,6 +380,81 @@ li::marker {
    Environment visual (isolated environments)
    ======================================== */
 
+.arch-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 2.5rem;
+}
+
+.arch-row {
+  display: flex;
+  justify-content: center;
+}
+
+.arch-connector {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.arch-arrow {
+  font-size: 1rem;
+}
+
+.arch-label {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.arch-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.arch-box svg {
+  font-size: 1.1rem;
+  color: var(--color-accent);
+}
+
+.arch-box span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.arch-pocket-detail {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.arch-cli-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.arch-cli-note svg {
+  color: var(--color-accent);
+  font-size: 1rem;
+}
+
+.arch-cli-note strong {
+  color: var(--color-text);
+}
+
 .env-visual {
   display: flex;
   flex-direction: column;
@@ -439,6 +514,7 @@ li::marker {
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 2rem;
+  min-width: 7rem;
   background: var(--color-bg-light);
   border: 1px solid var(--color-border);
   border-radius: 8px;
