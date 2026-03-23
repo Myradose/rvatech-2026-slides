@@ -101,39 +101,39 @@ Maps the talk script to a rough slide structure. Each entry notes the visual app
 
 ---
 
-## Section 5: What If? (slides 17-20)
+## Section 5: What If? (slides 17-19)
 
 ### Slide 17 — "What If?" (section break)
 **Content:** Transition into the speculative section. Notes reference all three demos the audience just watched.
 **Visual:** AnimatedText section break.
 **Animation:** Word-by-word reveal.
 
-### Slide 18 — What If: Architect Agents
-**Content:** What if an agent designed the pockets for other agents? Instead of you specifying paths, an architect agent generates design options and creates pocket prompts.
-**Visual:** Diagram — architect agent at top, spawning worker agents below.
-**Animation:** GSAP builds the hierarchy.
-
-### Slide 19 — What If: Race & Compare
+### Slide 18 — What If: Race & Compare
 **Content:** Multiple agents same pocket — first one wins. Multiple LLMs same pocket — compare which is best. Multiple approaches same goal — best implementation wins.
 **Visual:** Racing lanes or parallel arrows converging.
 **Animation:** Staggered bullet reveals.
 
-### Slide 20 — What If: Beyond Developers
+### Slide 19 — What If: Beyond Developers
 **Content:** What if anyone in the organization could use these AI workflows, not just developers? Powerful AI skills exist (presentations, data analysis, document generation) but require a terminal and developer knowledge. The pattern: simple frontend → SDK agent → pocket. The developer builds the workflow once, the entire org benefits.
 **Visual:** Two-column layout — bullet points on the left, vertical flow diagram on the right (Employee → Simple Frontend → SDK Agent (highlighted) → Pocket).
 **Animation:** Bullets v-click on left, diagram slides in from right.
 
 ---
 
-## Section 6: Close (slides 21-24)
+## Section 6: Close (slides 20-24)
 
-### Slide 21 — Looking Ahead
-**Content:** Agent teams (orchestrator/developer/integrator roles coordinating through git) and rewind timeline (instant Btrfs snapshots before every tool call, branching DAG). Two cards side by side. Footer mentions cloud scaling.
+### Slide 20 — Looking Ahead
+**Content:** Rewind timeline (instant Btrfs snapshots before every tool call, branching DAG) and environment self-improvement (agents shape their own workspace, request rebuilds). Two cards side by side. Footer mentions cloud scaling.
 **Visual:** Minimal, forward-looking. Clean text with accent highlights.
 **Animation:** Simple staggered reveals.
 
+### Slide 21 — Agent Teams
+**Content:** 4-click progressive diagram build showing the vision for agent team infrastructure. Foundation (Human → Orchestrator → A/B/C/D), roles emerge (Frontend/Backend/Database/Integrator), escalation pulse, team-of-teams transformation (3 Team Leads under new Orchestrator with abbreviated roles). Speaker notes cover Claude Code's experimental feature, filesystem sharing limitations, and the AGI prediction.
+**Visual:** Hierarchical diagram that evolves across 4 clicks. Single team crossfades to team-of-teams layout.
+**Animation:** Rich — multi-step GSAP diagram with label crossfades, escalation pulse, and structural transformation.
+
 ### Slide 22 — Developer as Architect
-**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand? Emotional peak of the close, lands while energy is high.
+**Content:** The vision — what if developers designed *how* features get built instead of building every one by hand? Emotional peak of the close, calls back to slide 1's opening goal.
 **Visual:** Key quote/statement. Larger typography.
 **Animation:** Text reveal, word-by-word with GSAP.
 
@@ -156,6 +156,6 @@ Rough classification of how much animation effort each slide gets:
 | Level | Slides | Description |
 |-------|--------|-------------|
 | **Hero** | 12 (portal) | Three.js 3D portal, major production |
-| **Rich** | 1, 5, 8, 14, 18, 22 | Multi-step GSAP timelines, diagram builds |
+| **Rich** | 1, 5, 8, 14, 18, 21, 22 | Multi-step GSAP timelines, diagram builds |
 | **Standard** | 3-4, 6-7, 9, 11, 19-20 | Simple GSAP fades, staggers, reveals |
-| **Minimal** | 2, 10, 13, 15-17, 21, 23-24 | Basic transitions, static content |
+| **Minimal** | 2, 10, 13, 15-17, 23-24 | Basic transitions, static content |

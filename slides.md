@@ -494,39 +494,6 @@ transition: section
 -->
 
 ---
-
-# What If: Architect Agents
-
-<div v-click v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-
-> What if instead of writing prompts ourselves, we asked an agent to **design and spawn the pockets** for us?
-
-</div>
-
-<span v-click class="hidden" />
-<div v-if="$clicks >= 2" class="architect-diagram">
-  <div class="architect-input" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 0, duration: 400 } }"><carbon:user /><span>Your goal</span></div>
-  <div class="env-arrows" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 300, duration: 300 } }">
-    <span class="env-arrow-down">↓</span>
-  </div>
-  <GlowReveal><div class="architect-box" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 400 } }"><carbon:machine-learning-model /><span>Architect Agent</span></div></GlowReveal>
-  <div class="env-arrows" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { delay: 800, duration: 300 } }">
-    <span class="env-arrow-down">↓</span>
-    <span class="env-arrow-label">designs &amp; spawns</span>
-  </div>
-  <div class="architect-workers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 400 } }">
-    <div class="architect-worker"><carbon:container-software /><span>Pocket A</span></div>
-    <div class="architect-worker"><carbon:container-software /><span>Pocket B</span></div>
-    <div class="architect-worker"><carbon:container-software /><span>Pocket C</span></div>
-    <div class="architect-worker architect-worker-extra"><span>...</span></div>
-  </div>
-</div>
-
-<!--
-In those demos, I wrote the prompts and set up each pocket myself. But what if an agent did that for you? You give it a goal, and it figures out which pockets to spin up, what prompts to use, and kicks them all off.
--->
-
----
 clicks: 4
 ---
 
@@ -615,22 +582,45 @@ Here's something I think about a lot. These powerful AI skills already exist: th
   </div>
 
   <div class="prompt-card" v-click v-motion :initial="{ opacity: 0, x: 40 }" :enter="{ opacity: 1, x: 0, transition: { duration: 500 } }">
-    <p class="prompt-label">Agent Teams</p>
-    <p class="prompt-card-body">Today's demo had three agents on the same task. Next step: agents with <strong>different roles</strong> on the same project. An orchestrator, developers, and an integrator, all exchanging work through git.</p>
-    <p class="prompt-card-note">Coordinated teamwork across isolated environments, not just parallel races.</p>
+    <p class="prompt-label">Environment Self-Improvement</p>
+    <p class="prompt-card-body">Agents that <strong>shape their own workspace</strong>, installing tools, updating environment configuration, even improving their own Claude Code setup with new skills and MCP servers. Request a rebuild, reboot with the changes baked in.</p>
+    <p class="prompt-card-note">The environment converges on the ideal setup over time.</p>
   </div>
 </div>
 
 <p v-click v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }" class="exploration-note">Both on the roadmap, alongside cloud scaling for horizontal growth</p>
 
 <!--
-"I want to share two things on the roadmap. One closer to reality, one further out but something I think about a lot."
+"I want to share two things on the roadmap."
 (CLICK 1 - Rewind Timeline card)
 "Remember the Time Stone? The ability to go back in time when things went wrong? That's the idea here. If you've used Claude Code, you might know the /rewind command. It can undo file changes. But that's it. If the agent ran a bash command that broke something, deleted files, messed up a database, changed system configuration, /rewind can't help you. This goes further. A snapshot of the entire environment before every single tool call. Something goes wrong forty steps in? Roll back to that exact point. The whole environment. Not just source code. Every package install, every config change, every database write. And you can branch those snapshots, meaning save your current spot, try a completely different approach from an earlier point, and keep both timelines around. And it's not just for humans watching over the agent. The agent could rewind itself. It detects that something broke, rolls back, and picks up right where it left off knowing what went wrong and why."
-(CLICK 2 - Agent Teams card)
-"This one is further out. There are a lot of hard problems to solve first. But it's one of the ultimate goals of the system. You saw three agents doing the same task. What if they had different roles? An orchestrator designs the approach, developers build in isolation, an integrator merges and verifies. They coordinate through git. Same isolated environments, but working together on one project instead of racing on the same thing. Claude Code already ships an experimental agent teams feature. The goal is to build the infrastructure that makes that work across isolated pockets."
+(CLICK 2 - Environment Self-Improvement card)
+"Second one: agents that improve their own environment. Today agents work inside the container as-is. But what if they could install global packages, change environment configuration, add or modify their own skills and MCP servers? The agent requests a rebuild from the host, and reboots with those changes baked in. Over time, the environment converges on the ideal setup for the task. This works because everything in the system is designed with reproducibility in mind."
 (CLICK 3 - footer note)
 "Both are on the roadmap, alongside cloud scaling. Everything you've seen today runs on one machine, but scaling horizontally is a big part of the vision for this project."
+-->
+
+---
+clicks: 5
+---
+
+# Agent Teams
+
+<AgentTeamsDiagram :click="1" :roles-click="2" :escalation-click="3" :delegation-click="4" :teams-click="5" />
+
+<!--
+"I need to give you some context for this one. Claude Code recently shipped an experimental feature called agent teams. I want to explain what it does and where it falls short, because that's exactly the gap this kind of infrastructure is designed to fill."
+(CLICK 1 - Foundation diagram appears: Human → Orchestrator → A/B/C/D)
+"A lead agent coordinates multiple teammates that can work in parallel. But there's a catch. All teammates share the same filesystem. The docs themselves warn you to split up work so each teammate owns different files, or you get overwrites. No git isolation, no individual dev environments. Unlike real development teams, they can't take advantage of the isolation that makes real teams productive. The vision here is to provide that isolation."
+(CLICK 2 - Labels swap from A/B/C/D to Frontend/Backend/Database/Integrator)
+"Now imagine each teammate gets its own pocket. The team lead creates the architectural plan that all the agents follow. Frontend, backend, and database specialists each focus on their domain. And the integrator merges their work and verifies it against the team lead's plan. But what happens when something comes up during development and the original plan just isn't going to work? Maybe the database schema can't support what was planned."
+(CLICK 3 - Escalation pulse travels upward: Integrator → Team Lead → Human)
+"The integrator catches the conflict and escalates it to the team lead. If the team lead can't resolve it, it goes to the human. This is the perfect moment for human-in-the-loop."
+(CLICK 4 - Delegation flow: Human sends decisions down through Team Lead to Frontend/Backend/Database)
+"The human reviews the options, makes a decision, and that decision flows back down to the agents. Notice what's different here. You're not approving individual commands or tool calls. You're making the architectural decisions that shape the entire feature. The agents handle the implementation. That's a fundamentally different kind of human-in-the-loop, and it's the kind that actually scales. Now here's where things get interesting. Why stop at one team?"
+(CLICK 5 - Team of teams transformation: 3 Team Leads under a new Orchestrator)
+"Imagine orchestrators managing multiple team leads, each running their own specialized team. Each team lead owns a distinct feature and plans the work for their team. The orchestrator above them is responsible for dividing work across teams in a way that minimizes overlap and avoids merge conflicts. Same escalation pattern applies here too. This might be a bold prediction, but I believe something like this is what AGI is going to look like. Not one impossibly capable model that can somehow do everything, but orchestrated teams of agents with the right isolation, the right observability, and humans making the decisions that actually matter. The models we have right now are already incredibly capable. Most of us, myself included, are using them at a fraction of their potential."
+(Brief pause, then advance to Developer as Architect)
 -->
 
 ---
@@ -642,7 +632,7 @@ layout: statement
 <p v-motion :initial="{ opacity: 0, y: 12 }" :enter="{ opacity: 1, y: 0, transition: { delay: 1000, duration: 600 } }">What if developers designed <em>how</em> features get built instead of building every one by hand?</p>
 
 <!--
-The biggest what-if: what if the developer's role shifts from writing every line of code to designing how features get built and reviewing the results? Imagine managing multiple large, complex tasks at the same time, designing and providing feedback on how features should be built, rather than being the bricklayer that manually writes code and places every brick by hand. You become the architect, not the bricklayer.
+I hope that by this point I've accomplished my goal of transforming how you all think about AI agents. I believe we are rapidly moving towards a world in which developers play the role of architects, designing how features are built, rather than playing the role of a bricklayer manually writing every line of code by hand.
 -->
 
 ---

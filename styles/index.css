@@ -484,98 +484,265 @@ li::marker {
 }
 
 /* ========================================
-   Architect diagram (architect agents)
+   Agent Teams diagram
    ======================================== */
 
-.architect-diagram {
+.agent-teams-diagram {
+  position: relative;
+  margin-top: 1.5rem;
+  min-height: 260px;
+}
+
+.agent-teams-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 2rem;
+  /* No gap — vlines bridge directly between boxes */
 }
 
-.architect-input {
+.agent-teams-level {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.agent-teams-leads {
+  gap: 1.25rem;
+}
+
+.agent-teams-box {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   padding: 0.6rem 1.25rem;
   background: var(--color-bg-light);
   border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
-.architect-input svg {
+.agent-teams-box svg {
   font-size: 1rem;
   color: var(--color-text-muted);
 }
 
-.architect-input span {
+.agent-teams-box span {
   font-size: 0.85rem;
   color: var(--color-text-muted);
   font-weight: 500;
+  white-space: nowrap;
 }
 
-.architect-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.7rem 1.5rem;
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-accent);
-  border-radius: 8px;
+.agent-teams-box.highlight {
+  border-color: var(--color-accent);
   box-shadow: 0 0 20px var(--color-accent-glow);
 }
 
-.architect-box svg {
-  font-size: 1.1rem;
-  color: var(--color-accent);
+.agent-teams-box.highlight svg {
+  color: var(--hl-icon-color, var(--color-accent));
 }
 
-.architect-box span {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text);
+.agent-teams-box.highlight span {
+  color: var(--hl-text-color, var(--color-text));
 }
 
-.architect-workers-row {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
+.agent-teams-vline {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+  align-self: center;
 }
 
-.architect-worker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+.agent-teams-vline-long {
+  height: 56px;
 }
 
-.architect-worker svg {
-  font-size: 1.25rem;
-  color: var(--color-accent);
+.agent-teams-label-wrap {
+  display: grid;
+  place-items: center;
 }
 
-.architect-worker span {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
+/* All children stack in the same grid cell */
+.agent-teams-label-wrap > * {
+  grid-area: 1 / 1;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: inherit;
   font-weight: 500;
 }
 
-.architect-worker-extra {
-  border-style: dashed;
-  border-color: rgba(255, 255, 255, 0.1);
-  padding: 0.75rem 1rem;
+.agent-teams-lead-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.architect-worker-extra span {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.2);
-  letter-spacing: 0.15em;
+.agent-teams-abbrev {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.agent-teams-abbrev span {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.agent-teams-new-orch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agent-teams-mini-box {
+  padding: 0.2rem 0.5rem;
+  min-width: 1.6rem;
+  text-align: center;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.agent-teams-tree-mini .agent-teams-tree-stem {
+  height: 28px;
+}
+
+.agent-teams-tree-mini .agent-teams-tree-drop {
+  height: 28px;
+}
+
+.agent-teams-morph-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agent-teams-side-copy {
+  position: absolute;
+  top: 0;
+}
+
+.agent-teams-side-left {
+  right: calc(100% + 1.5rem);
+}
+
+.agent-teams-side-right {
+  left: calc(100% + 1.5rem);
+}
+
+/* Branch connector: absolute within morph-group, bar at the top of the
+   new-orch vline (28px above morph-group). Drops go full 28px down to
+   the Team Lead boxes, matching the Human→Orchestrator vline length. */
+.agent-teams-branch {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(200% + 3rem);
+  height: 0;
+  pointer-events: none;
+}
+
+.agent-teams-branch-bar {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.agent-teams-branch-bar-left {
+  left: 0;
+  right: 50%;
+}
+
+.agent-teams-branch-bar-right {
+  left: 50%;
+  right: 0;
+}
+
+.agent-teams-branch-drop {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.agent-teams-branch-left {
+  left: 0;
+}
+
+.agent-teams-branch-right {
+  right: 0;
+}
+
+.agent-teams-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agent-teams-tree-stem {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.agent-teams-tree-children {
+  display: grid;
+  gap: 0.75rem;
+  position: relative;
+}
+
+/* Horizontal bar spanning column centers (always dim) */
+.agent-teams-tree-children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
+  right: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Escalation fill: only the right half (stem → Integrator) lights up */
+.agent-teams-tree-children::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  right: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
+  height: 1px;
+  background: var(--bar-fill, transparent);
+}
+
+/* Green delegation: left half of bar (stem → F) */
+.agent-teams-bar-green-left {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  z-index: 1;
+  left: calc((100% - (var(--cols) - 1) * var(--gap, 0.75rem)) / (2 * var(--cols)));
+  right: 50%;
+}
+
+.agent-teams-tree-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agent-teams-tree-drop {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* ========================================
