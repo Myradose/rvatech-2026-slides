@@ -7,8 +7,10 @@
  * Phase 1: Foundation (Human → Orchestrator → Agent A/B/C/D)
  * Phase 1.5: Roles Reveal (labels crossfade, all workers get text/icon emphasis, no glow)
  * Phase 2: Integrator Focus (F/B/D dim, Integrator gets full amber glow)
- * Phase 3: Escalation pulse (Integrator → Orchestrator → Human, then settles)
- * Phase 3b: Delegation flow (Human → Team Lead → Frontend/Backend/Database, green)
+ * Phase 3a: Escalation step 1 (Integrator amber → red glow)
+ * Phase 3b: Escalation step 2 (Red lines: Integrator → Team Lead)
+ * Phase 3c: Escalation step 3 (Red lines: Team Lead → Human)
+ * Phase 3d: Delegation flow (Human → Team Lead → Frontend/Backend/Database, green)
  * Phase 4: Morph + duplicate (~4s total)
  *   - Step 1 (0-1.2s): Boxes physically morph to mini-box size
  *   - Step 2 (1.3-2.0s): New Orchestrator pushes group down
@@ -24,6 +26,8 @@ const props = withDefaults(defineProps<{
   rolesRevealClick?: number
   rolesClick?: number
   escalationClick?: number
+  escalation2Click?: number
+  escalation3Click?: number
   delegationClick?: number
   teamsClick?: number
 }>(), {
@@ -31,8 +35,10 @@ const props = withDefaults(defineProps<{
   rolesRevealClick: 2,
   rolesClick: 3,
   escalationClick: 4,
-  delegationClick: 5,
-  teamsClick: 6,
+  escalation2Click: 5,
+  escalation3Click: 6,
+  delegationClick: 7,
+  teamsClick: 8,
 })
 
 const nav = useNav()
@@ -44,7 +50,9 @@ type Phase = 'idle'
   | 'animatingPhase1' | 'phase1' | 'reversingPhase1'
   | 'animatingRolesReveal' | 'rolesReveal' | 'reversingRolesReveal'
   | 'animatingPhase2' | 'phase2' | 'reversingPhase2'
-  | 'animatingEscalation' | 'escalationComplete' | 'reversingEscalation'
+  | 'animatingEscalation1' | 'escalation1' | 'reversingEscalation1'
+  | 'animatingEscalation2' | 'escalation2' | 'reversingEscalation2'
+  | 'animatingEscalation3' | 'escalationComplete' | 'reversingEscalation3'
   | 'animatingDelegation' | 'delegationComplete' | 'reversingDelegation'
   | 'animatingTeams' | 'teams' | 'reversingTeams'
 let phase: Phase = 'idle'
@@ -202,9 +210,10 @@ function integratorStyle(): Record<string, string> {
   const borderI = Math.max(amberI, redI)
   const color = amberI >= redI ? AMBER : RED
   const style = glowBorder(color, borderI)
-  // Text/icon follows integratorAccent OR workerTextEmphasis (whichever is higher)
-  const t = Math.min(Math.max(amberI, textEmph), 1)
-  style['--hl-icon-color'] = lerpRgb(MUTED, AMBER, t)
+  // Text/icon follows whichever emphasis is highest (amber, red, or workerTextEmphasis)
+  const t = Math.min(Math.max(amberI, redI, textEmph), 1)
+  const iconColor = amberI >= redI ? AMBER : RED
+  style['--hl-icon-color'] = lerpRgb(MUTED, iconColor, t)
   style['--hl-text-color'] = lerpRgb(MUTED, TEXT_BRIGHT, t)
   return style
 }
@@ -216,9 +225,9 @@ function orchestratorGlowStyle(): Record<string, string> {
   const borderI = Math.max(amberI, redI, greenI)
   const color = greenI > redI && greenI > amberI ? GREEN : amberI >= redI ? AMBER : RED
   const style = glowBorder(color, borderI)
-  // Text/icon follows whichever emphasis is active (amber or green, not red pulse)
-  const iconColor = greenI > amberI ? GREEN : AMBER
-  const t = Math.min(Math.max(amberI, greenI), 1)
+  // Text/icon follows whichever emphasis is active
+  const iconColor = greenI > redI && greenI > amberI ? GREEN : amberI >= redI ? AMBER : RED
+  const t = Math.min(Math.max(amberI, redI, greenI), 1)
   style['--hl-icon-color'] = lerpRgb(MUTED, iconColor, t)
   style['--hl-text-color'] = lerpRgb(MUTED, TEXT_BRIGHT, t)
   return style
@@ -411,6 +420,28 @@ function snapToPhase2() {
   state.orchestratorGlow = 0
 }
 
+function snapToEscalation1() {
+  killActive(); phase = 'escalation1'
+  state.diagramOpacity = 1
+  state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
+  state.integratorAccent = 0; state.orchestratorGlow = 0
+  state.pulseIntegrator = 1; state.pulseOrchestrator = 0; state.pulseHuman = 0
+  state.integratorDropFill = 0; state.barFill = 0; state.stemFill = 0; state.topConnectorFill = 0
+  resetDelegationState(); resetMorphState()
+}
+
+function snapToEscalation2() {
+  killActive(); phase = 'escalation2'
+  state.diagramOpacity = 1
+  state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
+  state.integratorAccent = 0; state.orchestratorGlow = 0
+  state.pulseIntegrator = 0.4; state.pulseOrchestrator = 1; state.pulseHuman = 0
+  state.integratorDropFill = 1; state.barFill = 1; state.stemFill = 1; state.topConnectorFill = 0
+  resetDelegationState(); resetMorphState()
+}
+
 function snapToEscalationComplete() {
   killActive(); phase = 'escalationComplete'
   state.diagramOpacity = 1
@@ -489,22 +520,36 @@ function playPhase2() {
   tl.to(state, { integratorAccent: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
 }
 
-function playEscalation() {
-  killActive(); phase = 'animatingEscalation'
+function playEscalation1() {
+  killActive(); phase = 'animatingEscalation1'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'escalation1' } })
+  activeTl = tl
+  // Crossfade amber accent out, red pulse in
+  tl.to(state, { orchestratorGlow: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { integratorAccent: 0, duration: 0.4, ease: 'power2.in' }, 0)
+  tl.to(state, { pulseIntegrator: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
+}
+
+function playEscalation2() {
+  killActive(); phase = 'animatingEscalation2'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'escalation2' } })
+  activeTl = tl
+  // Dim integrator, then red flows upward: drop → bar → stem → Team Lead
+  tl.to(state, { pulseIntegrator: 0.4, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { integratorDropFill: 1, duration: 0.4, ease: 'none' }, 0.3)
+  tl.to(state, { barFill: 1, duration: 0.4, ease: 'none' }, 0.7)
+  tl.to(state, { stemFill: 1, duration: 0.4, ease: 'none' }, 1.1)
+  tl.to(state, { pulseOrchestrator: 1, duration: 0.3, ease: 'power2.out' }, 1.5)
+}
+
+function playEscalation3() {
+  killActive(); phase = 'animatingEscalation3'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'escalationComplete' } })
   activeTl = tl
-  // Clear existing glows
-  tl.to(state, { orchestratorGlow: 0, duration: 0.4, ease: 'power2.in' }, 0)
-  tl.to(state, { integratorAccent: 0, duration: 0.4, ease: 'power2.in' }, 0)
-  // Signal travels upward: Integrator → drop → bar → stem → Team Lead → vline → Human
-  tl.to(state, { pulseIntegrator: 0.4, duration: 0.3, ease: 'power2.out' }, 0.5)
-  tl.to(state, { integratorDropFill: 1, duration: 0.4, ease: 'none' }, 0.8)
-  tl.to(state, { barFill: 1, duration: 0.4, ease: 'none' }, 1.2)
-  tl.to(state, { stemFill: 1, duration: 0.4, ease: 'none' }, 1.6)
-  tl.to(state, { pulseOrchestrator: 0.4, duration: 0.3, ease: 'power2.out' }, 2.0)
-  tl.to(state, { topConnectorFill: 1, duration: 0.4, ease: 'none' }, 2.3)
-  // Human glows full brightness
-  tl.to(state, { pulseHuman: 1, duration: 0.4, ease: 'power2.out' }, 2.7)
+  // Dim team lead, then red flows upward: top connector → Human
+  tl.to(state, { pulseOrchestrator: 0.4, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { topConnectorFill: 1, duration: 0.4, ease: 'none' }, 0.3)
+  tl.to(state, { pulseHuman: 1, duration: 0.4, ease: 'power2.out' }, 0.7)
   // Holds here — everything stays lit until the next click
 }
 
@@ -603,6 +648,32 @@ function reversePhase2() {
   tl.to(state, { workerTextEmphasis: 1, duration: 0.3, ease: 'power2.out' }, 0.2)
 }
 
+function reverseEscalation1() {
+  killActive(); phase = 'reversingEscalation1'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToPhase2() } })
+  activeTl = tl
+  tl.to(state, { pulseIntegrator: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { integratorAccent: 1, duration: 0.4, ease: 'power2.out' }, 0.1)
+}
+
+function reverseEscalation2() {
+  killActive(); phase = 'reversingEscalation2'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToEscalation1() } })
+  activeTl = tl
+  tl.to(state, { pulseOrchestrator: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { stemFill: 0, duration: 0.3, ease: 'none' }, 0.1)
+  tl.to(state, { barFill: 0, duration: 0.3, ease: 'none' }, 0.3)
+  tl.to(state, { integratorDropFill: 0, duration: 0.3, ease: 'none' }, 0.5)
+}
+
+function reverseEscalation3() {
+  killActive(); phase = 'reversingEscalation3'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToEscalation2() } })
+  activeTl = tl
+  tl.to(state, { pulseHuman: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { topConnectorFill: 0, duration: 0.3, ease: 'none' }, 0.1)
+}
+
 function reverseDelegation() {
   killActive(); phase = 'reversingDelegation'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToEscalationComplete() } })
@@ -662,8 +733,16 @@ function handleForward(clicks: number) {
     case 'animatingPhase2': case 'reversingPhase2':
       snapToPhase2(); break
     case 'phase2':
-      if (clicks >= props.escalationClick) playEscalation(); break
-    case 'animatingEscalation': case 'reversingEscalation':
+      if (clicks >= props.escalationClick) playEscalation1(); break
+    case 'animatingEscalation1': case 'reversingEscalation1':
+      snapToEscalation1(); break
+    case 'escalation1':
+      if (clicks >= props.escalation2Click) playEscalation2(); break
+    case 'animatingEscalation2': case 'reversingEscalation2':
+      snapToEscalation2(); break
+    case 'escalation2':
+      if (clicks >= props.escalation3Click) playEscalation3(); break
+    case 'animatingEscalation3': case 'reversingEscalation3':
       snapToEscalationComplete(); break
     case 'escalationComplete':
       if (clicks >= props.delegationClick) playDelegation(); break
@@ -687,8 +766,16 @@ function handleBackward(clicks: number) {
     case 'animatingDelegation': case 'reversingDelegation':
       snapToEscalationComplete(); break
     case 'escalationComplete':
-      if (clicks < props.escalationClick) snapToPhase2(); break
-    case 'animatingEscalation': case 'reversingEscalation':
+      if (clicks < props.escalation3Click) reverseEscalation3(); break
+    case 'animatingEscalation3': case 'reversingEscalation3':
+      snapToEscalation2(); break
+    case 'escalation2':
+      if (clicks < props.escalation2Click) reverseEscalation2(); break
+    case 'animatingEscalation2': case 'reversingEscalation2':
+      snapToEscalation1(); break
+    case 'escalation1':
+      if (clicks < props.escalationClick) reverseEscalation1(); break
+    case 'animatingEscalation1': case 'reversingEscalation1':
       snapToPhase2(); break
     case 'phase2':
       if (clicks < props.rolesClick) reversePhase2(); break
@@ -724,7 +811,9 @@ function skipAnimForward() {
     case 'animatingPhase1': snapToPhase1(); break
     case 'animatingRolesReveal': snapToRolesReveal(); break
     case 'animatingPhase2': snapToPhase2(); break
-    case 'animatingEscalation': snapToEscalationComplete(); break
+    case 'animatingEscalation1': snapToEscalation1(); break
+    case 'animatingEscalation2': snapToEscalation2(); break
+    case 'animatingEscalation3': snapToEscalationComplete(); break
     case 'animatingDelegation': snapToDelegationComplete(); break
     case 'animatingTeams': snapToTeams(); break
   }
@@ -762,7 +851,9 @@ function initSlide() {
   const clicks = nav.clicks.value
   if (clicks >= props.teamsClick) snapToTeams()
   else if (clicks >= props.delegationClick) snapToDelegationComplete()
-  else if (clicks >= props.escalationClick) snapToEscalationComplete()
+  else if (clicks >= props.escalation3Click) snapToEscalationComplete()
+  else if (clicks >= props.escalation2Click) snapToEscalation2()
+  else if (clicks >= props.escalationClick) snapToEscalation1()
   else if (clicks >= props.rolesClick) snapToPhase2()
   else if (clicks >= props.rolesRevealClick) snapToRolesReveal()
   else if (clicks >= props.click) snapToPhase1()
