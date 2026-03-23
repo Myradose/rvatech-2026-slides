@@ -581,12 +581,12 @@ CLICK 3: Both on roadmap + cloud scaling for horizontal growth
 -->
 
 ---
-clicks: 5
+clicks: 6
 ---
 
 # Agent Teams
 
-<AgentTeamsDiagram :click="1" :roles-click="2" :escalation-click="3" :delegation-click="4" :teams-click="5" />
+<AgentTeamsDiagram :click="1" :roles-reveal-click="2" :roles-click="3" :escalation-click="4" :delegation-click="5" :teams-click="6" />
 
 <!--
 Context: Claude Code agent teams -- what it does, where it falls short
@@ -595,18 +595,20 @@ CLICK 1 - Foundation: Lead agent + parallel teammates
 - Catch: shared filesystem, no git isolation, overwrite risk
 - Vision: provide that isolation with pockets
 
-CLICK 2 - Roles: Frontend/Backend/Database/Integrator
+CLICK 2 - Roles Reveal: Labels crossfade, all workers emphasized
 - Each gets own pocket; team lead sets the plan
+
+CLICK 3 - Integrator Focus: Integrator gets full amber glow
 - "What if the plan can't work? DB schema won't support it."
 
-CLICK 3 - Escalation: Integrator -> Team Lead -> Human
+CLICK 4 - Escalation: Integrator -> Team Lead -> Human
 - Perfect moment for human-in-the-loop
 
-CLICK 4 - Delegation: Human decides, flows back down
+CLICK 5 - Delegation: Human decides, flows back down
 - Not approving commands -- making architectural decisions
 - "That's the kind of HITL that scales."
 
-CLICK 5 - Team of teams: Orchestrator -> multiple Team Leads
+CLICK 6 - Team of teams: Orchestrator -> multiple Team Leads
 - Each team lead owns a feature, orchestrator divides work
 - AGI prediction: orchestrated teams, not one super-model
 - "We're using these models at a fraction of their potential."

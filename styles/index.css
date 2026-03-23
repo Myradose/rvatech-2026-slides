@@ -745,6 +745,24 @@ li::marker {
   background: rgba(255, 255, 255, 0.15);
 }
 
+.agent-teams-legend {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  bottom: -2.5rem;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.7rem;
+  color: rgba(107, 114, 128, 0.7);
+  white-space: nowrap;
+}
+
+.agent-teams-legend b {
+  color: rgba(148, 155, 168, 0.9);
+  font-weight: 600;
+  margin-right: 0.15rem;
+}
+
 /* ========================================
    Beyond developers flow diagram
    ======================================== */

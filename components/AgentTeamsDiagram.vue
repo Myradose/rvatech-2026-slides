@@ -1,11 +1,12 @@
 <script setup lang="ts">
 /**
- * AgentTeamsDiagram — 4-phase GSAP-animated team hierarchy diagram
+ * AgentTeamsDiagram — 5-phase GSAP-animated team hierarchy diagram
  *
  * Single layout throughout. No layout swap. Side copies are absolutely positioned.
  *
  * Phase 1: Foundation (Human → Orchestrator → Agent A/B/C/D)
- * Phase 2: Roles emerge (labels crossfade to Frontend/Backend/Database/Integrator)
+ * Phase 1.5: Roles Reveal (labels crossfade, all workers get text/icon emphasis, no glow)
+ * Phase 2: Integrator Focus (F/B/D dim, Integrator gets full amber glow)
  * Phase 3: Escalation pulse (Integrator → Orchestrator → Human, then settles)
  * Phase 3b: Delegation flow (Human → Team Lead → Frontend/Backend/Database, green)
  * Phase 4: Morph + duplicate (~4s total)
@@ -20,16 +21,18 @@ import gsap from 'gsap'
 
 const props = withDefaults(defineProps<{
   click?: number
+  rolesRevealClick?: number
   rolesClick?: number
   escalationClick?: number
   delegationClick?: number
   teamsClick?: number
 }>(), {
   click: 1,
-  rolesClick: 2,
-  escalationClick: 3,
-  delegationClick: 4,
-  teamsClick: 5,
+  rolesRevealClick: 2,
+  rolesClick: 3,
+  escalationClick: 4,
+  delegationClick: 5,
+  teamsClick: 6,
 })
 
 const nav = useNav()
@@ -39,6 +42,7 @@ let activeTl: gsap.core.Timeline | null = null
 
 type Phase = 'idle'
   | 'animatingPhase1' | 'phase1' | 'reversingPhase1'
+  | 'animatingRolesReveal' | 'rolesReveal' | 'reversingRolesReveal'
   | 'animatingPhase2' | 'phase2' | 'reversingPhase2'
   | 'animatingEscalation' | 'escalationComplete' | 'reversingEscalation'
   | 'animatingDelegation' | 'delegationComplete' | 'reversingDelegation'
@@ -71,6 +75,8 @@ const state = reactive({
   greenWorkers: 0,
   redLineFade: 0,        // fades remaining red lines to gray after delegation
   colorFadeout: 0,       // fades all colored lines to gray (used in teams transition)
+  // Roles Reveal — text/icon emphasis on all workers without border glow
+  workerTextEmphasis: 0,
   // Phase 4 morph — drives dimensional changes on worker boxes
   morphProgress: 0, // 0 = full boxes, 1 = mini-box sized
   // Phase 4 push-down
@@ -84,6 +90,10 @@ const state = reactive({
   rightGroupX: -80,
   rightGroupScale: 0.85,
   // Phase 4 branch connector (fades in with side copies)
+  // New orchestrator glow (phase 4)
+  newOrchestratorGlow: 0,
+  // Legend (abbreviation key, bottom-center)
+  legendOpacity: 0,
 })
 
 const workers = [
@@ -177,12 +187,14 @@ function humanBoxStyle(): Record<string, string> {
 function integratorStyle(): Record<string, string> {
   const amberI = state.integratorAccent
   const redI = state.pulseIntegrator
+  const textEmph = state.workerTextEmphasis
   // Border follows whichever is active; they don't overlap in practice
+  // workerTextEmphasis intentionally does NOT drive border (text-only emphasis)
   const borderI = Math.max(amberI, redI)
   const color = amberI >= redI ? AMBER : RED
   const style = glowBorder(color, borderI)
-  // Text/icon follows integratorAccent only, stays muted during escalation pulse
-  const t = Math.min(amberI, 1)
+  // Text/icon follows integratorAccent OR workerTextEmphasis (whichever is higher)
+  const t = Math.min(Math.max(amberI, textEmph), 1)
   style['--hl-icon-color'] = lerpRgb(MUTED, AMBER, t)
   style['--hl-text-color'] = lerpRgb(MUTED, TEXT_BRIGHT, t)
   return style
@@ -203,11 +215,26 @@ function orchestratorGlowStyle(): Record<string, string> {
   return style
 }
 
-function workerGlowStyle(): Record<string, string> {
-  const i = Math.min(state.greenWorkers, 1)
-  const style = glowBorder(GREEN, i)
-  style['--hl-icon-color'] = lerpRgb(MUTED, GREEN, i)
+function newOrchestratorStyle(): Record<string, string> {
+  const i = Math.min(state.newOrchestratorGlow, 1)
+  const style: Record<string, string> = { opacity: String(state.newOrchestratorOpacity) }
+  Object.assign(style, glowBorder(AMBER, i))
+  style['--hl-icon-color'] = lerpRgb(MUTED, AMBER, i)
   style['--hl-text-color'] = lerpRgb(MUTED, TEXT_BRIGHT, i)
+  return style
+}
+
+function workerGlowStyle(): Record<string, string> {
+  const greenI = Math.min(state.greenWorkers, 1)
+  const amberTextI = Math.min(state.workerTextEmphasis, 1)
+  // Border glow: only green (delegation) triggers border/boxShadow
+  // workerTextEmphasis intentionally does NOT drive border (text-only emphasis)
+  const style = glowBorder(GREEN, greenI)
+  // Icon/text: whichever emphasis channel is active
+  const textI = Math.max(greenI, amberTextI)
+  const iconColor = greenI > amberTextI ? GREEN : AMBER
+  style['--hl-icon-color'] = lerpRgb(MUTED, iconColor, textI)
+  style['--hl-text-color'] = lerpRgb(MUTED, TEXT_BRIGHT, textI)
   return style
 }
 
@@ -319,6 +346,8 @@ function resetMorphState() {
   state.rightGroupOpacity = 0
   state.rightGroupX = -80
   state.rightGroupScale = 0.85
+  state.newOrchestratorGlow = 0
+  state.legendOpacity = 0
 }
 
 function resetEscalationState() {
@@ -348,6 +377,7 @@ function snapToIdle() {
   killActive(); phase = 'idle'
   state.diagramOpacity = 0
   state.genericLabelOpacity = 1; state.roleLabelOpacity = 0
+  state.workerTextEmphasis = 0
   state.integratorAccent = 0
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState(); resetMorphState()
@@ -357,7 +387,18 @@ function snapToPhase1() {
   killActive(); phase = 'phase1'
   state.diagramOpacity = 1
   state.genericLabelOpacity = 1; state.roleLabelOpacity = 0
+  state.workerTextEmphasis = 0
   state.integratorAccent = 0
+  state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
+  resetEscalationState(); resetDelegationState(); resetMorphState()
+}
+
+function snapToRolesReveal() {
+  killActive(); phase = 'rolesReveal'
+  state.diagramOpacity = 1
+  state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 1
+  state.integratorAccent = 0; state.orchestratorGlow = 0
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState(); resetMorphState()
 }
@@ -366,6 +407,7 @@ function snapToPhase2() {
   killActive(); phase = 'phase2'
   state.diagramOpacity = 1
   state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
   state.integratorAccent = 1
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState(); resetMorphState()
@@ -376,6 +418,7 @@ function snapToEscalationComplete() {
   killActive(); phase = 'escalationComplete'
   state.diagramOpacity = 1
   state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
   // Everything lit — holds until next click
   state.integratorAccent = 0; state.orchestratorGlow = 0
   state.pulseHuman = 1; state.pulseOrchestrator = 0.4; state.pulseIntegrator = 0.4
@@ -387,6 +430,7 @@ function snapToDelegationComplete() {
   killActive(); phase = 'delegationComplete'
   state.diagramOpacity = 1
   state.genericLabelOpacity = 0; state.roleLabelOpacity = 1
+  state.workerTextEmphasis = 0
   state.integratorAccent = 0; state.orchestratorGlow = 0
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   // Red escalation lines (faded to gray)
@@ -408,6 +452,7 @@ function snapToTeams() {
   killActive(); phase = 'teams'
   state.diagramOpacity = 1
   state.genericLabelOpacity = 0; state.roleLabelOpacity = 0; state.abbrevLabelOpacity = 1
+  state.workerTextEmphasis = 0
   state.integratorAccent = 0
   state.pulseHuman = 0; state.pulseOrchestrator = 0; state.pulseIntegrator = 0
   resetEscalationState(); resetDelegationState()
@@ -416,6 +461,8 @@ function snapToTeams() {
   state.newOrchHeight = 120; state.newOrchestratorOpacity = 1
   state.leftGroupOpacity = 1; state.leftGroupX = 0; state.leftGroupScale = 1
   state.rightGroupOpacity = 1; state.rightGroupX = 0; state.rightGroupScale = 1
+  state.newOrchestratorGlow = 1
+  state.legendOpacity = 1
 }
 
 // --- Forward animations ---
@@ -427,14 +474,22 @@ function playPhase1() {
   tl.to(state, { diagramOpacity: 1, duration: 0.5, ease: 'power2.out' })
 }
 
+function playRolesReveal() {
+  killActive(); phase = 'animatingRolesReveal'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'rolesReveal' } })
+  activeTl = tl
+  tl.to(state, { genericLabelOpacity: 0, duration: 0.4, ease: 'power2.in' }, 0)
+  tl.to(state, { roleLabelOpacity: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
+  tl.to(state, { orchestratorGlow: 0, duration: 0.4, ease: 'power2.in' }, 0.2)
+  tl.to(state, { workerTextEmphasis: 1, duration: 0.4, ease: 'power2.out' }, 0.4)
+}
+
 function playPhase2() {
   killActive(); phase = 'animatingPhase2'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; phase = 'phase2' } })
   activeTl = tl
-  tl.to(state, { genericLabelOpacity: 0, duration: 0.4, ease: 'power2.in' }, 0)
-  tl.to(state, { orchestratorGlow: 0, duration: 0.4, ease: 'power2.in' }, 0.2)
-  tl.to(state, { roleLabelOpacity: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
-  tl.to(state, { integratorAccent: 1, duration: 0.4, ease: 'power2.out' }, 0.4)
+  tl.to(state, { workerTextEmphasis: 0, duration: 0.4, ease: 'power2.in' }, 0)
+  tl.to(state, { integratorAccent: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
 }
 
 function playEscalation() {
@@ -518,6 +573,10 @@ function playTeams() {
 
   // Step 4 (4.2-4.9s): Right copy slides in
   tl.to(state, { rightGroupOpacity: 1, rightGroupX: 0, rightGroupScale: 1, duration: 0.6, ease: 'power3.out' }, 4.2)
+
+  // After everything is revealed: orchestrator glows, legend fades in
+  tl.to(state, { newOrchestratorGlow: 1, duration: 0.4, ease: 'power2.out' }, 4.8)
+  tl.to(state, { legendOpacity: 1, duration: 0.4, ease: 'power2.out' }, 4.8)
 }
 
 // --- Reverse animations ---
@@ -529,14 +588,22 @@ function reversePhase1() {
   tl.to(state, { diagramOpacity: 0, duration: 0.4, ease: 'power2.in' })
 }
 
-function reversePhase2() {
-  killActive(); phase = 'reversingPhase2'
+function reverseRolesReveal() {
+  killActive(); phase = 'reversingRolesReveal'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToPhase1() } })
   activeTl = tl
-  tl.to(state, { integratorAccent: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { workerTextEmphasis: 0, duration: 0.3, ease: 'power2.in' }, 0)
   tl.to(state, { roleLabelOpacity: 0, duration: 0.4, ease: 'power2.in' }, 0)
   tl.to(state, { orchestratorGlow: 1, duration: 0.3, ease: 'power2.out' }, 0.2)
   tl.to(state, { genericLabelOpacity: 1, duration: 0.4, ease: 'power2.out' }, 0.2)
+}
+
+function reversePhase2() {
+  killActive(); phase = 'reversingPhase2'
+  const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToRolesReveal() } })
+  activeTl = tl
+  tl.to(state, { integratorAccent: 0, duration: 0.3, ease: 'power2.in' }, 0)
+  tl.to(state, { workerTextEmphasis: 1, duration: 0.3, ease: 'power2.out' }, 0.2)
 }
 
 function reverseDelegation() {
@@ -558,6 +625,8 @@ function reverseTeams() {
   killActive(); phase = 'reversingTeams'
   const tl = gsap.timeline({ onComplete: () => { activeTl = null; snapToDelegationComplete() } })
   activeTl = tl
+  // Fade out legend and orchestrator glow
+  tl.to(state, { legendOpacity: 0, newOrchestratorGlow: 0, duration: 0.3, ease: 'power2.in' }, 0)
   // Reverse side copies (branch bars/drops are driven by group opacities)
   tl.to(state, { leftGroupOpacity: 0, leftGroupX: 80, leftGroupScale: 0.85, duration: 0.3, ease: 'power2.in' }, 0)
   tl.to(state, { rightGroupOpacity: 0, rightGroupX: -80, rightGroupScale: 0.85, duration: 0.3, ease: 'power2.in' }, 0)
@@ -567,7 +636,16 @@ function reverseTeams() {
   // Restore morph
   tl.to(state, { morphProgress: 0, duration: 0.5, ease: 'power2.out' }, 0.3)
   tl.to(state, { roleLabelOpacity: 1, abbrevLabelOpacity: 0, duration: 0.3, ease: 'power2.out' }, 0.3)
-  tl.to(state, { integratorAccent: 1, duration: 0.3, ease: 'power2.out' }, 0.5)
+  // After unmorph: snap fills behind colorFadeout, then fade colors in (mirrors playTeams step 0)
+  tl.call(() => {
+    state.colorFadeout = 1
+    state.integratorDropFill = 1; state.barFill = 1; state.stemFill = 1; state.topConnectorFill = 1
+    state.redLineFade = 1
+    state.greenTopFill = 1; state.greenStemFill = 1
+    state.greenBarLeft = 1; state.greenBarRight = 1; state.greenWorkerDropFill = 1
+  }, undefined, undefined, 0.8)
+  tl.to(state, { colorFadeout: 0, duration: 0.5, ease: 'power2.out' }, 0.8)
+  tl.to(state, { greenWorkers: 1, greenHuman: 0.4, greenOrchestrator: 0.4, duration: 0.5, ease: 'power2.out' }, 0.8)
 }
 
 // --- Phase dispatchers ---
@@ -579,6 +657,10 @@ function handleForward(clicks: number) {
     case 'animatingPhase1': case 'reversingPhase1':
       snapToPhase1(); break
     case 'phase1':
+      if (clicks >= props.rolesRevealClick) playRolesReveal(); break
+    case 'animatingRolesReveal': case 'reversingRolesReveal':
+      snapToRolesReveal(); break
+    case 'rolesReveal':
       if (clicks >= props.rolesClick) playPhase2(); break
     case 'animatingPhase2': case 'reversingPhase2':
       snapToPhase2(); break
@@ -614,6 +696,10 @@ function handleBackward(clicks: number) {
     case 'phase2':
       if (clicks < props.rolesClick) reversePhase2(); break
     case 'animatingPhase2': case 'reversingPhase2':
+      snapToRolesReveal(); break
+    case 'rolesReveal':
+      if (clicks < props.rolesRevealClick) reverseRolesReveal(); break
+    case 'animatingRolesReveal': case 'reversingRolesReveal':
       snapToPhase1(); break
     case 'phase1':
       if (clicks < props.click) reversePhase1(); break
@@ -639,6 +725,7 @@ function blockEvent(e: Event) {
 function skipAnimForward() {
   switch (phase) {
     case 'animatingPhase1': snapToPhase1(); break
+    case 'animatingRolesReveal': snapToRolesReveal(); break
     case 'animatingPhase2': snapToPhase2(); break
     case 'animatingEscalation': snapToEscalationComplete(); break
     case 'animatingDelegation': snapToDelegationComplete(); break
@@ -680,6 +767,7 @@ function initSlide() {
   else if (clicks >= props.delegationClick) snapToDelegationComplete()
   else if (clicks >= props.escalationClick) snapToEscalationComplete()
   else if (clicks >= props.rolesClick) snapToPhase2()
+  else if (clicks >= props.rolesRevealClick) snapToRolesReveal()
   else if (clicks >= props.click) snapToPhase1()
   else snapToIdle()
 }
@@ -724,7 +812,7 @@ onMounted(() => {
       <!-- New Orchestrator (grows in during phase 4 step 2) -->
       <div class="agent-teams-new-orch" :style="{ maxHeight: state.newOrchHeight + 'px' }">
         <div class="agent-teams-level">
-          <div class="agent-teams-box highlight" :style="{ opacity: state.newOrchestratorOpacity }">
+          <div class="agent-teams-box highlight" :style="newOrchestratorStyle()">
             <carbon:machine-learning-model /><span>Team Orchestrator</span>
           </div>
         </div>
@@ -829,6 +917,13 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </div>
+    <!-- Abbreviation legend -->
+    <div class="agent-teams-legend" :style="{ opacity: state.legendOpacity }">
+      <span><b>F</b> Frontend</span>
+      <span><b>B</b> Backend</span>
+      <span><b>D</b> Database</span>
+      <span><b>I</b> Integrator</span>
     </div>
   </div>
 </template>
