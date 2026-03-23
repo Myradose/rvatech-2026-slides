@@ -490,7 +490,7 @@ transition: section
 
 <!--
 (Let the AnimatedText animation play out)
-"You've seen a model race, design exploration, and fire-and-forget. All powered by the same infrastructure. But we're just scratching the surface. What else becomes possible?"
+"You've seen three models go head to head, three design directions built in parallel, and agents kicked off to work while we moved on. All powered by the same infrastructure. But we're just scratching the surface. What else becomes possible?"
 -->
 
 ---
