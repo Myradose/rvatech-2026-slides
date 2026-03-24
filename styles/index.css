@@ -1040,10 +1040,6 @@ li::marker {
   position: absolute;
   top: 0;
   left: 0;
-  width: 133.33%;
-  height: 133.33%;
-  transform: scale(0.75);
-  transform-origin: top left;
   border: none;
 }
 
@@ -1072,10 +1068,14 @@ li::marker {
   opacity: 0.6;
 }
 
+.demo-viewer-outer {
+  position: relative;
+}
+
 .demo-toggle-btn {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  top: -30px;
+  right: 0;
   padding: 4px 10px;
   font-size: 0.7rem;
   background: rgba(255, 255, 255, 0.08);
@@ -1090,6 +1090,71 @@ li::marker {
 .demo-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   color: var(--color-text);
+}
+
+.demo-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* Show Demo button */
+.demo-show-btn {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 4rem);
+  transform: translateX(-50%);
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 2;
+  animation: demo-btn-fade-in 0.4s ease 0.6s both;
+}
+
+@keyframes demo-btn-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Hide button in portal next-slide preview */
+.portal-content .demo-show-btn {
+  display: none;
+}
+
+.demo-show-btn:hover {
+  background: rgba(245, 158, 11, 0.18);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+/* Muted variant for dev/presenter mode */
+.demo-show-btn.demo-show-btn-muted {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.demo-show-btn.demo-show-btn-muted:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  box-shadow: none;
+}
+
+/* Fire and Forget slide */
+.fire-forget-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 0 40px;
 }
 
 /* ========================================

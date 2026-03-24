@@ -299,12 +299,9 @@ transition: section
 
 ---
 layout: none
-clicks: 1
 ---
 
-<DemoSlide title="Meet the App" subtitle="A simple fullstack application: users and products." :clicks="$clicks">
-  <DemoViewer src="app" />
-</DemoSlide>
+<DemoSlide title="Meet the App" subtitle="A simple fullstack application: users and products." />
 
 <!--
 - Simple fullstack app: users and products, basic CRUD
@@ -325,15 +322,15 @@ transition: none
 <div class="model-options">
 
 <div v-click v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-<p class="model-name">Claude?</p>
+<p class="model-name">Haiku?</p>
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-<p class="model-name">Gemini?</p>
+<p class="model-name">Sonnet?</p>
 </div>
 
 <div v-click v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
-<p class="model-name">GPT?</p>
+<p class="model-name">Opus?</p>
 </div>
 
 </div>
@@ -343,7 +340,7 @@ transition: none
 <DoctorStrangePortal :ring-size="360" />
 
 <!--
-- CLICK 1/2/3: Reveal Claude, Gemini, GPT. Pause between each.
+- CLICK 1/2/3: Reveal Haiku, Sonnet, Opus. Pause between each.
 - CLICK 4: "Instead of picking one... let's do what Doctor Strange would do."
 - CLICK 5: "Let's open a portal to all three." Then SILENCE -- let animation land.
 - Absorb portal 2-3 sec.
@@ -353,21 +350,18 @@ transition: none
 ---
 layout: none
 transition: none
-clicks: 1
 ---
 
-<DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." :clicks="$clicks">
-  <DemoViewer src="pocketManager" />
-</DemoSlide>
+<DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." video="/fallback-redesign-demo.webm" />
 
 <!--
 ORIENT:
-- Grid = 3 pockets (Claude, Gemini, GPT), each sandboxed dev env
-- All running Claude Code, each powered by its model (via Claude Code Router)
+- Grid = 3 pockets (Haiku, Sonnet, Opus), each sandboxed dev env
+- All running Claude Code, each pocket using a different Claude model tier
 - Toggle between terminal, live frontend, workspace views
 
 TYPE PROMPT:
-- Type in Claude pocket, read aloud. Paste into other two.
+- Type in one pocket, read aloud. Paste into other two.
 
 NARRATE:
 - Agents exploring codebase, planning changes
@@ -402,9 +396,9 @@ clicks: 4
     <span class="arch-label">Docker</span>
   </div>
   <div v-click="2" class="env-containers-row" v-motion :initial="{ opacity: 0, y: -12 }" :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }">
-    <div class="env-box"><carbon:container-software /><span>Claude</span></div>
-    <div class="env-box"><carbon:container-software /><span>Gemini</span></div>
-    <div class="env-box"><carbon:container-software /><span>GPT</span></div>
+    <div class="env-box"><carbon:container-software /><span>Haiku</span></div>
+    <div class="env-box"><carbon:container-software /><span>Sonnet</span></div>
+    <div class="env-box"><carbon:container-software /><span>Opus</span></div>
   </div>
   <div v-click="3" class="arch-pocket-detail" v-motion :initial="{ opacity: 0 }" :enter="{ opacity: 1, transition: { duration: 400 } }">
     Claude Code config, application stack, init script
@@ -424,12 +418,9 @@ clicks: 4
 
 ---
 layout: none
-clicks: 1
 ---
 
-<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." :clicks="$clicks">
-  <DemoViewer src="pocketManager" />
-</DemoSlide>
+<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." video="/fallback-ui-feature-demo.webm" />
 
 <!--
 - Fork winner twice -> Tabs, Accordions, Side Nav
@@ -448,15 +439,12 @@ WRAP UP:
 
 ---
 layout: none
-clicks: 1
 ---
 
-<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." :clicks="$clicks">
-  <DemoViewer src="pocketManager" />
-</DemoSlide>
+<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." />
 
 <!--
-- CLICK: Kick off 3 agents building checkout page (all Claude)
+- Kick off 3 agents building checkout page (all Claude)
 - They work in background while we talk
 - 15-20 sec max. "By Q&A, let's see if they've finished."
 -->
