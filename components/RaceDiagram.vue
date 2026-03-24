@@ -3,7 +3,7 @@
  * RaceDiagram — GSAP-animated racing lanes with compare phase
  *
  * Phase state machine (fully reversible):
- *   idle → racing → raceComplete → comparing → compareComplete
+ *   idle → racing → raceComplete → (dimClick) → raceDimmed → comparing → compareComplete
  *
  * Forward during animation: skips to end state.
  * Backward during animation: cancels and snaps to previous state.
@@ -17,10 +17,13 @@ import gsap from 'gsap'
 const props = withDefaults(defineProps<{
   /** Which click number triggers the race */
   click?: number
+  /** Which click number dims the losers (after race holds at green/red) */
+  dimClick?: number
   /** Which click number triggers the compare phase (losers resume) */
   compareClick?: number
 }>(), {
   click: 1,
+  dimClick: 0,
   compareClick: 0,
 })
 
@@ -30,6 +33,7 @@ const isInteractive = computed(() => ['slide', 'presenter'].includes($renderCont
 let activeTl: gsap.core.Timeline | null = null
 
 type Phase = 'idle' | 'racing' | 'raceComplete' | 'reversingRace'
+  | 'dimming' | 'raceDimmed' | 'reversingDim'
   | 'comparing' | 'compareComplete' | 'reversingCompare'
 let phase: Phase = 'idle'
 
@@ -103,6 +107,28 @@ function snapToRaceComplete() {
     } else {
       state.width = loserFinalWidth(i)
       state.background = RED
+      state.laneOpacity = '1'
+      state.checkOpacity = '0'
+      state.checkScale = 'scale(0.5)'
+    }
+  })
+}
+
+function snapToRaceDimmed() {
+  killActive()
+  phase = 'raceDimmed'
+  lanes.forEach((lane, i) => {
+    const state = barState[i]
+    laneProgress[i].value = lane.finalPercent
+    if (lane.winner) {
+      state.width = '100%'
+      state.background = GREEN
+      state.laneOpacity = '1'
+      state.checkOpacity = '1'
+      state.checkScale = 'scale(1)'
+    } else {
+      state.width = loserFinalWidth(i)
+      state.background = RED
       state.laneOpacity = '0.3'
       state.checkOpacity = '0'
       state.checkScale = 'scale(0.5)'
@@ -155,18 +181,45 @@ function playRace() {
   tl.to(barState[winnerIdx], { background: GREEN, duration: 0.3, ease: 'power2.out' }, RACE_DURATION - 0.1)
   tl.to(barState[winnerIdx], { checkOpacity: '1', checkScale: 'scale(1)', duration: 0.3, ease: 'back.out(2)' }, RACE_DURATION - 0.1)
 
-  // Losers turn red at the same moment winner turns green, hold, then dim
+  // Losers turn red at the same moment winner turns green (no dim yet — that's a separate click)
   lanes.forEach((lane, i) => {
     if (lane.winner) return
     tl.to(barState[i], { background: RED, duration: 0.2, ease: 'power2.out' }, RACE_DURATION - 0.1)
-    tl.to(barState[i], { laneOpacity: '0.3', duration: 0.5, ease: 'power2.inOut' }, RACE_DURATION + 0.8)
+  })
+}
+
+function playDim() {
+  killActive()
+  phase = 'dimming'
+  const tl = gsap.timeline({
+    onComplete: () => { activeTl = null; phase = 'raceDimmed' },
+  })
+  activeTl = tl
+
+  lanes.forEach((lane, i) => {
+    if (lane.winner) return
+    tl.to(barState[i], { laneOpacity: '0.3', duration: 0.5, ease: 'power2.inOut' }, 0)
+  })
+}
+
+function reverseDim() {
+  killActive()
+  phase = 'reversingDim'
+  const tl = gsap.timeline({
+    onComplete: () => { activeTl = null; snapToRaceComplete() },
+  })
+  activeTl = tl
+
+  lanes.forEach((lane, i) => {
+    if (lane.winner) return
+    tl.to(barState[i], { laneOpacity: '1', duration: 0.3, ease: 'power2.out' }, 0)
   })
 }
 
 function playCompare() {
   killActive()
-  // Ensure race end state is fully established
-  snapToRaceComplete()
+  // Ensure dimmed state is fully established
+  snapToRaceDimmed()
   phase = 'comparing'
   const tl = gsap.timeline({
     onComplete: () => { activeTl = null; phase = 'compareComplete' },
@@ -210,7 +263,7 @@ function reverseCompare() {
   killActive()
   phase = 'reversingCompare'
   const tl = gsap.timeline({
-    onComplete: () => { activeTl = null; snapToRaceComplete() },
+    onComplete: () => { activeTl = null; snapToRaceDimmed() },
   })
   activeTl = tl
 
@@ -222,7 +275,7 @@ function reverseCompare() {
     tl.set(state, { background: '' }, 0.1)
     tl.to(state, { width: loserFinalWidth(i), duration: 0.6, ease: 'power2.inOut' }, 0.1)
     tl.to(state, { background: RED, duration: 0.3, ease: 'power2.out' }, 0.5)
-    tl.to(state, { laneOpacity: '0.3', duration: 0.4, ease: 'power2.inOut' }, 0.5)
+    tl.to(state, { laneOpacity: '0.3', duration: 0.3, ease: 'power2.inOut' }, 0.7)
   })
 }
 
@@ -240,6 +293,15 @@ function handleForward(clicks: number) {
       snapToRaceComplete()
       break
     case 'raceComplete':
+      if (props.dimClick && clicks >= props.dimClick) playDim()
+      break
+    case 'dimming':
+      snapToRaceDimmed()
+      break
+    case 'reversingDim':
+      snapToRaceDimmed()
+      break
+    case 'raceDimmed':
       if (props.compareClick && clicks >= props.compareClick) playCompare()
       break
     case 'comparing':
@@ -257,9 +319,18 @@ function handleBackward(clicks: number) {
       if (props.compareClick && clicks < props.compareClick) reverseCompare()
       break
     case 'comparing':
-      if (props.compareClick && clicks < props.compareClick) snapToRaceComplete()
+      if (props.compareClick && clicks < props.compareClick) snapToRaceDimmed()
       break
     case 'reversingCompare':
+      snapToRaceDimmed()
+      break
+    case 'raceDimmed':
+      if (props.dimClick && clicks < props.dimClick) reverseDim()
+      break
+    case 'dimming':
+      if (props.dimClick && clicks < props.dimClick) snapToRaceComplete()
+      break
+    case 'reversingDim':
       snapToRaceComplete()
       break
     case 'raceComplete':
@@ -290,6 +361,8 @@ onSlideEnter(() => {
   const clicks = nav.clicks.value
   if (props.compareClick && clicks >= props.compareClick) {
     snapToCompareComplete()
+  } else if (props.dimClick && clicks >= props.dimClick) {
+    snapToRaceDimmed()
   } else if (clicks >= props.click) {
     snapToRaceComplete()
   } else {

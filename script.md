@@ -203,23 +203,23 @@ Here's a simple fullstack application. Users and products, basic CRUD. The UI is
 
 ---
 
-## Slide 17 -- "What If?" (Section Break)
-
-(Let the AnimatedText animation play out)
-
-"You've seen three models go head to head, three design directions built in parallel, and agents kicked off to work while we moved on. All powered by the same infrastructure. But we're just scratching the surface. What else becomes possible?"
-
----
-
-## Slide 18 -- What If: Race & Compare
+## Slide 17 -- Race & Compare
 
 What if you gave the same task to three pockets and took the first one to finish, discarding the rest? That's the race approach. Or you let them all finish and compare the results, which is what you saw in the first demo. Maybe one took longer but produced cleaner, more maintainable code. And this works across different agents, different LLMs, or different approaches. You're exploring multiple paths at once instead of betting on one.
 
 ---
 
-## Slide 19 -- What If: Beyond Developers
+## Slide 18 -- Beyond Developers
 
 Here's something I think about a lot. These powerful AI skills already exist: things like generating presentations, analyzing data, creating documents. Anthropic has an official PowerPoint skill for Claude Code, for example, and it's genuinely good. But right now, to use it, you need to install a CLI, navigate a terminal, manually approve every script execution. That's a non-starter for most people in an organization. But what if you put a simple frontend in front of it? An employee fills out a form with their topic, brand guidelines, source material. Behind the scenes, an agent orchestrates the work. And it all executes inside a pocket where scripts can run freely without any risk. The employee never sees a terminal, never has to approve random Python scripts that a skill wants to run, never worries about what's happening under the hood. The developer builds the workflow once. Everyone benefits.
+
+---
+
+## Slide 19 -- "What If?" (Section Break)
+
+(Let the AnimatedText animation play out)
+
+"What else becomes possible?"
 
 ---
 

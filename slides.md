@@ -462,41 +462,28 @@ clicks: 1
 -->
 
 ---
-layout: center
-transition: section
+clicks: 5
 ---
 
-<AnimatedText text='"What If?"' tag="h1" :stagger="0.15" :duration="0.6" />
-
-<!--
-- Wait for animation
-- Recap: 3 models head-to-head, 3 design directions, fire-and-forget
-- "We're just scratching the surface. What else becomes possible?"
--->
-
----
-clicks: 4
----
-
-# What If: Race & Compare
+# Race & Compare
 
 - **Multiple pockets, same task** - race them and take the first result
 
-<div v-click="2" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<div v-click="3" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 - Or let them **all finish** and compare the results side by side
 
 </div>
 
-<span v-click="3" class="hidden" />
+<span v-click="4" class="hidden" />
 
-<div v-click="4" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
+<div v-click="5" v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }">
 
 - Works across **different agents**, **different LLMs**, or **different approaches**
 
 </div>
 
-<RaceDiagram :click="1" :compare-click="3" />
+<RaceDiagram :click="1" :dim-click="2" :compare-click="4" />
 
 <!--
 - Race: take first to finish, discard the rest
@@ -507,7 +494,7 @@ clicks: 4
 
 ---
 
-# What If: Beyond Developers
+# Beyond Developers
 
 <div class="beyond-dev-layout">
 <div class="beyond-dev-bullets">
@@ -556,6 +543,18 @@ clicks: 4
 - Simple frontend + agent + pocket = accessible to everyone
 - Employee fills a form, agent does the work in a sandbox
 - "Build the workflow once. Everyone benefits."
+-->
+
+---
+layout: center
+transition: section
+---
+
+<AnimatedText text='"What If?"' tag="h1" :stagger="0.15" :duration="0.6" />
+
+<!--
+- Wait for animation
+- "What else becomes possible?"
 -->
 
 ---
