@@ -352,7 +352,7 @@ layout: none
 transition: none
 ---
 
-<DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." video="/fallback-redesign-demo.webm" />
+<DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." video="/redesign-demo.webm" />
 
 <!--
 ORIENT:
@@ -421,7 +421,7 @@ clicks: 4
 layout: none
 ---
 
-<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." video="/fallback-ui-feature-demo.webm" />
+<DemoSlide title="Live Demo: Design Exploration" subtitle="Three pockets. Three UI approaches. Tabs, accordions, or side navigation." video="/ui-feature-demo.webm" />
 
 <!--
 - Fork winner twice -> Tabs, Accordions, Side Nav
@@ -442,7 +442,7 @@ WRAP UP:
 layout: none
 ---
 
-<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." />
+<DemoSlide title="Fire and Forget" subtitle="Three agents building a checkout page. They'll work while we talk." video="/fire-and-forget-demo.webm" />
 
 <!--
 - Kick off 3 agents building checkout page (all Claude)
