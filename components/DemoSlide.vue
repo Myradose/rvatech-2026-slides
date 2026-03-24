@@ -17,6 +17,7 @@ defineProps<{
 }>()
 
 const isProd = import.meta.env.PROD
+const base = import.meta.env.BASE_URL ?? '/'
 const showDemo = ref(false)
 
 function onKeydown(e: KeyboardEvent) {
@@ -53,7 +54,7 @@ onUnmounted(() => {
       <div class="demo-viewer-wrap">
         <video
           class="demo-video"
-          :src="video"
+          :src="video.startsWith('/') ? base + video.slice(1) : video"
           controls
         />
       </div>
