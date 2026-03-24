@@ -362,6 +362,7 @@ ORIENT:
 
 TYPE PROMPT:
 - Type in one pocket, read aloud. Paste into other two.
+- Prompt: "Read the CLAUDE.md file in the ui repo and activate the frontend design skill before starting anything. Your task is to provide a full redesign of the frontend. Pick a bold, distinctive aesthetic extreme to base all of your design decisions around. Commit fully, no half measures. Enhance the styling with highly customized components and a cohesive color palette. Verify by checking docker logs and testing with the playwright-cli skill afterwards."
 
 NARRATE:
 - Agents exploring codebase, planning changes
@@ -447,6 +448,9 @@ layout: none
 - Kick off 3 agents building checkout page (all Claude)
 - They work in background while we talk
 - 15-20 sec max. "By Q&A, let's see if they've finished."
+
+TYPE PROMPT:
+- Prompt: "You are adding a shopping and orders feature to this fullstack application. Read the CLAUDE.md file in the ui repo and activate the playwright-cli skill before starting anything. Add two pages accessible from top navigation: Dashboard and Shopping. Dashboard shows Users, Products, and Orders data. Shopping is a page where you select which user you are acting as (dropdown), browse products and add them to your cart, view your cart and checkout. Checkout creates an Order that persists and shows up on the Dashboard. Orders must persist in the database. After implementing, check container logs for errors, then test with the playwright-cli skill to verify your new implementation works correctly and existing functionality still works. Fix any issues and re-test, then commit with a descriptive message."
 -->
 
 ---

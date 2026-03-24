@@ -996,9 +996,9 @@ li::marker {
 
 .demo-subtitle {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   top: calc(50% - 1rem);
-  transform: translateX(-50%);
   text-align: center;
   color: var(--color-text-muted);
   font-size: 1rem;
@@ -1103,7 +1103,7 @@ li::marker {
 .demo-show-btn {
   position: absolute;
   left: 50%;
-  top: calc(50% + 4rem);
+  top: calc(50% + 3rem);
   transform: translateX(-50%);
   padding: 0.6rem 1.5rem;
   font-size: 0.9rem;
