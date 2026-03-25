@@ -352,7 +352,7 @@ layout: none
 transition: none
 ---
 
-<DemoSlide title="Live Demo: Multi-Model Race" subtitle="Three models. Three pockets. Same task. You vote on the winner." video="/redesign-demo.webm" />
+<DemoSlide title="Live Demo: Multi-Model Redesign" subtitle="Three models. Three pockets. Same task. You vote on the winner." video="/redesign-demo.webm" />
 
 <!--
 ORIENT:

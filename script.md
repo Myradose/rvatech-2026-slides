@@ -121,7 +121,7 @@ Here's a simple fullstack application. Users and products, basic CRUD. The UI is
 
 ---
 
-## Slide 13 -- Live Demo: Multi-Model Race
+## Slide 13 -- Live Demo: Multi-Model Redesign
 
 (CLICK - Pocket Manager appears with three pockets in grid view, Claude Code open in each, idle)
 
