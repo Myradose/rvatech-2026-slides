@@ -658,7 +658,6 @@ layout: statement
 <div v-motion :initial="{ opacity: 0, y: 24 }" :enter="{ opacity: 1, y: 0, transition: { delay: 600, duration: 500 } }">
 
 - **[dtormoen/tsk](https://github.com/dtormoen/tsk-tsk)** -- foundation for pocket orchestration
-- **[Claude Code Router](https://github.com/musistudio/claude-code-router)** -- multi-model routing used in the demo
 - **[Cole Medin](https://www.youtube.com/@ColeMedin)** -- Claude Code & agentic engineering
 
 </div>
@@ -669,7 +668,6 @@ layout: statement
 - Everything is open source, experimental/POC, not production-ready
 - Slides available now, recording after summit
 - dtormoen/tsk is the original repo I forked
-- Claude Code Router enabled the multi-model race demo
 - Cole Medin's channel was a key inspiration
 -->
 

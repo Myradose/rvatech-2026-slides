@@ -91,14 +91,14 @@ Here's a simple fullstack application. Users and products, basic CRUD. The UI is
 [SETUP - slide appears with title and subtitle visible]
 "Angular Material needs to be set up on this app. So here's the question: which AI model handles it best?"
 
-[CLICK 1 - Claude appears]
-"Claude?"
+[CLICK 1 - Haiku appears]
+"Haiku?"
 
-[CLICK 2 - Gemini appears]
-"Gemini?"
+[CLICK 2 - Sonnet appears]
+"Sonnet?"
 
-[CLICK 3 - GPT appears]
-"GPT?"
+[CLICK 3 - Opus appears]
+"Opus?"
 
 (Pause between each reveal. Let each one land. Don't rush.)
 
@@ -126,15 +126,15 @@ Here's a simple fullstack application. Users and products, basic CRUD. The UI is
 (CLICK - Pocket Manager appears with three pockets in grid view, Claude Code open in each, idle)
 
 [ORIENT THE AUDIENCE]
-"This is a grid layout where each panel represents a pocket, which is a sandboxed full development environment. This one is for Claude, this one is for Gemini, and this one is for GPT. All three are running Claude Code, but each one is powered by its respective model. Claude Code doesn't normally support other models, but there's an open source tool called Claude Code Router that makes this possible."
+"This is a grid layout where each panel represents a pocket, which is a sandboxed full development environment. This one is Haiku, this one is Sonnet, and this one is Opus. All three are running Claude Code, each configured with a different model tier."
 (Point to the panel headers showing each pocket's name.)
 "At the top you'll see a toggle where I can switch these panels between different views. I can show the terminal, the live frontend, or even the agent's workspace so we can watch it use the browser."
 
 [TYPE THE PROMPT]
 "Let me type the prompt that each one is going to use."
-(Type the prompt live in the Claude pocket. Read it out as you type so the audience knows the task.)
+(Type the prompt live in the Haiku pocket. Read it out as you type so the audience knows the task.)
 "Now I'm going to paste this into the other two pockets."
-(Paste and send in the Gemini and GPT pockets.)
+(Paste and send in the Sonnet and Opus pockets.)
 
 [NARRATE WHILE AGENTS WORK]
 "You can see all three are getting to work. They're exploring the codebase so they can plan out their changes."
@@ -279,7 +279,7 @@ I hope that by this point I've accomplished my goal of transforming how you all 
 
 Everything is open source and linked from the QR code at the end. Fair warning - this is very much experimental, a proof of concept, not production-ready. The presentation slides are available now, and the recording will go up after the summit.
 
-A few callouts. tsk provided the baseline that made this proof of concept a reality. Claude Code Router is what made the multi-model race demo possible - it lets you route Claude Code requests to different model providers. And Cole Medin - if you don't follow him, you should. He's one of the primary reasons I invested so heavily in Claude Code well before the recent hype. His content on Claude Code and agentic engineering has been invaluable.
+A few callouts. tsk provided the baseline that made this proof of concept a reality. And Cole Medin - if you don't follow him, you should. He's one of the primary reasons I invested so heavily in Claude Code well before the recent hype. His content on Claude Code and agentic engineering has been invaluable.
 
 None of this information should be gatekept.
 
