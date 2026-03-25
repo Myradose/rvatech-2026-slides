@@ -930,9 +930,24 @@ function onKeydownCapture(e: KeyboardEvent) {
   // All other cases: let through to Slidev, watcher handles the snap
 }
 
+// Guard: Slidev navigates on pointerdown (play.vue), so the click event
+// from the same tap/click arrives AFTER the watcher already started the
+// animation. Without this guard the click handler would immediately skip it.
+let pointerNavGuard = false
+function onPointerDown(e: PointerEvent) {
+  if (e.button === 0) pointerNavGuard = true
+}
+
 function onClickCapture(e: MouseEvent) {
+  const wasPointer = pointerNavGuard
+  pointerNavGuard = false
   if (!active || !isAnimating()) return
   if ((e.target as HTMLElement).closest('.slidev-nav, nav, button, a')) return
+  if (wasPointer) {
+    // Slidev already navigated on pointerdown — block the click but don't skip
+    blockEvent(e)
+    return
+  }
   if (phase.startsWith('animating')) {
     blockEvent(e)
     skipAnimForward()
@@ -944,6 +959,7 @@ let active = false
 function initSlide() {
   if (active) return
   active = true
+  window.addEventListener('pointerdown', onPointerDown, { capture: true })
   window.addEventListener('keydown', onKeydownCapture, { capture: true })
   window.addEventListener('click', onClickCapture, { capture: true })
   const clicks = nav.clicks.value
@@ -975,6 +991,8 @@ onSlideEnter(() => {
 onSlideLeave(() => {
   if (!isInteractive.value) return
   active = false
+  pointerNavGuard = false
+  window.removeEventListener('pointerdown', onPointerDown, { capture: true })
   window.removeEventListener('keydown', onKeydownCapture, { capture: true })
   window.removeEventListener('click', onClickCapture, { capture: true })
   killActive(); snapToIdle()
