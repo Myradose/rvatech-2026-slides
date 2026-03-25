@@ -56,7 +56,7 @@ const barState = reactive(
 // Different exponents create lead changes:
 //   < 1 = fast start, slow finish (early leader)
 //   > 1 = slow start, fast finish (comes from behind)
-const RACE_DURATION = 3.5
+const RACE_DURATION = 2.0
 const lanes = [
   { label: 'Agent A', winner: false, finalPercent: 55,
     curve: (t: number) => Math.pow(t, 0.35) },   // rockets out early, stalls fast
@@ -230,11 +230,11 @@ function playCompare() {
     if (lane.winner) return
     const state = barState[i]
 
-    tl.to(state, { laneOpacity: '1', duration: 0.4, ease: 'power2.out' }, 0)
+    tl.to(state, { laneOpacity: '1', duration: 0.3, ease: 'power2.out' }, 0)
     tl.set(state, { background: '' }, 0)
-    tl.to(state, { width: '100%', duration: 1.2, ease: 'power2.inOut' }, 0.3)
-    tl.to(state, { background: GREEN, duration: 0.3, ease: 'power2.out' }, 1.3)
-    tl.to(state, { checkOpacity: '1', checkScale: 'scale(1)', duration: 0.3, ease: 'back.out(2)' }, 1.4)
+    tl.to(state, { width: '100%', duration: 0.7, ease: 'power2.inOut' }, 0.2)
+    tl.to(state, { background: GREEN, duration: 0.2, ease: 'power2.out' }, 0.75)
+    tl.to(state, { checkOpacity: '1', checkScale: 'scale(1)', duration: 0.25, ease: 'back.out(2)' }, 0.8)
   })
 }
 
