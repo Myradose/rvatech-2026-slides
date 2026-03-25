@@ -16,8 +16,8 @@
  *   <DoctorStrangePortal :ring-size="400" :next-slide="15" />
  *   <DoctorStrangePortal :sparks="false" :haze="false" />  <!-- core-only minimal portal -->
  */
-import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useNav, useSlideContext, onSlideEnter, onSlideLeave } from '@slidev/client'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { useNav, useSlideContext, onSlideEnter, onSlideLeave, sharedState } from '@slidev/client'
 import SlideContainer from '@slidev/client/internals/SlideContainer.vue'
 import SlideWrapper from '@slidev/client/internals/SlideWrapper.vue'
 import { getSlide } from '@slidev/client/logic/slides.ts'
@@ -98,6 +98,21 @@ const sceneOpts: PortalSceneOpts = reactive({
 
 const scene = usePortalScene(portalState, sceneOpts)
 
+// --- Multi-window presenter sync ---
+// In presenter mode with two windows (presenter + audience), the portal
+// intercepts keyboard events in the presenter window. The audience window
+// never receives those events. We sync animation commands through Slidev's
+// sharedState so the audience window plays the same animations.
+
+const isDriver = computed(() => $renderContext.value === 'presenter')
+let followingSync = false
+let lastSyncT = Date.now()
+
+function syncCommand(action: string) {
+  if (!isDriver.value) return
+  ;(sharedState as any).portalCmd = { slide: $page.value, action, t: Date.now() }
+}
+
 // --- Timeline orchestration ---
 
 const timelines = usePortalTimelines({
@@ -108,8 +123,8 @@ const timelines = usePortalTimelines({
   canvasRef,
   contentOverlayRef,
   ringSize: props.ringSize,
-  navigateNext: () => nav.nextSlide(),
-  navigatePrev: () => nav.prevSlide(true),
+  navigateNext: () => { const skip = followingSync; followingSync = false; if (!skip) nav.nextSlide() },
+  navigatePrev: () => { const skip = followingSync; followingSync = false; if (!skip) nav.prevSlide(true) },
   setNavIntercept: (v) => { navControl.interceptActive = v },
   onProgress: (p) => debugPanelRef.value?.setProgress(p),
   onStatusChange: (s) => { debugStatus.value = s },
@@ -123,12 +138,31 @@ const navControl = usePortalNavigation({
   clicksTotal: () => nav.clicksTotal.value,
   isDebugElement: (target) => debugPanelRef.value?.containsElement(target as Node) ?? false,
   getZoomState: timelines.getZoomState,
-  onAdvance: timelines.advancePhase,
-  onRetreat: timelines.retreatPhase,
-  onSkipZoom: timelines.skipZoomToEnd,
-  onCancelZoom: timelines.cancelZoomToPhase2,
-  onForwardDuringReverseZoom: timelines.forwardDuringReverseZoom,
+  onAdvance: () => { timelines.advancePhase(); syncCommand('advance') },
+  onRetreat: () => { timelines.retreatPhase(); syncCommand('retreat') },
+  onSkipZoom: () => { timelines.skipZoomToEnd(); syncCommand('skipZoom') },
+  onCancelZoom: () => { timelines.cancelZoomToPhase2(); syncCommand('cancelZoom') },
+  onForwardDuringReverseZoom: () => { timelines.forwardDuringReverseZoom(); syncCommand('fwdRevZoom') },
 })
+
+// Watch for synced commands from the presenter window (audience window only)
+watch(
+  () => (sharedState as any).portalCmd?.t,
+  () => {
+    const cmd = (sharedState as any).portalCmd
+    if (!cmd || cmd.slide !== $page.value || cmd.t <= lastSyncT || isDriver.value) return
+    lastSyncT = cmd.t
+    followingSync = true
+    const actions: Record<string, (() => void) | undefined> = {
+      advance: timelines.advancePhase,
+      retreat: timelines.retreatPhase,
+      skipZoom: timelines.skipZoomToEnd,
+      cancelZoom: timelines.cancelZoomToPhase2,
+      fwdRevZoom: timelines.forwardDuringReverseZoom,
+    }
+    actions[cmd.action]?.()
+  },
+)
 
 // --- Lifecycle ---
 
