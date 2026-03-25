@@ -301,7 +301,7 @@ transition: section
 layout: none
 ---
 
-<DemoSlide title="Meet the App" subtitle="A simple fullstack application: users and products." />
+<DemoSlide title="Meet the App" subtitle="A simple fullstack application: users and products." video="/meet-the-app.webm" />
 
 <!--
 - Simple fullstack app: users and products, basic CRUD
