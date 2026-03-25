@@ -25,17 +25,8 @@ export interface PortalNavigationConfig {
 export function usePortalNavigation(config: PortalNavigationConfig) {
   let interceptActive = false
 
-  function onKeydown(e: KeyboardEvent) {
-    if (!interceptActive || config.isDebugElement(e.target)) return
-    const isForward = FORWARD_KEYS.includes(e.key)
-    const isBackward = BACKWARD_KEYS.includes(e.key)
-    if (!isForward && !isBackward) return
-
-    if (config.portalState.phase === 0 && isForward && config.clicks() < config.clicksTotal()) return
-    if (config.portalState.phase === 0 && isBackward && config.clicks() > 0) return
-
-    blockEvent(e)
-
+  /** Route a forward/backward intent through zoom state and phase callbacks. */
+  function dispatch(isForward: boolean) {
     const zoom = config.getZoomState()
     if (zoom.zooming) {
       if (zoom.forward) {
@@ -51,22 +42,44 @@ export function usePortalNavigation(config: PortalNavigationConfig) {
     else config.onRetreat()
   }
 
+  function onKeydown(e: KeyboardEvent) {
+    if (!interceptActive || config.isDebugElement(e.target)) return
+    const isForward = FORWARD_KEYS.includes(e.key)
+    const isBackward = BACKWARD_KEYS.includes(e.key)
+    if (!isForward && !isBackward) return
+
+    if (config.portalState.phase === 0 && isForward && config.clicks() < config.clicksTotal()) return
+    if (config.portalState.phase === 0 && isBackward && config.clicks() > 0) return
+
+    blockEvent(e)
+    dispatch(isForward)
+  }
+
   function onClickCapture(e: MouseEvent) {
     if (!interceptActive || config.isDebugElement(e.target)) return
     const target = e.target as HTMLElement
+
+    // Intercept Slidev's prev/next nav buttons so the portal handles them
+    const slidevNavBtn = target.closest<HTMLElement>(
+      'button[title="Go to previous slide"], button[title="Go to next slide"]',
+    )
+    if (slidevNavBtn) {
+      const isForward = slidevNavBtn.title === 'Go to next slide'
+      if (config.portalState.phase === 0 && isForward && config.clicks() < config.clicksTotal()) return
+      if (config.portalState.phase === 0 && !isForward && config.clicks() > 0) return
+      blockEvent(e)
+      dispatch(isForward)
+      return
+    }
+
+    // Other nav UI elements (fullscreen, slide list, etc.) — let through
     if (target.closest('.slidev-nav, nav, button, a')) return
 
+    // Generic page clicks — forward only
     if (config.portalState.phase === 0 && config.clicks() < config.clicksTotal()) return
 
     blockEvent(e)
-
-    const zoom = config.getZoomState()
-    if (zoom.zooming) {
-      if (zoom.forward) config.onSkipZoom()
-      else config.onForwardDuringReverseZoom()
-      return
-    }
-    config.onAdvance()
+    dispatch(true)
   }
 
   function attach() {
